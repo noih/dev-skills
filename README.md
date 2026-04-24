@@ -1,92 +1,49 @@
 # dev-skills
 
-A marketplace of Claude Code plugins. Currently contains:
+Personal directory of Claude Code skills, straight from my `.claude` directory.
 
-| Plugin | Description |
-| --- | --- |
-| [`road`](plugins/road) | Tool-neutral roadmap management. Work Item status auto-syncs from spec tool locations. |
+## Planning & Design
+
+- **road** — Tool-neutral roadmap management. Work Item status auto-syncs from spec tool locations (openspec, superpowers, generic plans). Supports branching a roadmap to explore alternatives.
+
+## Development Workflow
+
+- **sdd** — Three quality gates for spec-driven-development (grill / test / review) around any spec tool. Works for human and autonomous-agent runs; agents self-grill and write decision logs to `sdd-reports/<slug>.md`.
 
 ## Install
 
-Add this repo as a marketplace once, then install any plugin inside it:
+All skills install via the [`skills`](https://www.npmjs.com/package/skills) CLI:
 
 ```bash
-/plugin marketplace add noih/dev-skills
-/plugin install road@dev-skills
-/reload-plugins
+npx skills@latest add noih/dev-skills/road
+npx skills@latest add noih/dev-skills/sdd
 ```
 
-Once added, new plugins in this marketplace can be installed the same way:
+Install everything in this repo:
 
 ```bash
-/plugin install <plugin-name>@dev-skills
+npx skills@latest add noih/dev-skills --all
 ```
 
 ## Update
 
-Pull the latest marketplace manifest, then update installed plugins:
+```bash
+npx skills@latest update road
+npx skills@latest update              # update all installed skills
+```
+
+## Remove
 
 ```bash
-/plugin marketplace update dev-skills
-/plugin update road@dev-skills
-/reload-plugins
+npx skills@latest remove road
+npx skills@latest remove              # interactive select
 ```
 
-Use `/plugin update` (no args) to update every installed plugin at once.
+## Usage
 
-## Uninstall
+Once installed, trigger a skill via its matching slash command — e.g. `/road create backend`, `/sdd grill` — or let Claude Code auto-activate it from the skill's `SKILL.md` description.
 
-```bash
-/plugin uninstall road@dev-skills
-/reload-plugins
-```
-
-To remove the marketplace itself (only after uninstalling every plugin from it):
-
-```bash
-/plugin marketplace remove dev-skills
-```
-
-## Manual install (without the plugin system)
-
-```bash
-git clone https://github.com/noih/dev-skills.git
-cp -r dev-skills/plugins/road/skills/road ~/.claude/skills/
-mkdir -p ~/.claude/commands/road && cp dev-skills/plugins/road/commands/*.md ~/.claude/commands/road/
-```
-
-### Manual uninstall
-
-```bash
-rm -rf ~/.claude/skills/road ~/.claude/commands/road
-```
-
-## Repo layout
-
-```text
-dev-skills/                          # marketplace repo
-├── .claude-plugin/
-│   └── marketplace.json              # marketplace manifest — lists all plugins
-├── plugins/
-│   └── road/                         # one plugin
-│       ├── .claude-plugin/
-│       │   └── plugin.json           # plugin manifest
-│       ├── skills/road/SKILL.md
-│       └── commands/*.md
-└── README.md
-```
-
-Each plugin is self-contained inside `plugins/<plugin-name>/`. Adding a new plugin:
-
-1. Create `plugins/<new-name>/` with its own `.claude-plugin/plugin.json`
-2. Add an entry to `.claude-plugin/marketplace.json` under the `plugins` array
-3. Commit & push — users who already added the marketplace can just run `/plugin install <new-name>@dev-skills`
-
-## Plugin docs
-
-See each plugin's folder for its specific README / SKILL.md:
-
-- [`plugins/road/skills/road/SKILL.md`](plugins/road/skills/road/SKILL.md) — Roadmap skill specification
+Full CLI options: `npx skills@latest --help`.
 
 ## License
 

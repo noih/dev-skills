@@ -1,6 +1,6 @@
 ---
 name: road
-description: Manages project roadmaps — ordered lists of Work Items (WI) that point to specs. Activates in two situations. (A) Explicit roadmap operations via `/road:*` commands or natural language — create/edit/show/sync roadmaps, manage work items. (B) Spec-change side effects — whenever the user performs an action that moves, archives, or creates a spec file that could be referenced by a roadmap WI (e.g. `mv openspec/changes/add-x openspec/changes/archive/`, completing a superpowers task, creating a new spec directory), check whether any roadmap WI references that spec and update its status accordingly. Tool-neutral: links to any spec-writing tool (openspec, superpowers, plans, issues, URLs).
+description: Manages project roadmaps — ordered lists of Work Items (WI) that point to specs. Activates in two situations. (A) Explicit roadmap operations via `/road <action>` (create / edit / show / sync / branch) or natural language — create/edit/show/sync roadmaps, manage work items. (B) Spec-change side effects — whenever the user performs an action that moves, archives, or creates a spec file that could be referenced by a roadmap WI (e.g. `mv openspec/changes/add-x openspec/changes/archive/`, completing a superpowers task, creating a new spec directory), check whether any roadmap WI references that spec and update its status accordingly. Tool-neutral: links to any spec-writing tool (openspec, superpowers, plans, issues, URLs).
 ---
 
 # Roadmap Skill
@@ -13,7 +13,7 @@ Tool-neutral roadmap management. A roadmap is an ordered list of Work Items (WI)
 
 - Creating / modifying a roadmap or work item
 - Showing roadmap status
-- Running manual sync (`/road:sync` or "resync roadmaps")
+- Running manual sync (`/road sync` or "resync roadmaps")
 - Archiving / unarchiving a roadmap (user can phrase it in natural language; it's just `mv`)
 
 ### B. Spec-change side effects (automatic)
@@ -68,7 +68,7 @@ This is purely internal reasoning — no command flags, no config files.
 
 ## Manual override
 
-The user can always override status via natural language or `/road:edit`:
+The user can always override status via natural language or `/road edit`:
 
 - "WI-03 不做了" / "Skip WI-03" → `[~] Skipped`, ask for reason → Notes
 - "WI-05 is actually done" → `[v] Done`, even if no archive is detected
@@ -85,7 +85,7 @@ roadmaps/
     └── old-thing.md
 ```
 
-No index file. The filesystem is the index; summary is computed on demand by `/road:show`.
+No index file. The filesystem is the index; summary is computed on demand by `/road show`.
 
 ## Roadmap header schema
 
@@ -102,7 +102,7 @@ Example:
 **Branched from:** backend @ WI-05
 ```
 
-When present, readers should mentally prepend src's WI-01 through WI-XX as shared history; this roadmap's own WI list is everything after that divergence. `/road:show <slug> --full` renders the stitched view.
+When present, readers should mentally prepend src's WI-01 through WI-XX as shared history; this roadmap's own WI list is everything after that divergence. `/road show <slug> --full` renders the stitched view.
 
 ## Work Item schema
 
@@ -137,11 +137,11 @@ Three symbols, used both on WI (per-item) and roadmap (aggregate):
 
 ## Intents
 
-Five slash commands. Everything else is natural language.
+The skill is triggered via `/road <action> [args...]` (plus natural language). `<action>` is one of: `create`, `edit`, `show`, `sync`, `branch`. The skill dispatches internally based on the first argument; omitting it is equivalent to `/road show` (list roadmaps). Everything else flows through natural language.
 
 ### 1. Create roadmap
 
-Trigger: `/road:create <slug>` or "create a new {slug} roadmap"
+Trigger: `/road create <slug>` or "create a new {slug} roadmap"
 
 Create `roadmaps/{slug}.md` with this exact skeleton:
 
@@ -161,7 +161,7 @@ Self-bootstrap: create `roadmaps/` if it doesn't exist. If the slug is missing, 
 
 ### 2. Edit roadmap (conversational modification)
 
-Trigger: `/road:edit [slug]` or natural language ("add a WI to backend", "WI-03 不做了", "change WI-02's delivers to...")
+Trigger: `/road edit [slug]` or natural language ("add a WI to backend", "WI-03 不做了", "change WI-02's delivers to...")
 
 Opens a dialog. Any modification happens here:
 
@@ -176,7 +176,7 @@ No "delete WI" operation — use Skip + Notes for mistakes. IDs are never recycl
 
 ### 3. Show / summarize
 
-Trigger: `/road:show [slug] [--full]` or "show all roadmaps" / "{slug} progress"
+Trigger: `/road show [slug] [--full]` or "show all roadmaps" / "{slug} progress"
 
 - **No arg**: scan `roadmaps/*.md` (not `archived/`), output a summary table of all roadmaps with Status + Progress.
 - **With slug**: show that roadmap's WI list with statuses; highlight the first `[ ]` as "currently in progress". If the roadmap has a `Branched from` header, note it at the top.
@@ -185,7 +185,7 @@ Trigger: `/road:show [slug] [--full]` or "show all roadmaps" / "{slug} progress"
 
 ### 4. Sync (manual fallback)
 
-Trigger: `/road:sync [slug]` or "resync roadmaps"
+Trigger: `/road sync [slug]` or "resync roadmaps"
 
 - Scan every WI in every active roadmap (or the given slug).
 - Apply the Sync rules.
@@ -199,7 +199,7 @@ Sync is the **manual fallback**. The skill should normally stay in sync automati
 
 ### 5. Branch roadmap
 
-Trigger: `/road:branch <src-slug> <dst-slug> [--at WI-XX]` or "branch {src} into {dst}"
+Trigger: `/road branch <src-slug> <dst-slug> [--at WI-XX]` or "branch {src} into {dst}"
 
 Create a new roadmap that diverges from an existing one at a specific WI. Useful for exploring an alternative path without disturbing the source roadmap.
 
