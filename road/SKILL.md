@@ -18,25 +18,15 @@ Tool-neutral roadmap management. A roadmap is an ordered list of Work Items (WI)
 
 ## When this skill activates
 
-### A. Explicit roadmap operations
+- **A. Explicit roadmap operations** — `/road <action>` or natural-language phrasing for create / edit / show / sync / branch / archive (archive = plain `mv`).
+- **B. Spec-change side effects (automatic)** — whenever the user's action moves, creates, or deletes a spec file that a roadmap WI could reference, check every WI's `Spec:` field and apply Sync rules without needing an explicit roadmap command.
 
-- Creating / modifying a roadmap or work item
-- Showing roadmap status
-- Running manual sync (`/road sync` or "resync roadmaps")
-- Archiving / unarchiving a roadmap (user can phrase it in natural language; it's just `mv`)
-
-### B. Spec-change side effects (automatic)
-
-Whenever the user takes an action that changes a spec file's state, check every roadmap WI's `Spec:` field. If any WI points to the affected spec, update its Status per the Sync rules.
-
-Examples of triggering spec changes:
+Examples triggering B:
 
 - `mv openspec/changes/add-auth openspec/changes/archive/` → sync WI referencing it
-- User says "I archived the add-auth change" → same
+- "I archived the add-auth change" → same
 - User creates `openspec/changes/new-feature/` where a WI had `Spec: TBD` pointing there → prompt user to update the WI's Spec
 - Deleting a spec directory → do NOT auto-skip; warn the user
-
-The skill is declarative about this — the AI is expected to notice spec-file-affecting actions and apply the status sync without needing an explicit roadmap command.
 
 ## Sync rules
 
@@ -57,8 +47,6 @@ Status is derived from Spec location.
 3. **Respect manual Skipped**. `[~] Skipped` WI are never touched by sync, even if the spec later reappears. It was the user's deliberate choice.
 4. **`Spec: TBD`** is a manual marker ("I will fill this in later"). Sync ignores these WI.
 
-Auto-demote risks clobbering user intent when specs are reorganized (renamed, restructured). Promotion (archive exists → Done) is unambiguous. Everything else is manual.
-
 ## Spec tool detection
 
 When the skill needs to know which spec tool the project uses (creating a roadmap, adding a WI, running sync), it decides via this precedence:
@@ -71,9 +59,7 @@ When the skill needs to know which spec tool the project uses (creating a roadma
    If exactly one match, use it silently.
 3. **Ask the user.** If nothing is detected, or more than one marker matches, ask which to use as the primary. Remember the choice for the session.
 
-When adding a WI, pre-fill the `Spec:` field with a sensible path based on the detected tool (e.g. `openspec/changes/<kebab-title>/` when using openspec), and let the user confirm or override with `TBD` / a URL / anything else.
-
-This is purely internal reasoning — no command flags, no config files.
+When adding a WI, pre-fill `Spec:` with a path based on the detected tool (e.g. `openspec/changes/<kebab-title>/` for openspec); user confirms or overrides with `TBD` / URL / anything else. Internal reasoning — no flags, no config files.
 
 ## Manual override
 
@@ -111,7 +97,7 @@ Example:
 **Branched from:** backend @ WI-05
 ```
 
-When present, readers should mentally prepend src's WI-01 through WI-XX as shared history; this roadmap's own WI list is everything after that divergence. `/road show <slug> --full` renders the stitched view.
+Semantics: src's WI-01 through WI-XX are shared history; this roadmap's own WI list starts after the divergence. `/road show <slug> --full` renders the stitched view.
 
 ## Work Item schema
 
@@ -146,7 +132,7 @@ Three symbols, used both on WI (per-item) and roadmap (aggregate):
 
 ## Intents
 
-The skill is triggered via `/road <action> [args...]` (plus natural language). `<action>` is one of: `create`, `edit`, `show`, `sync`, `branch`. The skill dispatches internally based on the first argument; omitting it is equivalent to `/road show` (list roadmaps). Everything else flows through natural language.
+`/road <action> [args...]` or natural language. `<action>` ∈ {`create`, `edit`, `show`, `sync`, `branch`}. Omitted action = `/road show` (list roadmaps). Everything else flows through natural language.
 
 ### 1. Create roadmap
 
@@ -164,15 +150,13 @@ Create `roadmaps/{slug}.md` with this exact skeleton:
 ## Work Items
 ```
 
-`{Title}` is the title-case of the slug (`backend` → `Backend`). User can override.
-
-Self-bootstrap: create `roadmaps/` if it doesn't exist. If the slug is missing, ask for it.
+`{Title}` is title-case of the slug (`backend` → `Backend`); user may override. Self-bootstrap `roadmaps/` if missing; ask for slug if missing.
 
 ### 2. Edit roadmap (conversational modification)
 
-Trigger: `/road edit [slug]` or natural language ("add a WI to backend", "WI-03 不做了", "change WI-02's delivers to...")
+Trigger: `/road edit [slug]` or natural language ("add a WI to backend", "WI-03 不做了", "change WI-02's delivers to...").
 
-Opens a dialog. Any modification happens here:
+Any modification happens here:
 
 - **Add a WI**: auto-assign next ID (max + 1), Status `[ ] Pending`. Elicit Title, Delivers, Spec. For Delivers, ask **"what capability does the user/system gain?"** (not "what does it do"). If Spec is unknown, allow `TBD`.
 - **Skip a WI**: set Status `[~] Skipped`, strip to stub per the Skipped stub rule, ask for reason → Notes.
@@ -190,7 +174,7 @@ Trigger: `/road show [slug] [--full]` or "show all roadmaps" / "{slug} progress"
 - **No arg**: scan `roadmaps/*.md` (not `archived/`), output a summary table of all roadmaps with Status + Progress.
 - **With slug**: show that roadmap's WI list with statuses; highlight the first `[ ]` as "currently in progress". If the roadmap has a `Branched from` header, note it at the top.
 - **With slug + `--full`**: if the roadmap has `Branched from: {src} @ WI-XX`, prepend src's WI-01 through WI-XX as "inherited from {src}" (read-only display), then the roadmap's own WI. Without `--full`, only own WI are shown.
-- Progress format: `{done}/{total}[, {skipped} skipped]`. The `skipped` clause appears only when skipped > 0. Branched roadmaps compute progress over their own WI only, not inherited history.
+- Progress format: `{done}/{total}[, {skipped} skipped]` — `skipped` clause shown only when skipped > 0. Branched roadmaps compute progress over own WI, not inherited history.
 
 ### 4. Sync (manual fallback)
 
@@ -200,17 +184,13 @@ Trigger: `/road sync [slug]` or "resync roadmaps"
 - Apply the Sync rules.
 - Report: promotions made, warnings about unresolved specs, any ambiguity needing user decision, plus format/validation issues (see below).
 
-Sync is the **manual fallback**. The skill should normally stay in sync automatically via section-B triggers. Use explicit sync for:
-
-- Initial adoption (bringing an existing roadmap up to date)
-- After batch operations done outside the AI session
-- Periodic audit
+**Manual fallback** — the skill normally stays in sync via section-B triggers. Use explicit sync for: initial adoption (bringing an existing roadmap up to date), after batch operations done outside the AI session, periodic audit.
 
 ### 5. Branch roadmap
 
-Trigger: `/road branch <src-slug> <dst-slug> [--at WI-XX]` or "branch {src} into {dst}"
+Trigger: `/road branch <src-slug> <dst-slug> [--at WI-XX]` or "branch {src} into {dst}".
 
-Create a new roadmap that diverges from an existing one at a specific WI. Useful for exploring an alternative path without disturbing the source roadmap.
+Diverges a new roadmap from an existing one at a specific WI — explore alternative paths without disturbing src.
 
 Behavior:
 
@@ -230,10 +210,10 @@ Behavior:
    ## Work Items
    ```
 
-5. Do **not** copy any WI from src — dst starts empty. Shared history (WI-01 through WI-XX in src) is referenced via the `Branched from` header, not duplicated.
-6. dst's WI numbering starts fresh at WI-01 in its own namespace. Cross-roadmap refs use `{dst}/WI-XX` and `{src}/WI-XX` and do not collide.
+5. Do **not** copy any WI from src — dst starts empty. Shared history is referenced via `Branched from`, not duplicated.
+6. dst's WI numbering starts fresh at WI-01 in its own namespace. Cross-roadmap refs (`{dst}/WI-XX` vs `{src}/WI-XX`) don't collide.
 
-No merge operation. Branches are one-way divergences. If the user wants to reconcile two roadmaps, they do it manually by copying WI content between files.
+No merge operation — branches are one-way. Reconciling two roadmaps is manual (copy WI content between files).
 
 ### 6. Archive / Unarchive roadmap
 
