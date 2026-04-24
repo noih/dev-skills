@@ -87,6 +87,23 @@ roadmaps/
 
 No index file. The filesystem is the index; summary is computed on demand by `/road:show`.
 
+## Roadmap header schema
+
+Optional metadata line placed directly below the `# {Title} Roadmap` H1 (before `## Legend`):
+
+| Field | Required | Format |
+| --- | --- | --- |
+| Branched from | no | `{src-slug} @ WI-XX` — src is the source roadmap slug (no path, no extension); WI-XX is the anchor WI in src that this roadmap diverges after |
+
+Example:
+
+```markdown
+# Backend V2 Roadmap
+**Branched from:** backend @ WI-05
+```
+
+When present, readers should mentally prepend src's WI-01 through WI-XX as shared history; this roadmap's own WI list is everything after that divergence. `/road:show <slug> --full` renders the stitched view.
+
 ## Work Item schema
 
 | Field | Required | Format |
@@ -97,7 +114,6 @@ No index file. The filesystem is the index; summary is computed on demand by `/r
 | Delivers | yes | 1-3 sentences — **what capability the user/system gains** (not task description) |
 | Spec | yes | free string (URL / path / issue link / `TBD`) |
 | Phase | no | integer; must exist in the Overview table |
-| Forked from | no | single WI ID; cross-roadmap uses `{slug}/WI-XX` |
 | Notes | no | free text |
 
 Required fields always appear. Optional fields: omit the entire line when empty (do not write `—`).
@@ -121,7 +137,7 @@ Three symbols, used both on WI (per-item) and roadmap (aggregate):
 
 ## Intents
 
-Four slash commands. Everything else is natural language.
+Five slash commands. Everything else is natural language.
 
 ### 1. Create roadmap
 
@@ -153,18 +169,19 @@ Opens a dialog. Any modification happens here:
 - **Skip a WI**: set Status `[~] Skipped`, strip to stub per the Skipped stub rule, ask for reason → Notes.
 - **Un-skip a WI** (`[~] → [ ]`): requires user confirmation; re-fill Delivers and Spec.
 - **Manual Done** (`[ ] → [v]` without archive): allow; no confirmation needed. For reverting Done (`[v] → [ ]`), require confirmation and write reason to Notes.
-- **Edit a field**: change Delivers / Spec / Phase / Forked from / Notes / Title of a specific WI.
+- **Edit a field**: change Delivers / Spec / Phase / Notes / Title of a specific WI.
 - **Phase / Overview**: add or rename a phase row in the Overview table; reassign a WI's Phase.
 
 No "delete WI" operation — use Skip + Notes for mistakes. IDs are never recycled.
 
 ### 3. Show / summarize
 
-Trigger: `/road:show [slug]` or "show all roadmaps" / "{slug} progress"
+Trigger: `/road:show [slug] [--full]` or "show all roadmaps" / "{slug} progress"
 
 - **No arg**: scan `roadmaps/*.md` (not `archived/`), output a summary table of all roadmaps with Status + Progress.
-- **With slug**: show that roadmap's WI list with statuses; highlight the first `[ ]` as "currently in progress".
-- Progress format: `{done}/{total}[, {skipped} skipped]`. The `skipped` clause appears only when skipped > 0.
+- **With slug**: show that roadmap's WI list with statuses; highlight the first `[ ]` as "currently in progress". If the roadmap has a `Branched from` header, note it at the top.
+- **With slug + `--full`**: if the roadmap has `Branched from: {src} @ WI-XX`, prepend src's WI-01 through WI-XX as "inherited from {src}" (read-only display), then the roadmap's own WI. Without `--full`, only own WI are shown.
+- Progress format: `{done}/{total}[, {skipped} skipped]`. The `skipped` clause appears only when skipped > 0. Branched roadmaps compute progress over their own WI only, not inherited history.
 
 ### 4. Sync (manual fallback)
 
@@ -180,15 +197,44 @@ Sync is the **manual fallback**. The skill should normally stay in sync automati
 - After batch operations done outside the AI session
 - Periodic audit
 
-### 5. Archive / Unarchive roadmap
+### 5. Branch roadmap
+
+Trigger: `/road:branch <src-slug> <dst-slug> [--at WI-XX]` or "branch {src} into {dst}"
+
+Create a new roadmap that diverges from an existing one at a specific WI. Useful for exploring an alternative path without disturbing the source roadmap.
+
+Behavior:
+
+1. Verify `roadmaps/{src}.md` exists; fail otherwise.
+2. Resolve the anchor WI: if `--at WI-XX` is given, use that; otherwise use src's last `[v] Done` WI. If src has no Done WI and `--at` is not given, ask the user which WI to branch at.
+3. Verify the anchor WI exists in src; fail otherwise.
+4. Create `roadmaps/{dst}.md` with this skeleton:
+
+   ```markdown
+   # {Dst Title} Roadmap
+   **Branched from:** {src-slug} @ WI-XX
+
+   ## Legend
+   - [ ] Pending  [v] Done  [~] Skipped
+   - First `[ ]` WI is currently in progress; check its Spec for details
+
+   ## Work Items
+   ```
+
+5. Do **not** copy any WI from src — dst starts empty. Shared history (WI-01 through WI-XX in src) is referenced via the `Branched from` header, not duplicated.
+6. dst's WI numbering starts fresh at WI-01 in its own namespace. Cross-roadmap refs use `{dst}/WI-XX` and `{src}/WI-XX` and do not collide.
+
+No merge operation. Branches are one-way divergences. If the user wants to reconcile two roadmaps, they do it manually by copying WI content between files.
+
+### 6. Archive / Unarchive roadmap
 
 No dedicated command — natural language only: "archive the backend roadmap" → `mv roadmaps/backend.md roadmaps/archived/`. Pure `mv`, no side effects.
 
 ## Behavior rules (unique to this skill)
 
 - **Users may edit roadmap files directly**. The skill must handle any valid file state on the next operation; don't assume the skill itself made all prior changes.
-- **Renaming a roadmap file is not a supported intent**. If the user does it manually, the next sync will flag any dangling `{old-slug}/WI-XX` fork references.
-- **Fork reference resolution is "warn but don't block"**: on write, warn if the target doesn't exist but allow; sync reports dangling refs.
+- **Renaming a roadmap file is not a supported intent**. If the user does it manually, the next sync will flag any dangling `Branched from` references pointing at the old slug.
+- **Branch reference resolution is "warn but don't block"**: on write, warn if the target src roadmap or anchor WI doesn't exist but allow; sync reports dangling refs.
 - **No time tracking in files** (no `Last updated`, no Changelog). Use `git log` for history.
 
 ## Format / validation checks (run during sync)
@@ -201,7 +247,7 @@ No dedicated command — natural language only: "archive the backend roadmap" �
 - `error` — Overview `Items` range matches actual Phase distribution
 - `warning` — `Spec: TBD` (remind the user to fill in)
 - `warning` — WI in file in ID ascending order
-- `warning` — `Forked from` target WI exists
+- `warning` — `Branched from` src roadmap exists and anchor WI exists in src
 
 ## Example roadmap file
 
@@ -229,7 +275,6 @@ No dedicated command — natural language only: "archive the backend roadmap" �
 ### WI-02 add-logging-infrastructure
 **Status:** [ ] Pending
 **Phase:** 0
-**Forked from:** WI-01
 **Delivers:** All modules emit structured logs with consistent fields; log level is runtime-configurable
 **Spec:** `openspec/changes/add-logging-infrastructure/`
 **Notes:** Must be in place before any feature work starts
@@ -237,7 +282,6 @@ No dedicated command — natural language only: "archive the backend roadmap" �
 ### WI-03 add-user-authentication
 **Status:** [ ] Pending
 **Phase:** 1
-**Forked from:** WI-02
 **Delivers:** Users can sign in and receive a session token; protected routes reject unauthenticated requests
 **Spec:** `openspec/changes/add-user-authentication/`
 

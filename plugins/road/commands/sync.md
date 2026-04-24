@@ -9,7 +9,7 @@ Optional scope: $ARGUMENTS (specific roadmap slug, or empty for all active roadm
 Scan every WI's `Spec:` field, apply the skill's sync rules (promote-only, respect manual Skipped, don't auto-demote or auto-skip), and report:
 
 - Promotions made (Pending → Done based on archive existence)
-- Warnings (unresolved Spec paths, dangling fork references, format inconsistencies)
+- Warnings (unresolved Spec paths, dangling `Branched from` references, format inconsistencies)
 - WI that need user decision (e.g. Spec missing but not sure if should be Skipped)
 
 Use this when:

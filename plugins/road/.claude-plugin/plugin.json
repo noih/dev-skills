@@ -1,5 +1,5 @@
 {
   "name": "road",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tool-neutral roadmap management — plan work items across parallel roadmaps, status auto-synced from spec tool locations."
 }

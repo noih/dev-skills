@@ -12,7 +12,7 @@
       "name": "road",
       "source": "./plugins/road",
       "description": "Tool-neutral roadmap management. WI status auto-syncs from spec tool locations (openspec, etc.).",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   ]
 }
