@@ -15,7 +15,7 @@ spec-tool: implement / apply         →  HOOK 2  test   (blocking)
 spec-tool: archive / merge-spec      →  HOOK 3  review
 ```
 
-`layout check` is not a HOOK — it's a one-shot `pwd` + `ls` judgement that runs before a new spec file is created, so the file lands in the right directory (sub-project vs monorepo root). See "Project layout check" under HOOK 1.
+`layout check` is not a HOOK — it's a one-shot classification of the current directory that runs before a new spec file is created, so the file lands in the right directory (sub-project vs monorepo root). See "Project layout check" under HOOK 1.
 
 HOOK 1 and HOOK 3 are **offered**. HOOK 2 is a **blocking gate** — no review on failing tests without explicit override. The skill prefers in-flow resolution and escalates only when agent options would drift from the spec's goal.
 
@@ -73,7 +73,7 @@ Auto-fires on natural-language signals (tool-neutral — openspec, superpowers, 
 
 | Flag | Set when | Read when |
 |------|----------|-----------|
-| `layout-checked:<slug>` | Project-layout check completes (or user explicitly confirms layout) | Proposal-creation signal — if set, don't re-run pwd/ls |
+| `layout-checked:<slug>` | Project-layout check completes (or user explicitly confirms layout) | Proposal-creation signal — if set, don't re-classify layout |
 | `grilled:<slug>` | HOOK 1 completes OR user skips | Apply / implement signal — if set, don't re-offer grill |
 | `tests-green:<slug>` | Tests verified green | HOOK 3 trigger — if unset, fire HOOK 2 first |
 | `reviewed:<slug>` | HOOK 3 completes OR user skips | Archive signal — if set, don't re-offer review |
@@ -99,7 +99,7 @@ Goal: catch design / scope problems before implementation.
 
 ### Pre-check: project layout (runs on proposal-creation signals)
 
-Before a spec file is created, sdd runs `pwd` + `ls` to pick the target _project directory_ — the parent under which the spec tool (openspec, superpowers, generic plan, issue link, …) writes its own artifact using its own convention: `<dir>/openspec/changes/<slug>/`, `<dir>/.superpowers/plans/<slug>/`, `<dir>/docs/plans/<slug>.md`, etc. sdd picks only the `<dir>`; it does not pick the tool, its in-project path, or run the spec-tool command. HOOK 1 grill then fires once the spec file exists.
+Before a spec file is created, sdd classifies the target _project directory_ — the parent under which the spec tool (openspec, superpowers, generic plan, issue link, …) writes its own artifact using its own convention: `<dir>/openspec/changes/<slug>/`, `<dir>/.superpowers/plans/<slug>/`, `<dir>/docs/plans/<slug>.md`, etc. sdd picks only the `<dir>`; it does not pick the tool, its in-project path, or invoke the spec-tool command. Classification is declarative — the AI uses its available filesystem inspection capability to gather the needed info; sdd does not mandate a specific shell command. HOOK 1 grill then fires once the spec file exists.
 
 ### Heuristics (first match wins)
 
@@ -129,7 +129,7 @@ mukaoe/                          isle-apps/
 
 ### Action
 
-1. `pwd` + `ls` cwd (+ `ls <subdir>` for sibling candidates); classify.
+1. Inspect cwd + relevant sibling directories enough to classify per the heuristics table. No specific shell command is mandated — use whatever filesystem inspection capability is available.
 2. **Multi-project**: ask "which sub-project — A / B / both?" → target dir = chosen sub-project. "Both" → two target dirs, matching-slug specs per sub-project, pairing logged.
 3. **Monorepo / single-project / existing convention**: target dir per heuristics (no ask).
 4. Hand target dir back to the spec tool; set `layout-checked:<slug>`; record `## Project layout` in `sdd-reports/<slug>.md`.
