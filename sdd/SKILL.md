@@ -21,9 +21,9 @@ HOOK 1 and HOOK 3 are **offered**. HOOK 2 is a **blocking gate** — no review o
 
 ## Requirements (optional, skill degrades gracefully if missing)
 
-| Skill | Purpose | Install | If missing |
-|-------|---------|---------|------------|
-| grill-me | HOOK 1 adversarial questioning | `npx skills@latest add mattpocock/skills/grill-me` | Human: prompt install or skip. Agent autonomous: skip HOOK 1, record `Status: skipped-no-grill-me` in `sdd-reports/<slug>.md`, continue |
+| Skill | Purpose | Source | If missing |
+|-------|---------|--------|------------|
+| grill-me | HOOK 1 adversarial questioning | mattpocock/skills repository | Human: prompt install or skip. Agent autonomous: skip HOOK 1, record `Status: skipped-no-grill-me` in `sdd-reports/<slug>.md`, continue |
 | superpowers:requesting-code-review | HOOK 3 preferred review path | Part of the superpowers plugin | Fall back to built-in `/review` |
 
 Built-in `/review` always available. Test framework (HOOK 2) is the only other external dependency; no framework → HOOK 2 skips with warning (see "HOOK 2 test").
