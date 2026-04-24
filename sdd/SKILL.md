@@ -15,7 +15,7 @@ spec-tool: implement / apply         →  HOOK 2  test   (blocking)
 spec-tool: archive / merge-spec      →  HOOK 3  review
 ```
 
-`layout check` is not a HOOK — it's a one-shot `pwd` + `ls` judgement that runs before a new spec file is created, so the file lands in the right directory (sub-project vs monorepo root). See "Project layout check" under HOOK 1.
+`layout check` is not a HOOK — it's a one-shot classification judgement that runs before a new spec file is created, so the file lands in the right directory (sub-project vs monorepo root). See "Project layout check" under HOOK 1.
 
 HOOK 1 and HOOK 3 are **offered**. HOOK 2 is a **blocking gate** — no review on failing tests without explicit override. The skill prefers in-flow resolution and escalates only when agent options would drift from the spec's goal.
 
@@ -35,7 +35,7 @@ Manual trigger alongside auto-activation ("Automatic triggers" below). `<action>
 | Command | Effect |
 |---------|--------|
 | `/sdd grill [spec-path]` | Fire HOOK 1 on the resolved spec; `[spec-path]` overrides resolution. See "HOOK 1 grill" |
-| `/sdd test` | Fire HOOK 2; detect framework, run it, set `tests-green:<slug>` on pass. See "HOOK 2 test" |
+| `/sdd test` | Fire HOOK 2 gate; verify test status, set `tests-green:<slug>` if green. See "HOOK 2 test" |
 | `/sdd review` | Fire HOOK 3; require `tests-green:<slug>` (fires HOOK 2 if unset), then dispatch to `superpowers:requesting-code-review` or built-in `/review`. See "HOOK 3 review" |
 
 ## Automatic triggers
@@ -53,7 +53,7 @@ Auto-fires on natural-language signals (tool-neutral — openspec, superpowers, 
 
 | Flag | Set when | Read when |
 |------|----------|-----------|
-| `layout-checked:<slug>` | Project-layout check completes (or user explicitly confirms layout) | Proposal-creation signal — if set, don't re-run pwd/ls |
+| `layout-checked:<slug>` | Project-layout check completes (or user explicitly confirms layout) | Proposal-creation signal — if set, don't re-classify layout |
 | `grilled:<slug>` | HOOK 1 completes OR user skips | Apply / implement signal — if set, don't re-offer grill |
 | `tests-green:<slug>` | HOOK 2 exits 0 | HOOK 3 trigger — if unset, fire HOOK 2 first |
 | `reviewed:<slug>` | HOOK 3 completes OR user skips | Archive signal — if set, don't re-offer review |
@@ -79,7 +79,7 @@ Goal: catch design / scope problems before implementation.
 
 ### Pre-check: project layout (runs on proposal-creation signals)
 
-Before a spec file is created, sdd runs `pwd` + `ls` to pick the target _project directory_ — the parent under which the spec tool (openspec, superpowers, generic plan, issue link, …) writes its own artifact using its own convention: `<dir>/openspec/changes/<slug>/`, `<dir>/.superpowers/plans/<slug>/`, `<dir>/docs/plans/<slug>.md`, etc. sdd picks only the `<dir>`; it does not pick the tool, its in-project path, or run the spec-tool command. HOOK 1 grill then fires once the spec file exists.
+Before a spec file is created, sdd classifies the target _project directory_ — the parent under which the spec tool (openspec, superpowers, generic plan, issue link, …) writes its own artifact using its own convention: `<dir>/openspec/changes/<slug>/`, `<dir>/.superpowers/plans/<slug>/`, `<dir>/docs/plans/<slug>.md`, etc. sdd picks only the `<dir>`; it does not pick the tool, its in-project path, or run the spec-tool command. The classification is declarative — the AI uses its available filesystem tool-use to gather the needed info; sdd does not mandate a specific shell command. HOOK 1 grill then fires once the spec file exists.
 
 ### Heuristics (first match wins)
 
@@ -109,7 +109,9 @@ mukaoe/                          isle-apps/
 
 ### Action
 
-1. `pwd` + `ls` cwd (+ `ls <subdir>` for sibling candidates); classify.
+Layout classification is a declarative input, not an exec step. The skill states what information is needed; the AI gathers it using whatever filesystem tool-use it has.
+
+1. Determine cwd + relevant sibling directories well enough to classify per the heuristics table. No specific command is mandated.
 2. **Multi-project**: ask "which sub-project — A / B / both?" → target dir = chosen sub-project. "Both" → two target dirs, matching-slug specs per sub-project, pairing logged.
 3. **Monorepo / single-project / existing convention**: target dir per heuristics (no ask).
 4. Hand target dir back to the spec tool; set `layout-checked:<slug>`; record `## Project layout` in `sdd-reports/<slug>.md`.
@@ -130,12 +132,12 @@ sdd passes two things to the grill-me skill:
 
 Goal: block review on failing tests. Prevents wasting reviewer time and shipping broken code.
 
-### Test framework detection
+### Test framework signals
 
-Resolve per this precedence:
+The skill does not execute tests. It states the gate; the AI (or user) verifies status. When verification is needed, typical project markers can hint at the command — first match wins:
 
 1. **Explicit user statement.** "Tests run via `pnpm test`" wins. Remember for the session.
-2. **Auto-detect from markers** (first match wins):
+2. **Common markers** (informational hints only):
    - `package.json` with `scripts.test` → `<pm> test` (infer pm from lockfile: `pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lockb` → bun, else npm)
    - `Cargo.toml` → `cargo test`
    - `pyproject.toml` / `pytest.ini` / `setup.cfg [tool:pytest]` → `pytest`
@@ -145,14 +147,19 @@ Resolve per this precedence:
 3. **Ask the user** on ambiguity.
 4. **No test framework detected** — warn "this project has no test framework", record `Status: skipped-no-framework` in the HOOK 2 section, skip the gate. HOOK 3 will still run but with a banner warning "this spec was not verified by automated tests".
 
-### Execution
+### Gate
 
-1. Run the resolved command; capture exit code + output.
-2. **Exit 0** — set `tests-green:<slug>`; record `Status: passed` in HOOK 2 section; return.
-3. **Non-zero** — do not set the flag. Enter the fix loop:
+HOOK 2 is a status gate, not an executor. The skill does not run shell commands. Verifying test status is the AI's or user's responsibility, using whatever tool-use capability is available.
+
+1. Confirm test status for this spec's code:
+   - Recent test run known green in this session → proceed
+   - Unknown → verify (AI may run the project's tests if capable; otherwise ask the user)
+   - Known failing → enter fix loop
+2. **Tests green** — set `tests-green:<slug>`; record `Status: passed` + how it was verified.
+3. **Tests failing** — do not set the flag. Fix loop:
    - Classify severity per "Severity classification" below.
-   - Minor → agent fixes, re-runs, records attempts.
-   - Moderate → agent fixes or asks leader if available; records attempts.
+   - Minor → fix, re-verify, record attempts.
+   - Moderate → fix or ask leader if available; record attempts.
    - Severe → escalate (human) / halt (agent autonomous, no leader).
 4. **Override** — user (or agent with explicit authority) may override with phrase "skip tests, I know they fail" / "override HOOK 2". Record `Status: failed-overridden` + override reason. Set `tests-green:<slug>=overridden` so HOOK 3 proceeds but with a warning banner.
 
