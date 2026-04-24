@@ -7,61 +7,44 @@ description: Inserts three quality gates into any spec-driven-development workfl
 
 Three quality gates for spec-driven-development. The skill **does not** own the design or implement phases — those belong to whatever spec tool the project uses. The skill only inserts grill / test / review at the points where spec tools typically have gaps.
 
-## Principle
-
-- Complement, not replace. The spec tool drives design and implementation. This skill only hooks in quality gates around it.
-- Works across tools. openspec, superpowers, generic plan files, and mixes of them are all supported. Detection is signal-based, not tool-specific.
-- Works for humans AND autonomous agents. Agents self-grill, record decisions, and escalate only when a decision would derail the spec's goal.
-
 ## Gates
 
 ```
-spec-tool: design / proposal / plan  →  HOOK 1  grill
-spec-tool: implement / apply         →  HOOK 2  test       (blocking)
+spec-tool: design / proposal / plan  →  layout check  →  HOOK 1  grill
+spec-tool: implement / apply         →  HOOK 2  test   (blocking)
 spec-tool: archive / merge-spec      →  HOOK 3  review
 ```
 
-HOOK 1 and HOOK 3 are **offered**. HOOK 2 is a **blocking gate** — review should not proceed on failing tests without an explicit override. Interruption is treated as a worst-case outcome; the skill prefers to resolve issues in-flow and only escalates when the agent's available options would cause drift from the spec's original goal.
+`layout check` is not a HOOK — it's a one-shot `pwd` + `ls` judgement that runs before a new spec file is created, so the file lands in the right directory (sub-project vs monorepo root). See "Project layout check" under HOOK 1.
+
+HOOK 1 and HOOK 3 are **offered**. HOOK 2 is a **blocking gate** — no review on failing tests without explicit override. The skill prefers in-flow resolution and escalates only when agent options would drift from the spec's goal.
 
 ## Requirements (optional, skill degrades gracefully if missing)
 
-| Skill | Purpose | Install |
-|-------|---------|---------|
-| grill-me | HOOK 1 — adversarial questioning against the spec | `npx skills@latest add mattpocock/skills/grill-me` |
-| superpowers:requesting-code-review | HOOK 3 — preferred review path when available | Part of the superpowers plugin |
+| Skill | Purpose | Install | If missing |
+|-------|---------|---------|------------|
+| grill-me | HOOK 1 adversarial questioning | `npx skills@latest add mattpocock/skills/grill-me` | Human: prompt install or skip. Agent autonomous: skip HOOK 1, record `Status: skipped-no-grill-me` in `sdd-reports/<slug>.md`, continue |
+| superpowers:requesting-code-review | HOOK 3 preferred review path | Part of the superpowers plugin | Fall back to built-in `/review` |
 
-Behavior when each is missing:
-
-- **grill-me missing**:
-  - Human mode: prompt the install command, ask "install then retry" or "skip this time".
-  - Agent autonomous mode: skip HOOK 1, record `Status: skipped-no-grill-me` in `sdd-reports/<slug>.md`, proceed to the next phase.
-- **superpowers:requesting-code-review missing**:
-  - Fall back to the built-in `/review` command.
-
-Built-in `/review` is always available. The project's own test command (detected at HOOK 2) is the only other external dependency; when no test framework is detected, HOOK 2 skips with a warning (see "HOOK 2 test").
+Built-in `/review` always available. Test framework (HOOK 2) is the only other external dependency; no framework → HOOK 2 skips with warning (see "HOOK 2 test").
 
 ## Commands
 
-The skill is triggered via `/sdd <action> [args...]` (plus natural language). `<action>` is one of: `grill`, `test`, `review`. The skill dispatches internally on the first argument. All three are thin entry points — they make the quality gate explicit and give a manual trigger point, but the skill also auto-activates on the signals listed in "Automatic triggers" below.
+Manual trigger alongside auto-activation ("Automatic triggers" below). `<action>` ∈ {`grill`, `test`, `review`}.
 
-### `/sdd grill [spec-path]`
-
-Invoke HOOK 1 against the resolved spec. Pass `[spec-path]` to override the resolution. See "HOOK 1 grill" for behavior.
-
-### `/sdd test`
-
-Invoke HOOK 2. Detects the project's test framework, runs it, updates the `tests-green:<slug>` session flag on pass. See "HOOK 2 test".
-
-### `/sdd review`
-
-Invoke HOOK 3. Enforces `tests-green:<slug>` first (fires HOOK 2 if not set), then delegates to `superpowers:requesting-code-review` (preferred) or built-in `/review` (fallback). See "HOOK 3 review".
+| Command | Effect |
+|---------|--------|
+| `/sdd grill [spec-path]` | Fire HOOK 1 on the resolved spec; `[spec-path]` overrides resolution. See "HOOK 1 grill" |
+| `/sdd test` | Fire HOOK 2; detect framework, run it, set `tests-green:<slug>` on pass. See "HOOK 2 test" |
+| `/sdd review` | Fire HOOK 3; require `tests-green:<slug>` (fires HOOK 2 if unset), then dispatch to `superpowers:requesting-code-review` or built-in `/review`. See "HOOK 3 review" |
 
 ## Automatic triggers
 
-The skill watches the ongoing conversation for spec-lifecycle signals and offers the matching HOOK. Signals are natural-language based for tool neutrality — they work whether the user is driving openspec, superpowers, or a generic plan file.
+Auto-fires on natural-language signals (tool-neutral — openspec, superpowers, generic plan files).
 
 | HOOK | Primary signal | Fallback signal + dedup |
 |------|----------------|--------------------------|
+| — layout check | Proposal-creation signals: "開 proposal", "新 spec", "let's plan X", "start a change", `openspec add`, `.superpowers/plans/<slug>` being created | Runs at most once per slug per session (dedup by `layout-checked:<slug>`) |
 | 1 grill | "grill this", "審 spec", "spec 寫完了", "ready for spec review", explicit `/sdd grill` | Apply / implement signal ("let's apply", "openspec apply", "開工") with `grilled:<slug>` flag unset → offer grill first |
 | 2 test | "done implementing", "ready to review", "ready to archive", explicit `/sdd test` | Triggered internally when HOOK 3 is about to fire and `tests-green:<slug>` is unset |
 | 3 review | "archive this", "ship it", "merge this", "收工", archive command invoked, explicit `/sdd review` | Archive signal with `reviewed:<slug>` flag unset → offer review first |
@@ -70,6 +53,7 @@ The skill watches the ongoing conversation for spec-lifecycle signals and offers
 
 | Flag | Set when | Read when |
 |------|----------|-----------|
+| `layout-checked:<slug>` | Project-layout check completes (or user explicitly confirms layout) | Proposal-creation signal — if set, don't re-run pwd/ls |
 | `grilled:<slug>` | HOOK 1 completes OR user skips | Apply / implement signal — if set, don't re-offer grill |
 | `tests-green:<slug>` | HOOK 2 exits 0 | HOOK 3 trigger — if unset, fire HOOK 2 first |
 | `reviewed:<slug>` | HOOK 3 completes OR user skips | Archive signal — if set, don't re-offer review |
@@ -93,6 +77,43 @@ Commands that need a slug (for `sdd-reports/<slug>.md` and session flags) resolv
 
 Goal: catch design / scope problems before implementation.
 
+### Pre-check: project layout (runs on proposal-creation signals)
+
+Before a spec file is created, sdd runs `pwd` + `ls` to pick the target _project directory_ — the parent under which the spec tool (openspec, superpowers, generic plan, issue link, …) writes its own artifact using its own convention: `<dir>/openspec/changes/<slug>/`, `<dir>/.superpowers/plans/<slug>/`, `<dir>/docs/plans/<slug>.md`, etc. sdd picks only the `<dir>`; it does not pick the tool, its in-project path, or run the spec-tool command. HOOK 1 grill then fires once the spec file exists.
+
+### Heuristics (first match wins)
+
+| Check | Layout | Target dir |
+|-------|--------|------------|
+| Spec tool's conventional dir already at cwd (`openspec/`, `.superpowers/plans/`, `docs/plans/`, …) | Respect existing | cwd |
+| Same convention dir inside exactly one sub-project | Respect existing | That sub-project |
+| Workspace manifest at cwd (`pnpm-workspace.yaml`, `turbo.json`, `nx.json`, `Cargo.toml [workspace]`, `go.work`) | Monorepo | cwd |
+| Shared `core/` / `packages/` / `libs/` at cwd alongside app dirs | Monorepo | cwd |
+| 2+ sibling dirs each with own manifest, no root manifest, no shared core | Multi-project | Relevant sub-project |
+| Single manifest at cwd, no siblings | Single-project | cwd |
+| None of the above | Ambiguous | Ask the user |
+
+Existing-convention rows come first — if specs already live somewhere for this project, keep using that location.
+
+Examples:
+
+```
+mukaoe/                          isle-apps/
+  mukaoe-service/ (manifest)       core/
+  mukaoe-web/     (manifest)       icard/
+                                   liquidity/
+                                   pnpm-workspace.yaml
+→ multi-project                  → monorepo
+  target: chosen sub-project       target: isle-apps/
+```
+
+### Action
+
+1. `pwd` + `ls` cwd (+ `ls <subdir>` for sibling candidates); classify.
+2. **Multi-project**: ask "which sub-project — A / B / both?" → target dir = chosen sub-project. "Both" → two target dirs, matching-slug specs per sub-project, pairing logged.
+3. **Monorepo / single-project / existing convention**: target dir per heuristics (no ask).
+4. Hand target dir back to the spec tool; set `layout-checked:<slug>`; record `## Project layout` in `sdd-reports/<slug>.md`.
+
 ### Input to grill-me
 
 sdd passes two things to the grill-me skill:
@@ -100,17 +121,10 @@ sdd passes two things to the grill-me skill:
 1. **Spec content** — full text of the detected spec artifact (proposal.md for openspec, plan.md for superpowers, the plan file for generic).
 2. **Goal summary** — a one-to-two sentence summary of what this change delivers. If the spec tool has an explicit "delivers" / "goal" field, use it; otherwise derive from the spec's title + first paragraph and ask the user / agent to confirm before passing to grill-me. Goal anchors grill-me's questioning.
 
-### Human mode
+### Execution modes
 
-Interactive. sdd invokes grill-me with the two inputs above. grill-me asks questions one at a time; user answers. Conversation goes until user is satisfied. On completion, sdd sets `grilled:<slug>` and appends a summary to `sdd-reports/<slug>.md` under `## HOOK 1 grill`.
-
-### Agent autonomous mode
-
-Agent plays both roles — answers grill-me's questions against the spec + goal, records every non-trivial decision, and escalates only on goal-drift risk (see "Escalation" below). On completion:
-
-- `sdd-reports/<slug>.md` HOOK 1 section records every decision, open question, resolution, and any escalations.
-- `grilled:<slug>` is set.
-- Agent continues to phase 2 (implement) unless it escalated.
+- **Human mode** — sdd invokes grill-me; interactive Q&A until user satisfied. sdd sets `grilled:<slug>` and appends a summary under `## HOOK 1 grill` in `sdd-reports/<slug>.md`.
+- **Agent autonomous mode** — agent plays both roles against spec + goal, records every decision / open question / resolution / escalation in the HOOK 1 section, escalates only on goal-drift risk (see "Escalation"). On completion, sets `grilled:<slug>` and proceeds to implement unless escalated.
 
 ## HOOK 2 test
 
@@ -183,7 +197,7 @@ Three-level severity applies uniformly to HOOK 1, HOOK 2, and HOOK 3. The core q
 | Agent with leader / controller | Interrupt and ask the leader |
 | Agent fully autonomous, no leader | Halt workflow; write `Status: halted-severe` in the relevant HOOK section of `sdd-reports/<slug>.md` with problem summary + recommended next steps for human review |
 
-### Severity guidelines (not fixed rules — use judgment + tie-breakers)
+### Severity guidelines (use judgment; see tie-breakers)
 
 | HOOK | Minor | Moderate | Severe |
 |------|-------|----------|--------|
@@ -193,9 +207,9 @@ Three-level severity applies uniformly to HOOK 1, HOOK 2, and HOOK 3. The core q
 
 ### Tie-breakers
 
-1. **Uncertain between two levels → pick the more severe one.** Conservative bias; prefer a short interruption to a wrong shipped decision.
-2. **Drift risk dominates complexity.** A "hard to fix" issue that doesn't endanger the goal stays moderate. A "one-line fix" that reveals goal-level confusion is severe.
-3. **Repeated failure = drift signal.** If the same issue resists resolution across multiple attempts, treat the resistance itself as a drift signal and escalate.
+1. **Uncertain between levels → pick the more severe.** Short interruption beats wrong ship.
+2. **Drift risk > complexity.** Hard-to-fix but goal-safe stays moderate; one-line fix exposing goal confusion is severe.
+3. **Repeated resistance = drift signal.** Same issue failing multiple attempts → escalate.
 
 ## Decision log format (`sdd-reports/<slug>.md`)
 
@@ -205,6 +219,13 @@ One file per spec. Overwritten section-by-section by each HOOK run — the file 
 # SDD Report — <slug>
 
 _Goal: <one-to-two-sentence summary of what this spec delivers>_
+
+## Project layout
+**Layout:** single-project | multi-project | monorepo
+**Target dir(s):** `<project directory chosen as spec parent, relative to cwd>`
+**Spec tool:** openspec | superpowers | generic plan file | issue link | other
+**Spec artifact path(s):** `<final path(s) the spec tool wrote — e.g. mukaoe-service/openspec/changes/<slug>/proposal.md>`
+**Reason:** <one-line heuristic that matched, e.g. "root pnpm-workspace.yaml → monorepo">
 
 ## HOOK 1 grill
 **Status:** passed | skipped-by-user | skipped-no-grill-me | halted-severe
@@ -256,15 +277,12 @@ On first write in a project, sdd prints a one-line reminder: "`sdd-reports/` is 
 
 ## Skip semantics
 
-- HOOK 1 and HOOK 3 — user can skip any invocation with "skip this time" / "no". Records `Status: skipped-by-user` in the section. `grilled:<slug>` / `reviewed:<slug>` session flag is set to prevent re-prompting this session.
-- HOOK 2 — cannot be skipped silently. Overriding requires the phrase "skip tests, I know they fail" (or equivalent explicit opt-out). Records `Status: failed-overridden`.
-- No cross-session skip persistence. A new session starts fresh. If the user wants to skip again next session, they decline again — cost is one utterance.
+- HOOK 1 / HOOK 3 — skip with "skip this time" / "no" → `Status: skipped-by-user`; `grilled:<slug>` / `reviewed:<slug>` set to suppress re-prompts this session.
+- HOOK 2 — no silent skip. Explicit override phrase required ("skip tests, I know they fail" or equivalent) → `Status: failed-overridden`.
+- No cross-session persistence. New session → decide again (cost: one utterance).
 
 ## Out of scope
 
-- Writing specs (spec tool's job)
-- Running `openspec apply` / executing plans (spec tool's job)
-- Archiving specs, merging specs into canonical living specs (spec tool's job)
-- Git commits (user's git workflow owns this)
-- Pushing, creating PRs (not this skill's concern)
-- Enforcing specific test frameworks, code style, or architecture
+- Spec writing, implementation, archiving, merging into living specs — spec tool's job.
+- Git commits, pushes, PRs — user's git workflow.
+- Enforcing specific test frameworks, code style, or architecture.
