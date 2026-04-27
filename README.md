@@ -12,17 +12,44 @@ Personal directory of Claude Code skills, straight from my `.claude` directory.
 
 ## Install
 
-All skills install via the [`skills`](https://www.npmjs.com/package/skills) CLI:
+All skills install via the [`skills`](https://www.npmjs.com/package/skills) CLI.
+
+**Recommended — global install, symlinked (so `skills update` keeps everything in sync):**
 
 ```bash
-npx skills@latest add noih/dev-skills/road
-npx skills@latest add noih/dev-skills/sdd
+npx skills@latest add noih/dev-skills/road -g
+npx skills@latest add noih/dev-skills/sdd -g
 ```
 
-Install everything in this repo:
+Install everything in this repo at once:
 
 ```bash
-npx skills@latest add noih/dev-skills --all
+npx skills@latest add noih/dev-skills --all -g
+```
+
+> `--all` is shorthand for `--skill '*' --agent '*' -y`. `-g` installs to `~/.claude/skills`; omit it for project-level (`./.claude/skills`).
+
+### Other options
+
+Drop `-g` for project-scoped installs, or pick specific skills/agents:
+
+| Flag                 | Effect                                                                         |
+| -------------------- | ------------------------------------------------------------------------------ |
+| `-g, --global`       | install to user-level (`~/.claude/skills`) instead of project                  |
+| `-a, --agent <name>` | target specific agents (`claude-code`, `cursor`, …) or `*`                     |
+| `-s, --skill <name>` | pick specific skills or `*`                                                    |
+| `--copy`             | copy files instead of symlinking (portable but `update` won't propagate)       |
+| `--full-depth`       | scan all subdirectories even when a root `SKILL.md` exists                     |
+| `-y, --yes`          | skip confirmation prompts                                                      |
+
+Examples:
+
+```bash
+# project-level, road only, claude-code agent only
+npx skills@latest add noih/dev-skills -s road -a claude-code
+
+# global, copy instead of symlink (independent of source repo)
+npx skills@latest add noih/dev-skills --all -g --copy
 ```
 
 ## Update
