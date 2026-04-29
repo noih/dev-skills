@@ -2,75 +2,77 @@
 
 Personal directory of Claude Code skills, straight from my `.claude` directory.
 
-## Planning & Design
+## Quick Start
 
-- **road** — Tool-neutral roadmap management. Work Item status auto-syncs from spec tool locations (openspec, superpowers, generic plans). Supports branching a roadmap to explore alternatives.
+All skills install via the [`skills`](https://www.npmjs.com/package/skills) CLI. For full CLI options, run `npx skills@latest --help`.
 
-## Development Workflow
-
-- **sdd** — Three quality gates for spec-driven-development (grill / test / review) around any spec tool. Works for human and autonomous-agent runs; agents self-grill and write decision logs to `sdd-reports/<slug>.md`.
-
-## Install
-
-All skills install via the [`skills`](https://www.npmjs.com/package/skills) CLI.
-
-**Recommended — global install, symlinked (so `skills update` keeps everything in sync):**
-
-```bash
-npx skills@latest add noih/dev-skills/road -g
-npx skills@latest add noih/dev-skills/sdd -g
-```
-
-Install everything in this repo at once:
+Install everything globally:
 
 ```bash
 npx skills@latest add noih/dev-skills --all -g
 ```
 
-> `--all` is shorthand for `--skill '*' --agent '*' -y`. `-g` installs to `~/.claude/skills`; omit it for project-level (`./.claude/skills`).
-
-### Other options
-
-Drop `-g` for project-scoped installs, or pick specific skills/agents:
-
-| Flag                 | Effect                                                                         |
-| -------------------- | ------------------------------------------------------------------------------ |
-| `-g, --global`       | install to user-level (`~/.claude/skills`) instead of project                  |
-| `-a, --agent <name>` | target specific agents (`claude-code`, `cursor`, …) or `*`                     |
-| `-s, --skill <name>` | pick specific skills or `*`                                                    |
-| `--copy`             | copy files instead of symlinking (portable but `update` won't propagate)       |
-| `--full-depth`       | scan all subdirectories even when a root `SKILL.md` exists                     |
-| `-y, --yes`          | skip confirmation prompts                                                      |
-
-Examples:
+Update all installed skills:
 
 ```bash
-# project-level, road only, claude-code agent only
-npx skills@latest add noih/dev-skills -s road -a claude-code
-
-# global, copy instead of symlink (independent of source repo)
-npx skills@latest add noih/dev-skills --all -g --copy
+npx skills@latest update
 ```
 
-## Update
+Remove installed skills interactively:
+
+```bash
+npx skills@latest remove
+```
+
+> `--all` is shorthand for `--skill '*' --agent '*' -y`. `-g` installs to `~/.claude/skills`; omit it for project-level (`./.claude/skills`). By default, installs are symlinked so `skills update` keeps everything in sync.
+
+## Individual Skills
+
+Install one skill:
+
+```bash
+npx skills@latest add noih/dev-skills/road
+```
+
+Update one installed skill:
 
 ```bash
 npx skills@latest update road
-npx skills@latest update              # update all installed skills
 ```
 
-## Remove
+Remove one installed skill:
 
 ```bash
 npx skills@latest remove road
-npx skills@latest remove              # interactive select
 ```
 
-## Usage
+## Skills
 
-Once installed, trigger a skill via its matching slash command — e.g. `/road create backend`, `/sdd grill` — or let Claude Code auto-activate it from the skill's `SKILL.md` description.
+| Skill | Activation | Description |
+| --- | --- | --- |
+| `agent-autonomy` | Auto | Standalone vs team-mode rules for custom agents. |
+| `agent-teams` | Natural language / auto | Team workflow rules for coordinated architect / developer / QA / reviewer agent runs. |
+| `backend-api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
+| `backend-database` | Auto | Schema design, migration, indexing, soft delete, and query optimization conventions. |
+| `backend-principles` | Auto | Layered Architecture and DDD adoption guidance. |
+| `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
+| `comments` | Auto | Guidance for adding, updating, or removing comments. |
+| `frontend-react` | Auto | React component, hook, state, styling, and performance conventions. |
+| `lang-rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |
+| `lang-typescript` | Auto | TypeScript typing, narrowing, imports, nullability, and money-handling conventions. |
+| `road` | Slash command / natural language | Tool-neutral roadmap management with Work Item status sync from spec tool locations. |
+| `rule-code-quality` | Auto | General code quality and comment conventions. |
+| `rule-git` | Auto | Conventional Commit and git workflow rules. |
+| `rule-security` | Auto | Security principles and vulnerability patterns. |
+| `rule-testing` | Auto | Test strategy, case design, and framework recommendations. |
+| `runtime-nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
+| `sdd` | Slash command / natural language | Three quality gates for spec-driven development: grill, test, and review. |
 
-Full CLI options: `npx skills@latest --help`.
+Activation means how a skill is normally triggered:
+
+- `Slash command / natural language` — call it directly, such as `/road ...` or `/sdd ...`, or describe the matching workflow in natural language.
+- `Natural language / auto` — ask for the workflow in natural language; Claude Code may also activate it when the task clearly matches.
+- `Auto` — supporting rules and conventions that Claude Code applies automatically when the task matches.
 
 ## License
 

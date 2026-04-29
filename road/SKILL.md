@@ -10,6 +10,7 @@ description: >
   completing a superpowers task, creating a new spec directory), check whether any
   roadmap WI references that spec and update its status accordingly. Tool-neutral —
   links to any spec-writing tool (openspec, superpowers, plans, issues, URLs).
+user-invocable: true
 ---
 
 # Roadmap Skill
