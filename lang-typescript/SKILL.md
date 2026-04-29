@@ -106,7 +106,15 @@ user-invocable: false
 - Use `import type { Foo }` or `import { type Foo }` for type-only imports — ensures no runtime import is emitted
 - Enable `verbatimModuleSyntax` to let the compiler enforce the distinction between type and value imports
 
+## JSON Serialization
+
+- `JSON.stringify` omits `undefined` fields automatically. Use `null` when an API contract requires an explicit empty value
+
 ## Money (Decimal)
 
 - Use `decimal.js` for all monetary calculations — never use native `number` for money (IEEE 754 precision issues)
 - All monetary storage, transmission, and computation should go through `Decimal`; only convert to string for final display
+
+## Date & Time
+
+- Date/time package choices are owned by runtime/framework skills (e.g., Node.js backend vs React frontend). Do not pick a TypeScript-wide default here

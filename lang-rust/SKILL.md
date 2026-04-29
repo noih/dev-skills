@@ -116,6 +116,10 @@ Follow the standard library conventions:
 - Use `rust_decimal_macros` with `dec!()` macro for literals: `dec!(19.99)`
 - Serialize with `#[serde(with = "rust_decimal::serde::str")]` to ensure JSON transmits as string, avoiding precision loss
 
+## JSON Serialization
+
+- `Option<T>` serializes as `null` by default. Use `#[serde(skip_serializing_if = "Option::is_none")]` when an API contract requires omitted absent fields
+
 ## Tooling
 
 - **`cargo fmt`**: Format all code. Don't override `rustfmt` defaults without team consensus

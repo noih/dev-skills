@@ -112,7 +112,7 @@ Use status codes correctly — don't default everything to 200 or 400.
 
 ## Timestamps
 
-Use Unix epoch milliseconds (13 digits) for all timestamp fields. This avoids timezone parsing issues and is natively supported by `Date` in JS/TS and `chrono` in Rust.
+Use Unix epoch milliseconds (13 digits) for all timestamp fields. This keeps the wire format timezone-neutral, compact, and easy for common clients to parse.
 
 ```json
 {
@@ -132,9 +132,7 @@ For **PATCH** requests:
 - Sending `null` means "clear this field"
 - Omitting the field means "don't change this field"
 
-Language-specific implementation:
-- **JS/TS**: `null` vs `undefined` — `JSON.stringify` omits `undefined` fields automatically
-- **Rust**: `Option<T>` serializes as `null` by default. Use `#[serde(skip_serializing_if = "Option::is_none")]` to omit the field entirely.
+See language skills for serialization behavior that affects `null` vs omitted fields.
 
 ## Async Operations
 
