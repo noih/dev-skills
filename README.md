@@ -2,59 +2,27 @@
 
 Personal directory of agent skills.
 
-## Quick Start
-
-All skills install via the [`skills`](https://www.npmjs.com/package/skills) CLI. For full CLI options, run `npx skills@latest --help`.
-
-Install everything globally for all detected agents:
+## Install
 
 ```bash
-npx skills@latest add noih/dev-skills --all -g
+npx skills@latest add noih/dev-skills
 ```
 
-Install everything globally for specific agents:
-
-```bash
-npx skills@latest add noih/dev-skills --skill '*' -a claude-code -a codex -g -y
-```
-
-Update all installed skills:
+Interactive prompts will guide you through skill and agent selection.
 
 ```bash
 npx skills@latest update
+npx skills@latest remove       # project-level
+npx skills@latest remove -g    # global
 ```
-
-Remove globally installed skills interactively:
-
-```bash
-npx skills@latest remove -g
-```
-
-> `--all` is shorthand for `--skill '*' --agent '*' -y`. Use `-a codex` for Codex and `-a claude-code` for Claude Code. Omit `-g` for project-level agent directories. The CLI may keep canonical copies in shared agent-skill locations and sync them to the selected agent targets; by default, installs are symlinked so `skills update` keeps everything in sync.
-
-## Individual Skills
-
-Install one skill:
-
-```bash
-npx skills@latest add noih/dev-skills/road
-```
-
-Update one installed skill:
-
-```bash
-npx skills@latest update road
-```
-
-Remove one globally installed skill:
-
-```bash
-npx skills@latest remove road -g
-```
-
-Remove uses the installed skill name (`road`), not the source package path (`noih/dev-skills/road`). Add `-g` when removing globally installed skills.
 
 ## Skills
+
+> **`sdd` dependency:** install `grill-me` before using `sdd`:
+>
+> ```bash
+> npx skills@latest add mattpocock/skills
+> ```
 
 | Skill | Activation | Description |
 | --- | --- | --- |
