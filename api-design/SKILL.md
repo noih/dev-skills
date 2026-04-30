@@ -1,5 +1,5 @@
 ---
-name: backend-api-design
+name: api-design
 description: API design conventions and best practices. Use when designing REST API endpoints, defining response shapes, planning pagination, or making API architecture decisions.
 user-invocable: false
 ---

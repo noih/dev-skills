@@ -1,10 +1,10 @@
 ---
-name: backend-database
-description: Database design, query optimization, and data management best practices. Use when designing schemas, writing migrations, optimizing queries, configuring connection pools, or making database architecture decisions.
+name: sql-conventions
+description: SQL schema, migration, query, indexing, connection, and transaction conventions. Use when designing relational database schemas, writing migrations, optimizing SQL queries, configuring connection pools, or making SQL database architecture decisions.
 user-invocable: false
 ---
 
-# Database Design & Optimization Conventions
+# SQL Conventions
 
 ## Naming Conventions
 

@@ -1,5 +1,5 @@
 ---
-name: lang-rust
+name: rust
 description: Rust development conventions and best practices. Use when writing any Rust code.
 user-invocable: false
 ---

@@ -1,5 +1,5 @@
 ---
-name: frontend-react
+name: react
 description: React development conventions and best practices. Use when writing React components, hooks, state management, or styling in a React project.
 user-invocable: false
 ---

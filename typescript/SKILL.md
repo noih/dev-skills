@@ -1,5 +1,5 @@
 ---
-name: lang-typescript
+name: typescript
 description: TypeScript conventions and best practices. Use when writing any TypeScript code, whether frontend or backend.
 user-invocable: false
 ---

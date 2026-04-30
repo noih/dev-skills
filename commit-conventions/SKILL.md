@@ -1,10 +1,10 @@
 ---
-name: rule-git
-description: Git commit conventions and workflow rules. Use when committing code, writing commit messages, or working in a team git workflow.
+name: commit-conventions
+description: Commit message conventions and git commit workflow rules. Use when committing code, writing commit messages, or preparing commits for handoff.
 user-invocable: false
 ---
 
-# Git Conventions
+# Commit Conventions
 
 ## Commit Message Format
 

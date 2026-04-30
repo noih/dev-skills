@@ -1,5 +1,5 @@
 ---
-name: runtime-nodejs
+name: nodejs
 description: Node.js development conventions. Use when writing any Node.js code.
 user-invocable: false
 ---
@@ -61,4 +61,4 @@ user-invocable: false
 ## Built-in Modules
 
 - **Prefer `node:` prefix** — `import fs from 'node:fs'` makes it explicit this is a built-in, not an npm package
-- **Prefer built-in over npm** — use `node:crypto`, `node:util`, and other standard modules before reaching for third-party alternatives. Test framework selection belongs to the `rule-testing` skill
+- **Prefer built-in over npm** — use `node:crypto`, `node:util`, and other standard modules before reaching for third-party alternatives. Test framework selection belongs to the `testing` skill

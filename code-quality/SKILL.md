@@ -1,5 +1,5 @@
 ---
-name: rule-code-quality
+name: code-quality
 description: Code quality principles and comment conventions. Use when writing, reviewing, or designing code in any language.
 user-invocable: false
 ---

@@ -1,5 +1,5 @@
 ---
-name: rule-testing
+name: testing
 description: Testing principles, test case design, and framework recommendations. Use when writing tests, designing test strategies, or reviewing test quality.
 user-invocable: false
 ---

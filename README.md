@@ -27,21 +27,21 @@ npx skills@latest remove -g    # global
 | Skill | Activation | Description |
 | --- | --- | --- |
 | `agent-autonomy` | Auto | Standalone vs team-mode rules for custom agents. |
-| `backend-api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
-| `backend-database` | Auto | Schema design, migration, indexing, soft delete, and query optimization conventions. |
+| `api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
 | `backend-principles` | Auto | Layered Architecture and DDD adoption guidance. |
+| `code-quality` | Auto | General code quality and comment conventions. |
 | `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
 | `comments` | Auto | Guidance for adding, updating, or removing comments. |
-| `frontend-react` | Auto | React component, hook, state, styling, and performance conventions. |
-| `lang-rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |
-| `lang-typescript` | Auto | TypeScript typing, narrowing, imports, nullability, and money-handling conventions. |
+| `commit-conventions` | Auto | Commit message conventions and git commit workflow rules. |
+| `nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
+| `react` | Auto | React component, hook, state, styling, and performance conventions. |
 | `road` | Explicit / natural language | Tool-neutral roadmap management with Work Item status sync from spec tool locations. |
-| `rule-code-quality` | Auto | General code quality and comment conventions. |
-| `rule-git` | Auto | Conventional Commit and git workflow rules. |
-| `rule-security` | Auto | Security principles and vulnerability patterns. |
-| `rule-testing` | Auto | Test strategy, case design, and framework recommendations. |
-| `runtime-nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
+| `rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |
 | `sdd` | Explicit / natural language | Three quality gates for spec-driven development: grill, test, and review. |
+| `security` | Auto | Security principles and vulnerability patterns. |
+| `sql-conventions` | Auto | SQL schema, migration, query, indexing, and transaction conventions. |
+| `testing` | Auto | Test strategy, case design, and framework recommendations. |
+| `typescript` | Auto | TypeScript typing, narrowing, imports, nullability, and money-handling conventions. |
 
 Activation means how a skill is normally triggered:
 
