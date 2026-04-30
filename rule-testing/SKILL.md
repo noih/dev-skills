@@ -95,7 +95,17 @@ Prioritize surprising but plausible usage that can happen after launch:
 - **Observable outcomes** — Assert durable outcomes visible at the service boundary: returned data, persisted state, emitted events, queued jobs, audit records, or side effects
 - **Failure realism** — Simulate realistic production failures: timeouts, retries, duplicate delivery, stale data, partial responses, and permission drift
 - **Snapshot tests sparingly** — Only for stable, serializable output (e.g., config files, API responses). Avoid for large UI components — they break on every style change and reviewers stop reading diffs
-- **Max 1000 lines per test file** — Split into smaller, focused test files by domain or feature area
+
+## Writing Tests
+
+Optimize tests for focused reading and targeted execution. An agent should be able to inspect one test file and understand the behavior, setup, and assertions without loading unrelated scenarios or huge data blobs.
+
+- **Plan file boundaries before adding tests** — Each test file covers one module, service method group, route, domain concept, or user-visible behavior. If a file needs more than one `describe` block for unrelated behaviors, split it.
+- **Avoid catch-all files** — Do not create broad files such as `service.test.ts`, `api.test.ts`, `fixtures.ts`, or `test-data.ts` when they mix unrelated behaviors.
+- **Keep behavior-specific data inline** — Small input/output examples and meaningful data differences should stay close to the assertion.
+- **Hide noisy defaults in builders** — Use builders, factories, or fixtures for repeated setup fields that do not matter to the behavior under test.
+- **Split large fixtures by scenario** — Large payloads belong in small, scenario-specific fixture files, not one shared mega-fixture.
+- **Prefer local context over clever reuse** — Avoid shared setup that forces future readers or agents to open many files before understanding one test.
 
 ## Preferred Frameworks
 
@@ -105,3 +115,36 @@ Use the project's existing test framework. If none exists:
 - **React** → Vitest + @testing-library/react (queries by role/text/label, user-perspective testing)
 - **Rust** → cargo test + nextest (parallel execution, better output)
 - **Python** → pytest (concise syntax, powerful fixtures)
+
+## Running Tests
+
+Run the smallest meaningful scope first, with minimal output. Expand scope only after the focused test passes or the local failure is understood.
+
+Recommended order:
+
+1. Run the specific test by name when changing one behavior.
+2. Run the affected test file.
+3. Run the package, module, or crate test suite.
+4. Run the full suite only when the change could affect shared behavior or before final verification.
+
+Only rerun with verbose output when a failure needs more context.
+
+### Minimal output (default run)
+
+| Framework | Command |
+|-----------|---------|
+| Vitest | `vitest run --reporter=dot` |
+| pytest | `pytest -q --tb=short` |
+| cargo nextest | `cargo nextest run` |
+| cargo test | `cargo test -q` |
+
+### Verbose output (investigating a failure)
+
+Run only the failing test by name with full output:
+
+| Framework | Command |
+|-----------|---------|
+| Vitest | `vitest run --reporter=verbose -t "<test name>"` |
+| pytest | `pytest -v --tb=long -k "<test name>"` |
+| cargo nextest | `cargo nextest run --no-capture "<test name>"` |
+| cargo test | `cargo test "<test name>" -- --nocapture` |
