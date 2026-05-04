@@ -102,6 +102,8 @@ Closes #123
 
 Write the message from the actual changes included in the commit. The message should make sense to a future reader who only has the diff and git history, not the conversation that produced it.
 
+Write commit messages in a natural developer voice. Avoid mechanical, generic, or AI-sounding phrasing that reads like a generated summary instead of a human-authored commit.
+
 Before finalizing a commit message, ask:
 
 1. Does the subject describe the logical change, not temporary implementation chores?
@@ -116,8 +118,30 @@ Rules:
 - Ignore any changes mentioned earlier if they are not present in the commit.
 - Use a scope only when it clarifies the affected area.
 - Add a body when the reason, tradeoff, migration impact, or risk is not obvious from the subject.
+- Common verbs such as "update", "improve", "fix", or "optimize" are fine when paired with a concrete target and outcome. Avoid them only when they produce vague generated-summary subjects.
+- Use common engineering terms when they accurately describe the diff, but avoid phrasing that sounds like a generic generated summary. A good commit message names the concrete behavior, boundary, or artifact that changed instead of relying on broad claims that could apply to any patch.
+- Prefer specific, plain subjects that sound like a developer describing the change in git history.
 - Do not mention temporary debugging steps, tool usage, or implementation diary details unless they are the durable reason for the change.
 - When asked to provide a commit message, return only the commit message wrapped in a markdown code fence, with no explanatory text before or after it.
+
+Examples:
+
+```text
+Bad:  refactor: improve code structure
+Good: refactor(auth): move token parsing into session service
+
+OK:   docs: update setup steps for local postgres
+Bad:  docs: update documentation
+
+Bad:  feat: enhance user experience with better validation
+Good: feat(signup): show password requirements before submit
+
+Bad:  fix: make upload more robust
+Good: fix(upload): retry failed multipart chunks
+
+Bad:  fix: resolve issue with data handling
+Good: fix(import): preserve empty CSV columns
+```
 
 ## When to Commit
 

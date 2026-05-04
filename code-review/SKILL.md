@@ -8,13 +8,44 @@ user-invocable: false
 
 Use this skill as a personal review lens alongside any official code review guidance. Focus on issues that materially affect correctness, security, architecture, maintainability, simplicity, or performance. Avoid nitpicks that do not meaningfully improve the code.
 
+## Review Posture
+
+Review with production failure in mind. Do not only check whether the code looks clean; check whether it can break real users, corrupt data, bypass permissions, hide failures, or make future changes unsafe.
+
+For every non-trivial change, actively trace:
+
+- What inputs enter the changed code path?
+- What state can already exist in production?
+- What permissions, ownership, tenant, role, or session assumptions are being made?
+- What side effects happen, and can they happen twice, partially, or out of order?
+- What errors can occur, and who can observe or recover from them?
+- What callers, jobs, API clients, UI flows, or integrations depend on the changed behavior?
+
+Do not assume the diff is locally correct just because each changed line looks reasonable.
+
 ## Review Scope
 
 - Ground findings in the code being reviewed.
+- Inspect enough surrounding code to understand the affected behavior.
 - Do not rely on previous conversation history as evidence.
 - Prefer concrete, actionable findings over broad style commentary.
 - Preserve behavior unless the user explicitly asks for a behavior change.
 - If a suggested change might alter business logic, ask before treating it as a fix.
+- Trace call sites, data boundaries, and side effects when reviewing behavior changes.
+- Treat missing tests as a finding when the change affects production behavior, security, permissions, state transitions, or regression-prone logic.
+- Raise uncertain but plausible production risks as questions or risks instead of silently ignoring them.
+
+## Required Review Passes
+
+For every meaningful change, make these passes before concluding there are no issues:
+
+1. **Requirement fit** — Does the implementation actually satisfy the stated task, including edge cases and non-happy paths?
+2. **Regression risk** — Could existing callers, persisted data, API contracts, background jobs, or UI flows break?
+3. **Security boundary** — Are authentication, authorization, tenant ownership, input validation, secrets, and sensitive outputs still protected?
+4. **State and side effects** — Are writes, deletes, events, queues, emails, cache updates, and retries safe and consistent?
+5. **Error behavior** — Are failures observable, actionable, and not silently swallowed?
+6. **Test evidence** — Are there focused tests for the behavior most likely to break?
+7. **Simplicity** — Is the solution as direct as the problem allows, without premature abstraction or hidden coupling?
 
 ## What To Flag
 
@@ -112,13 +143,35 @@ Do not flag theoretical performance concerns when the code path is small, cold, 
 
 ## Findings Quality
 
-- Lead with bugs, regressions, security issues, and correctness risks.
-- Include architecture, maintainability, and performance findings only when they have clear practical impact.
-- Skip issues that a formatter, linter, typechecker, or compiler would trivially catch unless the user explicitly asks for that level of review.
+- Lead with bugs, regressions, security issues, data integrity risks, and correctness risks.
+- Include architecture, maintainability, and performance findings when they have clear practical impact or increase future change risk.
+- Treat missing or weak tests as review findings when the changed behavior is important, user-facing, permission-sensitive, stateful, or historically easy to regress.
+- Skip issues that a formatter, linter, typechecker, or compiler would trivially catch unless they indicate a deeper problem.
 - Do not over-fix; some patterns are acceptable in local context.
 - Leave comment-specific writing guidance to the `comments` skill unless comments create a real review risk.
 
 Raise a finding only when you can explain the concrete risk and a practical fix.
+
+A finding should include:
+
+- The concrete risk.
+- The condition that triggers it.
+- The likely impact.
+- A practical fix or direction.
+- The evidence in code that supports the concern.
+
+If you cannot prove a problem but see a realistic production risk, raise it as an open question with the specific scenario that worries you.
+
+## No-Issue Reviews
+
+If no findings are found, do not stop at "looks good." State what was checked and what residual risk remains.
+
+Mention:
+
+- The main behavior reviewed.
+- Any tests or validation observed.
+- Any important paths not verified.
+- Whether full-suite testing, integration testing, browser testing, or manual verification is still missing.
 
 ## Output Guidance
 

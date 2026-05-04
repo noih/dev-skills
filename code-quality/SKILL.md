@@ -8,7 +8,7 @@ user-invocable: false
 
 ## Quality Principles
 
-Priority order: Correctness > Readability > Simplicity > Efficiency.
+Correctness comes first. When efficiency differences are minor or theoretical, prefer readability and simplicity over clever or compressed code. When efficiency differences are large enough to matter in realistic usage, prioritize the more efficient approach while keeping the code as understandable as the constraints allow.
 
 ### Avoid
 

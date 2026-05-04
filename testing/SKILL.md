@@ -120,6 +120,10 @@ Use the project's existing test framework. If none exists:
 
 Run the smallest meaningful scope first, with minimal output. Expand scope only after the focused test passes or the local failure is understood.
 
+During feature development, do not default to running the full test suite after every small edit. Use focused tests to check the behavior currently being changed, and run them when the implementation reaches a meaningful checkpoint or when feedback is needed to resolve uncertainty. This keeps the development loop fast without turning tests into background noise.
+
+Run the full suite at the end of the feature, before final handoff or merge, when stability matters more than feedback speed.
+
 Recommended order:
 
 1. Run the specific test by name when changing one behavior.

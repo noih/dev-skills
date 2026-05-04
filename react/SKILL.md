@@ -82,6 +82,7 @@ function UserProfile(props: UserProfileProps) {
 - **Store separation**: Separate stores by functional domains
 - **Immutable updates**: Use Immer or the project's existing approach
 - **Prefer Zustand + Immer**: For new projects without an existing solution; otherwise follow what the project uses
+- **Do not update state during render**: Render must stay pure. Never mutate local state, global state, external stores, or observable state from the component body, JSX expressions, selector callbacks, or any render-time derived calculation. This applies regardless of state library. Trigger state changes from event handlers, effects, async callbacks, or explicit actions instead
 
 ## Styling
 
