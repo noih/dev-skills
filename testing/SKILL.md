@@ -120,7 +120,9 @@ Use the project's existing test framework. If none exists:
 
 Run the smallest meaningful scope first, with minimal output. Expand scope only after the focused test passes or the local failure is understood.
 
-During feature development, do not default to running the full test suite after every small edit. Use focused tests to check the behavior currently being changed, and run them when the implementation reaches a meaningful checkpoint or when feedback is needed to resolve uncertainty. This keeps the development loop fast without turning tests into background noise.
+During feature development, do not rerun tests after every tiny edit or single-line change. Finish a meaningful unit of work first: a small feature path, a bug fix attempt, a refactor step, or a focused behavior change. Then run the smallest relevant test scope to check that work. Run tests earlier only when feedback is needed to resolve uncertainty or diagnose a failure.
+
+This cadence matters because excessive test runs waste time and interrupt the development loop. Tests should provide useful feedback at checkpoints, not become a background reaction to every file save.
 
 Run the full suite at the end of the feature, before final handoff or merge, when stability matters more than feedback speed.
 
