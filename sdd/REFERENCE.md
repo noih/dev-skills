@@ -34,6 +34,9 @@ _Goal: <one-to-two-sentence summary of what this spec delivers>_
 ## HOOK 1 grill
 **Status:** passed | skipped-by-user | skipped-no-grill-me | halted-severe
 **Mode:** user-mode | agent-autonomous | agent-with-leader
+**Project context inspected:** <specs / plans / docs / files / modules / tests checked before questions>
+### Context-derived answers
+- <question or assumption>. Answer: <what existing project context shows>. Evidence: <path / symbol / decision record / behavior>.
 ### Decisions
 - <decision>. Reason: <why>.
 ### Open questions resolved

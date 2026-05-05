@@ -115,6 +115,18 @@ Slug identifies spec in `.sdd/logs/<slug>.md` + session flags. Resolved silently
 
 Goal: catch design / scope problems before implementation.
 
+### Pre-check: existing project context (runs before grilling questions)
+
+Before asking the user, leader, or self-Q&A any requirement / design question, sdd must inspect the current project context relevant to the spec. This includes existing implementation and prior project records such as specs, plans, ADRs, design docs, changelogs, and issue notes when present. The purpose is to answer questions from repository evidence when possible and avoid asking about behavior or decisions the project already makes clear.
+
+Rules:
+
+- Read the spec artifact first, then search / inspect relevant context: existing specs / proposals / plans, ADRs / design docs, project notes, tests, configuration, adjacent feature implementations, modules, API endpoints, and data models.
+- Prefer concrete repository evidence over speculation. If existing project context answers a question, record the answer and do not ask it.
+- Ask only for decisions that remain unclear after inspecting relevant context, or where current spec, prior records, and implementation conflict.
+- In agent autonomous mode, base self-Q&A on spec + inspected project context, not on the spec alone.
+- Record inspected areas and context-derived answers in `.sdd/logs/<slug>.md` under `## HOOK 1 grill`.
+
 ### Pre-check: project layout (runs on proposal-creation signals)
 
 Before spec file created, sdd classifies target _project directory_ — parent under which spec tool writes its artifact (e.g. `<dir>/openspec/changes/<slug>/`, `<dir>/.superpowers/plans/<slug>/`). sdd picks only `<dir>`; does not pick the spec tool, its in-project path, or invoke the spec-tool command. HOOK 1 grill fires once spec file exists.
@@ -142,10 +154,11 @@ Examples + existing-convention precedence: see `REFERENCE.md`.
 
 ### Grill action
 
-sdd invokes grill-me immediately on spec-written / apply signal — no upfront ask. Inputs to grill-me:
+sdd invokes grill-me immediately on spec-written / apply signal — no upfront ask. Before grill-me asks questions, perform the existing-project-context pre-check above. Inputs to grill-me:
 
 1. **Spec content** — full text of detected spec artifact.
 2. **Goal summary** — one-to-two sentence summary of what change delivers. Use spec tool's "delivers" / "goal" field if present; otherwise derive from title + first paragraph. No confirmation step — if wrong, grilling surfaces fast.
+3. **Project context** — concise notes from inspected existing specs / docs / code / tests, including any answers already resolved from the repository and any conflicts that still need questioning.
 
 Per "Execution modes": user mode runs interactive Q&A (interrupt with "skip" / "enough" / "stop" → `Status: skipped-by-user`); agent autonomous self-Q&As against spec + goal, logs decisions / open questions / resolutions / escalations in `## HOOK 1 grill`. On completion (natural or interrupt), set `grilled:<slug>`.
 
