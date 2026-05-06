@@ -1,6 +1,6 @@
 ---
 name: comments
-description: Guidelines for deciding whether to write, update, or remove code comments. Use when adding comments, reviewing comment quality, documenting non-obvious code, or deciding if a comment is necessary.
+description: "Use when: adding comments, reviewing comment quality, documenting non-obvious code, removing stale comments, or deciding whether a code comment is necessary."
 user-invocable: false
 ---
 

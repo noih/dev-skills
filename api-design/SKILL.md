@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: API design conventions and best practices. Use when designing REST API endpoints, defining response shapes, planning pagination, or making API architecture decisions.
+description: "Use when: designing or reviewing REST API endpoints, routes, request/response shapes, error formats, pagination, filtering, versioning, resource naming, or API architecture decisions."
 user-invocable: false
 ---
 

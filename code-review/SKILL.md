@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Personal code review guidelines that supplement official review behavior. Use when reviewing code, checking current changes, assessing code quality, or deciding whether a review finding is worth raising.
+description: "Use when: reviewing code, checking current changes, assessing correctness/security/maintainability/performance risks, preparing review findings, or deciding whether an issue is worth raising."
 user-invocable: false
 ---
 

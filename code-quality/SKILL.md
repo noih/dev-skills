@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: Code quality principles and comment conventions. Use when writing, reviewing, or designing code in any language.
+description: "Use when: writing, reviewing, refactoring, or designing code in any language, especially to evaluate simplicity, readability, naming, abstractions, error handling, maintainability, and code comments."
 user-invocable: false
 ---
 

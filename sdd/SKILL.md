@@ -1,6 +1,6 @@
 ---
 name: sdd
-description: Inserts three quality gates into any spec-driven-development workflow — HOOK 1 grill (before implementation), HOOK 2 test (before review), HOOK 3 review (before archive). Complements spec tools (openspec, superpowers, generic plan files), does NOT replace them. Activates automatically when the conversation shows spec-lifecycle signals — "spec written / ready for grill / ready to apply / done implementing / ready to review / archive this / ship it" — or on explicit `/sdd grill`, `/sdd test`, `/sdd review`. Works for human-driven work AND autonomous agent runs; agents self-grill and write a decision log to `.sdd/logs/<slug>.md`.
+description: "Use when: a spec-driven-development workflow reaches spec written, ready for grill, ready to apply, done implementing, ready to review, archive this, ship it, or explicit /sdd grill, /sdd test, /sdd review. Adds grill/test/review quality gates around spec tools without replacing them."
 user-invocable: true
 ---
 

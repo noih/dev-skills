@@ -1,6 +1,6 @@
 ---
 name: commit-conventions
-description: Commit message conventions and git commit workflow rules. Use when committing code, writing commit messages, or preparing commits for handoff.
+description: "Use when: committing code, writing commit messages, staging changes, splitting commits, preparing handoff commits, or checking git workflow conventions."
 user-invocable: false
 ---
 

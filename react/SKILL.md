@@ -1,6 +1,6 @@
 ---
 name: react
-description: React development conventions and best practices. Use when writing React components, hooks, state management, or styling in a React project.
+description: "Use when: writing, reviewing, debugging, or refactoring React components, hooks, state management, effects, frontend behavior, styling, forms, or component tests."
 user-invocable: false
 ---
 

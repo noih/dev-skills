@@ -1,6 +1,6 @@
 ---
 name: sql-conventions
-description: SQL schema, migration, query, indexing, connection, and transaction conventions. Use when designing relational database schemas, writing migrations, optimizing SQL queries, configuring connection pools, or making SQL database architecture decisions.
+description: "Use when: designing relational schemas, writing migrations, changing indexes, optimizing SQL queries, configuring connection pools, handling transactions, or making SQL database architecture decisions."
 user-invocable: false
 ---
 

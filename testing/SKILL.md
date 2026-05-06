@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Testing principles, test case design, and framework recommendations. Use when writing tests, designing test strategies, or reviewing test quality.
+description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, deciding when to run tests, or balancing fast feedback with confidence."
 user-invocable: false
 ---
 
@@ -96,6 +96,19 @@ Prioritize surprising but plausible usage that can happen after launch:
 - **Failure realism** — Simulate realistic production failures: timeouts, retries, duplicate delivery, stale data, partial responses, and permission drift
 - **Snapshot tests sparingly** — Only for stable, serializable output (e.g., config files, API responses). Avoid for large UI components — they break on every style change and reviewers stop reading diffs
 
+## Test Infrastructure Design
+
+Design the test suite so each layer earns its cost. Fast unit tests can be broad and numerous; expensive integration, browser, database, container, or external-service tests should be fewer, scenario-driven, and focused on behavior that unit tests cannot prove.
+
+- **Separate by feedback cost** — Keep cheap deterministic tests close to the code. Put expensive setup behind explicit integration/e2e commands so agents and developers choose them deliberately.
+- **Batch shared setup** — If several affected tests need the same compile, container, database, browser, emulator, migration, or fixture setup, run them in one invocation so the setup is paid once.
+- **Choose stable isolation boundaries** — Prefer isolation by file, flow, suite, worker, schema, database, temp directory, tenant, or namespace when per-test isolation is too expensive. The boundary should prevent cross-test pollution without rebuilding the world for every assertion.
+- **Cache only environment-independent work** — Cache compiled artifacts, migrated templates, static fixtures, downloaded dependencies, or generated assets. Do not cache runtime-owned clients, connections, event loops, request contexts, transactions, or mutable test state across incompatible runtimes or workers.
+- **Make reset explicit and deterministic** — Provide a documented reset switch for stale or suspicious state. Tie reusable test environments to a schema, migration, fixture, or code fingerprint so they rebuild when assumptions change.
+- **Prefer canonical project runners** — If a project has a test script that encodes batching, setup reuse, database isolation, service startup, or output defaults, use it instead of raw framework commands unless diagnosing the runner itself.
+- **Document the runner contract** — Future agents should know the normal fast command, how to pass test files/names, when to force reset, which suites are ignored/external/destructive, and when the full suite is expected.
+- **Optimize for long-term stability** — A slightly slower runner that isolates state predictably is better than a fragile fast path that leaks data, depends on order, or fails under parallel execution.
+
 ## Writing Tests
 
 Optimize tests for focused reading and targeted execution. An agent should be able to inspect one test file and understand the behavior, setup, and assertions without loading unrelated scenarios or huge data blobs.
@@ -123,6 +136,10 @@ Run the smallest meaningful scope first, with minimal output. Expand scope only 
 During feature development, do not rerun tests after every tiny edit or single-line change. Finish a meaningful unit of work first: a small feature path, a bug fix attempt, a refactor step, or a focused behavior change. Then run the smallest relevant test scope to check that work. Run tests earlier only when feedback is needed to resolve uncertainty or diagnose a failure.
 
 This cadence matters because excessive test runs waste time and interrupt the development loop. Tests should provide useful feedback at checkpoints, not become a background reaction to every file save.
+
+This matters even more when the test runner has expensive setup such as compiling test binaries, building containers, migrating databases, starting services, seeding fixtures, bundling assets, or provisioning external emulators. Avoid paying that setup cost after every small edit. Finish the behavior slice, then run the smallest complete affected set once.
+
+When multiple affected tests share the same setup phase, run them in one runner invocation instead of splitting them into separate shell commands. Many ecosystems can reuse work within one invocation: compiled artifacts, database setup, browser startup, containers, caches, or test worker pools. Splitting equivalent tests across repeated commands can repeat setup even when no code changed.
 
 Run the full suite at the end of the feature, before final handoff or merge, when stability matters more than feedback speed.
 

@@ -1,6 +1,6 @@
 ---
 name: backend-principles
-description: Backend architecture principles — Layered Architecture (Controller/Service/Repository) and DDD adoption guidelines. Use when designing backend structure, organizing business logic, or deciding whether to adopt DDD.
+description: "Use when: designing backend structure, organizing business logic, choosing layers, separating controller/service/repository responsibilities, or deciding whether DDD is warranted."
 user-invocable: false
 ---
 

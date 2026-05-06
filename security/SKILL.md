@@ -1,6 +1,6 @@
 ---
 name: security
-description: Security principles and vulnerability patterns. Use when writing, reviewing, or designing code that handles user input, authentication, or sensitive data.
+description: "Use when: writing, reviewing, or designing code that handles user input, authentication, authorization, sessions, secrets, payments, PII, sensitive data, external callbacks, or trust boundaries."
 user-invocable: false
 ---
 

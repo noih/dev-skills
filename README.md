@@ -34,6 +34,7 @@ npx skills@latest remove -g    # global
 | `comments` | Auto | Guidance for adding, updating, or removing comments. |
 | `commit-conventions` | Auto | Commit message conventions and git commit workflow rules. |
 | `nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
+| `project-context` | Auto | Pre-work workflow for reading repository instructions, testing docs, and local conventions before acting. |
 | `react` | Auto | React component, hook, state, styling, and performance conventions. |
 | `road` | Explicit / natural language | Tool-neutral roadmap management with Work Item status sync from spec tool locations. |
 | `rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |

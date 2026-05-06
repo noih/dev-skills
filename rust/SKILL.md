@@ -1,6 +1,6 @@
 ---
 name: rust
-description: Rust development conventions and best practices. Use when writing any Rust code.
+description: "Use when: writing, reviewing, debugging, refactoring, or testing Rust code, including Cargo projects, async/Tokio code, integration tests, error handling, ownership, traits, modules, and tooling."
 user-invocable: false
 ---
 
@@ -109,6 +109,24 @@ Follow the standard library conventions:
 - **`#[should_panic]`**: Use for tests that verify a `panic!` occurs — include `expected = "message"` to avoid false positives
 - **Test naming**: `snake_case` describing the scenario — `fn rejects_empty_input()`, not `fn test_1()`
 - **Assertions**: Prefer `assert_eq!` / `assert_ne!` over `assert!(a == b)` — the error message shows both values on failure
+
+### Cargo test performance
+
+- Each Rust integration test file in `tests/` is a separate test binary. After production code changes, Cargo may need to relink every affected integration test binary, even though shared dependencies are not rebuilt once cached.
+- Prefer prebuilding selected integration tests once with `cargo test --no-run` (or the project's documented wrapper) before executing several binaries. This pays compile/relink cost once instead of invoking Cargo separately for each file.
+- When tooling needs to execute test binaries directly, get executable paths from Cargo artifact metadata instead of guessing paths under `target/`. The `target/debug/deps` directory can contain stale, duplicate, example, bench, or platform-specific artifacts.
+- Do not assume a long pause before `running N tests` is test logic. It can be Cargo planning, artifact locks, compilation, linking, or test binary startup before libtest begins timing.
+- Avoid sharing Tokio-runtime-bound resources across separate `#[tokio::test]` cases via a static cache. Each `#[tokio::test]` creates its own runtime by default; cache only runtime-independent data unless the project has a custom single-runtime harness.
+- Avoid adding extra Cargo targets solely as wrappers around existing scripts. Every bin/example/test target can participate in Cargo planning and compilation; wrappers should provide real Rust behavior, not just hide a shell command.
+
+### Rust integration test architecture
+
+- Treat each `tests/*.rs` file as its own crate and binary. Choose file boundaries intentionally around coherent behavior flows, API surfaces, or integration resources instead of dumping unrelated scenarios into one large integration file.
+- Pick an isolation boundary that matches the shared resource cost. For external state such as databases, ports, files, queues, or service namespaces, per-binary or per-suite isolation is often a practical middle ground between one shared environment and rebuilding everything per test case.
+- Avoid per-test rebuilds of expensive external state unless cheaper boundaries cannot prevent pollution. Rust integration suites can become dominated by setup time because each binary already has compile/link/startup overhead.
+- Keep static caches limited to data that survives independent async runtimes and process boundaries: names, paths, immutable fixture bytes, fingerprints, or configuration. Build pools, clients, servers, routers, temporary transactions, and app state inside the current test runtime/process.
+- Pass libtest arguments after `--`, and set thread counts intentionally when tests share external resources. Do not rely on default parallelism when tests mutate the same database, filesystem namespace, ports, or singleton service.
+- Keep ignored, external, destructive, sandbox, or slow e2e tests behind explicit commands. Ordinary local Rust test runs should not accidentally call external systems or mutate non-local state.
 
 ## Money (Decimal)
 

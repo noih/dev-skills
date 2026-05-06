@@ -1,6 +1,6 @@
 ---
 name: nodejs
-description: Node.js development conventions. Use when writing any Node.js code.
+description: "Use when: writing, reviewing, debugging, or refactoring Node.js code, including modules, async flows, filesystem/process usage, runtime config, and server-side JavaScript."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: agent-autonomy
-description: Operating mode rules for custom agents that can run either under a team lead or independently. Use when an agent must decide whether to follow team artifacts or work directly from the user request.
+description: "Use when: a custom agent must decide between standalone mode and team mode, interpret team artifacts, follow a lead plan, or work directly from the user's request without orchestration."
 user-invocable: false
 ---
 

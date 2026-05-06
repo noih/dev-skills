@@ -1,15 +1,11 @@
 ---
 name: road
 description: >
-  Manages project roadmaps — ordered lists of Work Items (WI) that point to specs.
-  Activates in two situations. (A) Explicit roadmap operations via `/road <action>`
-  (create / edit / show / sync / branch) or natural language — create/edit/show/sync
-  roadmaps, manage work items. (B) Spec-change side effects — whenever the user
-  performs an action that moves, archives, or creates a spec file that could be
-  referenced by a roadmap WI (e.g. `mv openspec/changes/add-x openspec/changes/archive/`,
-  completing a superpowers task, creating a new spec directory), check whether any
-  roadmap WI references that spec and update its status accordingly. Tool-neutral —
-  links to any spec-writing tool (openspec, superpowers, plans, issues, URLs).
+  Use when: the user asks to create, edit, show, sync, branch, archive, or manage
+  a roadmap; uses `/road <action>`; discusses Work Items (WI); or moves, archives,
+  creates, or deletes a spec file that could be referenced by a roadmap WI. Also
+  use for spec-change side effects across openspec, superpowers, plans, issues,
+  URLs, or other tool-neutral spec locations.
 user-invocable: true
 ---
 

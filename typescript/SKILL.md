@@ -1,6 +1,6 @@
 ---
 name: typescript
-description: TypeScript conventions and best practices. Use when writing any TypeScript code, whether frontend or backend.
+description: "Use when: writing, reviewing, debugging, or refactoring TypeScript code in frontend, backend, tooling, tests, type definitions, API contracts, or shared packages."
 user-invocable: false
 ---
 

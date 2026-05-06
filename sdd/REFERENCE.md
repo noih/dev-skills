@@ -5,11 +5,11 @@ Auxiliary material for the `sdd` skill. SKILL.md links here for the full templat
 ## Project layout examples
 
 ```text
-multi-project-root/                          workspace-root/
-  service-api/ (manifest)       core/
-  web-client/     (manifest)       icard/
-                                   liquidity/
-                                   pnpm-workspace.yaml
+multi-project-root/              workspace-root/
+  service-api/   (manifest)        packages/core/
+  web-client/    (manifest)        packages/app/
+                                   services/worker/
+                                   package-manager-workspace.yaml
 → multi-project                  → monorepo
   target: chosen sub-project       target: workspace-root/
 ```
