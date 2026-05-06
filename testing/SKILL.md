@@ -131,28 +131,42 @@ Use the project's existing test framework. If none exists:
 
 ## Running Tests
 
-Run the smallest meaningful scope first, with minimal output. Expand scope only after the focused test passes or the local failure is understood.
+Run the smallest meaningful scope first; expand only after the focused test passes or the local failure is understood. Finish a meaningful unit of work — a feature path, bug-fix attempt, refactor step, or focused behavior change — before running. Run earlier only when feedback resolves uncertainty or diagnoses a failure. Reserve the full suite for the end of the feature, before handoff or merge.
 
-During feature development, do not rerun tests after every tiny edit or single-line change. Finish a meaningful unit of work first: a small feature path, a bug fix attempt, a refactor step, or a focused behavior change. Then run the smallest relevant test scope to check that work. Run tests earlier only when feedback is needed to resolve uncertainty or diagnose a failure.
+Tests should provide feedback at checkpoints, not become a background reaction to every file save. The cost of reflexive runs grows with setup overhead: compiling test binaries, building containers, migrating databases, starting services, seeding fixtures, bundling assets, or provisioning emulators. Pay that cost once on a complete affected slice, not after every save.
 
-This cadence matters because excessive test runs waste time and interrupt the development loop. Tests should provide useful feedback at checkpoints, not become a background reaction to every file save.
+When multiple affected tests share the same setup, pass them all to **one** runner invocation. Many ecosystems reuse work within a single invocation — compiled artifacts, database setup, browser startup, containers, caches, worker pools — but splitting equivalent tests across repeated shell commands repeats up-to-date checks and setup phases even when no code changed.
 
-This matters even more when the test runner has expensive setup such as compiling test binaries, building containers, migrating databases, starting services, seeding fixtures, bundling assets, or provisioning external emulators. Avoid paying that setup cost after every small edit. Finish the behavior slice, then run the smallest complete affected set once.
+Recommended scope order:
 
-When multiple affected tests share the same setup phase, run them in one runner invocation instead of splitting them into separate shell commands. Many ecosystems can reuse work within one invocation: compiled artifacts, database setup, browser startup, containers, caches, or test worker pools. Splitting equivalent tests across repeated commands can repeat setup even when no code changed.
+1. The specific test by name when changing one behavior.
+2. The affected test file.
+3. The package, module, or crate suite.
+4. The full suite only when the change could affect shared behavior or before final verification.
 
-Run the full suite at the end of the feature, before final handoff or merge, when stability matters more than feedback speed.
+Default to the concise reporter (table below). Only rerun with verbose output when a failure needs more context.
 
-Recommended order:
+### Progress visibility during runs
 
-1. Run the specific test by name when changing one behavior.
-2. Run the affected test file.
-3. Run the package, module, or crate test suite.
-4. Run the full suite only when the change could affect shared behavior or before final verification.
+Minimal output is not silent output. A long-running suite must emit streaming progress — file/binary boundaries, per-test pass/fail marks, final summary — so a stalled run is distinguishable from a slow one. Pick a reporter that streams (`dot`, `-q`, libtest's per-binary header), not one that buffers until the end.
 
-Only rerun with verbose output when a failure needs more context.
+Anti-patterns:
 
-### Minimal output (default run)
+- **`command | tail -N`** — `tail` does not flush until EOF; the run looks frozen until completion. Cannot tell progressing vs. hung vs. crashed.
+- **`command &> /dev/null`** — status-only runs leave no diagnostic trail; failures force a re-run to investigate.
+- **Background without a log file** — output goes nowhere reachable.
+- **Counting through `grep -c` or `wc -l`** — collapses progress to a final number; loses pass/fail names and timing distribution.
+- **Suppressing per-file boundaries** in multi-binary suites — losing "Running &lt;file&gt;" headers hides where time is being spent.
+
+Patterns:
+
+- **Stream + retain** (foreground): `command 2>&1 | tee /tmp/run.log` — live output, full log preserved for grep/replay.
+- **Background + log + tail** (long suites the agent should not block on): `command > /tmp/run.log 2>&1 &`, then periodic `tail -n 80 /tmp/run.log` or `tail -f` while watching.
+- **Per-binary header** for multi-binary runners (Rust integration scripts, e2e harnesses): surface the current binary/file as it starts, not only at the end.
+
+Rule of thumb: a 30-minute run that produces zero bytes until completion has a wrong invocation. Fix the pipeline, not the patience.
+
+### Default reporter (concise progress)
 
 | Framework | Command |
 |-----------|---------|
