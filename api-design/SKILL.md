@@ -14,7 +14,7 @@ user-invocable: false
 
 ## Consumer-Driven Design
 
-Design APIs based on how consumers use the data. When page references are available (Figma, live URL via chrome-devtools MCP, or frontend source code), study the page structure first and let it guide your API shape. When no page reference is available, reason from the requirements about what data each use case needs.
+Design APIs based on how consumers use the data. When page references are available (Figma, a live URL inspected with whatever browser tooling is available, or frontend source code), study the page structure first and let it guide your API shape. When no page reference is available, reason from the requirements about what data each use case needs.
 
 ## Endpoint Granularity
 
