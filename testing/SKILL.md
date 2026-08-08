@@ -24,6 +24,14 @@ Good tests answer:
 - What side effects must happen exactly once?
 - What state must remain consistent after partial failure?
 
+## Writing Tests First
+
+Write the test before the implementation when the expected behavior is already pinned down: a reproducible bug, a stated acceptance criterion, a protocol or schema you must match, or a refactor that must preserve current behavior. The failing test is the specification, and seeing it fail first is what proves it can fail at all.
+
+Write the implementation first when the behavior itself is still being discovered — spikes, exploratory work, an API shape you are still choosing. Add the tests once the shape settles, before the change is considered done.
+
+If a separate test-first workflow is in play for this task, follow it; this section only decides the default when nothing else specifies an order.
+
 ## Test Case Design
 
 - **One assertion per concept** — Each test verifies one specific behavior or invariant.
