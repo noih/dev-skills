@@ -26,7 +26,6 @@ npx skills@latest remove -g    # global
 
 | Skill | Activation | Description |
 | --- | --- | --- |
-| `agent-autonomy` | Auto | Standalone vs team-mode rules for custom agents. |
 | `api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
 | `backend-principles` | Auto | Layered Architecture and DDD adoption guidance. |
 | `code-quality` | Auto | General code quality and comment conventions. |
