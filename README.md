@@ -28,7 +28,7 @@ npx skills@latest remove -g    # global
 | --- | --- | --- |
 | `api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
 | `backend-principles` | Auto | Layered Architecture and DDD adoption guidance. |
-| `code-quality` | Auto | General code quality and comment conventions. |
+| `code-quality` | Auto | General code quality conventions. |
 | `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
 | `comments` | Auto | Guidance for adding, updating, or removing comments. |
 | `commit-conventions` | Auto | Commit message conventions and git commit workflow rules. |

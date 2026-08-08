@@ -4,7 +4,7 @@ description: "Use when: writing, reviewing, refactoring, or designing code in an
 user-invocable: false
 ---
 
-# Code Quality & Comments
+# Code Quality
 
 ## Quality Principles
 
