@@ -6,6 +6,10 @@ user-invocable: false
 
 # Commit Conventions
 
+## Commit Message Language
+
+Prefer English as the primary language for commit subjects, bodies, and explanatory footer text, even when the conversation is in another language. Preserve exact identifiers, quoted text, and names in their original form when translation would lose meaning. Follow an explicit request for another language.
+
 ## Commit Message Format
 
 Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/):
