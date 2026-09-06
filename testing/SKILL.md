@@ -137,6 +137,15 @@ Use the project's existing test framework. If none exists:
 - **Rust** → cargo test + nextest (parallel execution, better output)
 - **Python** → pytest (concise syntax, powerful fixtures)
 
+## Browser Tool Selection
+
+- **Playwright CLI is the default** for everyday UI verification, bug reproduction, form flows, responsive checks, console/network inspection, and request mocking. Use the `playwright-cli` skill when available. Invoke the CLI through PATH with a project-named session (`-s=<project>`); add a task suffix for concurrent work.
+- **Use agent-browser when its built-in `read`, `batch`, or `diff` commands materially simplify the task** — page content extraction, one-off browser workflows, or snapshot/screenshot/URL comparisons. Keep a flow in one tool where practical; a failed first attempt alone is not a reason to switch tools. Diagnose the failure first.
+- **Use Playwright Test for repeatable browser regression tests**, including assertions for critical flows and cross-browser coverage. Run existing tests through the project's runner. A successful CLI interaction verifies the current run; it does not replace a persistent regression test.
+- **Use Chrome DevTools for performance, CPU/heap analysis, or diagnostics missing from the current tool.** For a user-selected existing tab, use the tool that can access that tab.
+
+These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions, and debugging. Do not assume agent-browser is more token-efficient than Playwright CLI without measurements for the actual workflow.
+
 ## Running Tests
 
 Run the smallest meaningful scope first; expand only after the focused test passes or the local failure is understood. Finish a meaningful unit of work — a feature path, bug-fix attempt, refactor step, or focused behavior change — before running. Run earlier only when feedback resolves uncertainty or diagnoses a failure. Reserve the full suite for the end of the feature, before handoff or merge.
