@@ -18,7 +18,7 @@ user-invocable: false
 ## Component Design
 
 - **One component per file** (default): Prefer one exported component per file. If the project's existing convention allows co-located internal sub-components in the same file, follow that convention — but never put multiple reusable public components in the same file
-- **Function Components only**: Use Function Components, avoid Class Components
+- **Function Components by default**: Use functions for ordinary components. A custom Error Boundary may require a class; reuse existing boundary support first.
 - **Hook priority**: Prioritize using hooks to manage state and side effects
 - **Single Responsibility**: Each component focuses on a single responsibility
 
@@ -108,11 +108,11 @@ Follow the project's existing styling system — design tokens, theme, breakpoin
 
 ## Date & Time
 
-- **Use `dayjs`** for all frontend date/time handling — never manipulate native `Date` directly for formatting, calculation, or comparison
-- Use dayjs plugins (e.g., `relativeTime`, `utc`) for extended functionality via `dayjs.extend()`
+- Native `Date` and `Intl` are sufficient for timestamp comparisons, standard ISO serialization, and locale formatting.
+- For calendar arithmetic, custom parsing, or timezone rules, follow the project's existing library. When a library is needed and none is chosen, I prefer **`dayjs`** for frontend work. Add only the plugins needed for the task.
 
 ## Error Handling
 
 - **Error Boundary scope**: Wrap at route/page level so one page crashing doesn't take down the entire app. Add separate boundaries around critical isolated blocks (third-party widgets, charts, rich editors)
 - **Don't over-wrap**: Not every component needs an Error Boundary — only pages and independently failing blocks
-- **Implementation**: Write your own class component (Error Boundary only supports class components). No need for a library when usage is limited to a few places
+- **Implementation**: Reuse the framework's or project's existing Error Boundary support. If none exists, a small class boundary is appropriate; do not add a dependency just for a few boundaries.

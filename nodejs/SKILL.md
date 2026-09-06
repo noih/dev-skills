@@ -16,7 +16,7 @@ user-invocable: false
 ## Async Patterns
 
 - **`async`/`await` over callbacks** — use promise-based APIs (`fs/promises`, `timers/promises`)
-- **Always handle rejections** — every `await` in try/catch or `.catch()` on the promise; never let promises reject silently
+- **Handle rejections at the responsible boundary** — let awaited failures propagate to the existing caller or framework error handler. Catch locally for recovery, cleanup, or useful context, not just to rethrow. Detached promises need an explicit error handler.
 - **`Promise.all` for concurrent work** — run independent async operations in parallel, not sequentially
 - **`Promise.allSettled`** when all results are needed regardless of individual failures
 - **Don't mix async paradigms** — don't mix callbacks with promises/async-await in the same flow. Using `.catch()` for inline error transformation with `await` is fine
@@ -55,8 +55,8 @@ user-invocable: false
 
 ## Date & Time
 
-- **Use `date-fns`** for all backend date/time handling — never manipulate native `Date` directly for formatting, calculation, or comparison
-- date-fns uses pure functions by design, naturally supports tree shaking — use with `import { format, addDays } from 'date-fns'`
+- Native `Date` and `Intl` are sufficient for timestamp comparisons, standard ISO serialization, and locale formatting.
+- For calendar arithmetic, custom parsing, or timezone rules, follow the project's existing library. When a library is needed and none is chosen, I prefer **`date-fns`** for backend work. Do not add it just to replace a simple native operation.
 
 ## Built-in Modules
 

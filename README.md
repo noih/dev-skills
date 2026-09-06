@@ -16,6 +16,10 @@ npx skills@latest remove       # project-level
 npx skills@latest remove -g    # global
 ```
 
+## Conventions
+
+These skills record my personal defaults, not universal requirements. Explicit task constraints and existing project conventions take precedence. Preserve package and style preferences when a choice is needed; do not add dependencies, layers, or unrelated cleanup merely to satisfy a default.
+
 ## Skills
 
 > **`sdd` dependency:** install `grill-me` before using `sdd`:
@@ -27,7 +31,7 @@ npx skills@latest remove -g    # global
 | Skill | Activation | Description |
 | --- | --- | --- |
 | `api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
-| `backend-principles` | Auto | Layered Architecture and DDD adoption guidance. |
+| `backend-principles` | Auto | Personal layering preferences and criteria for adopting DDD. |
 | `code-quality` | Auto | General code quality conventions. |
 | `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
 | `comments` | Auto | Guidance for adding, updating, or removing comments. |

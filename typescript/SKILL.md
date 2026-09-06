@@ -25,13 +25,13 @@ user-invocable: false
 - **`any` is banned** — no exceptions
 - Use `unknown` when the type is uncertain, then narrow with type guards before use
 - External packages missing types: create `types.d.ts` to define types, not `any`
-- When type constraints are truly unsolvable, use `as unknown as Xxx` with a comment explaining why — never `as any`
+- Fix inaccurate boundary types or use a narrowly scoped adapter when package types do not match validated runtime behavior. Do not hide an unresolved type mismatch with a cast.
 
 ## Type Assertions
 
 - Avoid `as` — prefer type guards or discriminated unions to let the compiler narrow automatically
-- Prefer `satisfies` over `as` — `satisfies` checks the type without overriding inference
-- When `as` is unavoidable, use `as unknown as Xxx` and add a comment explaining why
+- Use `satisfies` to check a value against a contract while preserving inference; it does not validate or narrow unknown external data
+- For a justified assertion, use a single `as Xxx` and explain the invariant when it is not obvious. Double assertions bypass compatibility checks; reserve them for a verified interop mismatch at a narrow boundary, never as the default assertion syntax
 
 ## Type Narrowing
 
