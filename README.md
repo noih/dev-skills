@@ -36,6 +36,7 @@ These skills record my personal defaults, not universal requirements. Explicit t
 | `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
 | `comments` | Auto | Guidance for adding, updating, or removing comments. |
 | `commit-conventions` | Auto | Commit message conventions and git commit workflow rules. |
+| `daily-work-report` | Explicit / natural language | Daily progress and plans for project managers, based on activity across work sessions. |
 | `nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
 | `project-context` | Auto | Pre-work workflow for reading repository instructions, testing docs, and local conventions before acting. |
 | `react` | Auto | React component, hook, state, styling, and performance conventions. |
