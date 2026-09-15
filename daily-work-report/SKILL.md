@@ -54,9 +54,10 @@ coverage gaps briefly instead of implying access to unavailable histories.
 5. Extract work from each session, then group by the actual project and problem.
    Parent relationships and leader summaries help connect related work; they
    are not entry requirements. A standalone session is a valid primary source.
-6. Merge discussion, implementation, and QA for the same work without counting
-   them separately. Include distinct progress from child sessions. Sessions
-   can span repositories; their project label or title may be misleading.
+6. Consolidate duplicate reports across discussion, implementation, and QA
+   sessions into a coherent account of the work. Preserve distinct advances
+   without automatically making each phase a separate report item.
+   Sessions can span repositories; their project label or title may be misleading.
 7. Resolve conflicting reports chronologically using the relevant validation
    or decision record. Initial QA failure followed by focused fixes does not
    establish that a second full test run passed.
@@ -114,23 +115,33 @@ Do not include this evidence ledger in the report unless requested.
 - Use a straightforward colleague's voice. Light editing for clarity and flow
   is welcome; it must not inflate scope, certainty, impact, or effort. Avoid
   promotional language and repetitive templates.
-- Group by project. Each sub-item should describe one meaningful requirement,
-  problem, or outcome, usually in one or two sentences. Add the reason, evidence,
-  or next step when useful; do not force all three into every bullet.
+- Group by project and meaningful work item. Usually use one or two connected
+  sentences to explain the change or problem, work performed, and current
+  result. Keep useful reasons, validation, and remaining steps in that account
+  rather than forcing each phase into a separate bullet or a fixed template.
 - For small items, describe the change and relevant result plainly. Neither
   turn routine work into a major achievement nor dismiss it as "just a quick
   change". Fold routine supporting logs, documentation, and tests into the
   parent item. Substantive coordination or document work can merit its own item;
   do not hide it as incidental support or duplicate it under implementation.
-- For large items, retain the purpose, meaningful scope, current result, and
-  important remaining work as relevant. Summarize the work rather than listing
-  implementation steps, but do not compress substantial progress into a vague
-  phrase such as "worked on the feature". Detail should reflect useful context,
-  not a target word count.
-- Include technical details only when they explain impact, status, or the next
-  action. Normally omit hashes, file paths, configuration names, raw errors,
-  payloads, and test-by-test counts. Preserve meaningful affected scope when
-  appropriate for the recipient.
+- For large items, preserve enough information to show the scope and actual
+  work, including development, testing, data preparation, deployment, and
+  integration verification where performed. Simplify terminology, not the
+  substance. Do not replace useful detail with vague "related adjustments"
+  or compress the whole item into "completed development and testing".
+- Split an item only when a separate problem, deliverable, or status would be
+  harder to understand together. Testing, documentation, and deployment do not
+  need their own bullets merely because they took place. Do not target a bullet
+  count or add tasks the developer did not choose.
+- Select details by their value to the PM. Usually describe changes to API
+  fields or validation rules as a category rather than enumerating field names,
+  nullability rules, or payload structure. Omit hashes, paths, configuration
+  names, command sequences, and test-by-test counts unless necessary.
+- Retain concrete explanations of why a problem occurred, how behavior changed,
+  the affected scope, validation results, and remaining work when useful. These
+  may be technical, but they help the PM understand the work. Prefer plain
+  explanations over implementation labels; do not remove all specifics just
+  to shorten the report.
 - Replace vague "discussed requirements" with the subject and progress. For
   example: "Compared sign-in options and documented the constraints; the final
   choice is pending." This is an invented example, not a project record.
@@ -223,13 +234,14 @@ materially affect coverage, add one brief note outside the paste-ready report.
 - Do the periods match the intended sending date and timezone?
 - Were archived and standalone sessions considered, with room for developer
   additions outside session history?
-- Is each item new progress for this period and counted only once?
+- Is each work item a coherent account of this period's progress, without
+  duplicate reports or unnecessary splitting by phase?
 - Are external changes and actual engineering/environment work represented?
 - Is substantive communication and document work represented, with active
   effort distinguished from passive waiting even when no decision is final?
 - Are proposals, implementation, deployment, verification, and recovery distinct?
-- Can the intended audience understand the status without inflated claims or
-  unnecessary implementation details?
+- Were unnecessary implementation details removed while preserving useful
+  scope, causes, work performed, validation, and remaining steps?
 - Are small items described proportionately and large items given meaningful
   scope? If unusual effort is explained, is the reason supported and traceable?
 - Does every task come from the developer's explicit plan for the target day,
