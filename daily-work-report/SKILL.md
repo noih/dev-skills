@@ -23,6 +23,9 @@ double-counting work or confusing a plan with a delivered result.
   collecting independent evidence while waiting.
 - When rewriting sufficient notes already supplied by the user, do not rescan
   every project. Preserve accepted wording, names, and corrections across edits.
+  Treat a user-edited, sent report as the reference for granularity and format:
+  learn which details they retained or removed without treating omissions as
+  factual corrections or universal bans on those details.
 - If the developer has not supplied plans for the target day, ask for them
   while collecting the previous day's progress. Do not ask again when those
   plans have already been explicitly provided for that day.
@@ -124,11 +127,10 @@ Do not include this evidence ledger in the report unless requested.
   change". Fold routine supporting logs, documentation, and tests into the
   parent item. Substantive coordination or document work can merit its own item;
   do not hide it as incidental support or duplicate it under implementation.
-- For large items, preserve enough information to show the scope and actual
-  work, including development, testing, data preparation, deployment, and
-  integration verification where performed. Simplify terminology, not the
-  substance. Do not replace useful detail with vague "related adjustments"
-  or compress the whole item into "completed development and testing".
+- For large items, preserve the meaningful change, its reason, and relevant
+  validation or unresolved outcome. Do not enumerate every engineering stage
+  just because records contain it. Simplify terminology, not the substance;
+  avoid vague "related adjustments" or "completed development and testing".
 - Split an item only when a separate problem, deliverable, or status would be
   harder to understand together. Testing, documentation, and deployment do not
   need their own bullets merely because they took place. Do not target a bullet
@@ -137,6 +139,19 @@ Do not include this evidence ledger in the report unless requested.
   fields or validation rules as a category rather than enumerating field names,
   nullability rules, or payload structure. Omit hashes, paths, configuration
   names, command sequences, and test-by-test counts unless necessary.
+  Keep exact identifiers only when they help identify the work or explain an
+  unresolved problem; omit low-level parameter changes and error details that
+  do not change the reader's understanding.
+- Keep completion stages accurate without adding a handoff checklist to each
+  item. Commit/push status, whether seed data was applied, and deployment
+  reminders usually belong in working notes. Mention them when they affect
+  availability, a dependency, or the next action; do not imply deployment or
+  integration success merely to avoid a qualification.
+- State each result or limitation once where it belongs. Avoid repeating an
+  item's status in a project recap or re-listing today's chosen follow-up under
+  suggestions. A relevant "tests passed" or "integration testing pending" is
+  enough; do not append the same verification and pending-work formula to every
+  item. Keep unresolved causes and recovery risks that materially affect action.
 - Retain concrete explanations of why a problem occurred, how behavior changed,
   the affected scope, validation results, and remaining work when useful. These
   may be technical, but they help the PM understand the work. Prefer plain
@@ -226,7 +241,8 @@ Today's tasks:
   - Afternoon kickoff, followed by organizing requirements and open questions.
 ```
 
-Use only the projects and items warranted by the evidence. If access limitations
+Use only the projects and items warranted by the evidence. Do not append a
+routine inventory of searched projects or session types. If access limitations
 materially affect coverage, add one brief note outside the paste-ready report.
 
 ## Final Check
@@ -240,8 +256,9 @@ materially affect coverage, add one brief note outside the paste-ready report.
 - Is substantive communication and document work represented, with active
   effort distinguished from passive waiting even when no decision is final?
 - Are proposals, implementation, deployment, verification, and recovery distinct?
-- Were unnecessary implementation details removed while preserving useful
-  scope, causes, work performed, validation, and remaining steps?
+- Does the detail level match the user's accepted report? Remove repeated
+  status, handoff minutiae, and secondary investigation details while preserving
+  useful scope, causes, work performed, validation, and unresolved outcomes.
 - Are small items described proportionately and large items given meaningful
   scope? If unusual effort is explained, is the reason supported and traceable?
 - Does every task come from the developer's explicit plan for the target day,
