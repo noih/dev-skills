@@ -20,6 +20,8 @@ project names, and completion stages clear for readers without engineering conte
   Preserve accepted wording, project names, grouping, and corrections. Use the
   user's edited report as the reference for detail and format; an omission is
   not necessarily a factual correction or a universal ban on that detail.
+  Apply corrections cumulatively; when asked for the full report, return both
+  progress and plans with all accepted edits, not just the latest changed item.
 - If plans for the target day are missing, ask once while collecting progress.
   Bundle any invitation to add meetings, communication, or other unrecorded work.
   Do not ask again for plans already explicitly provided for that day.
@@ -87,16 +89,24 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
 - Use a natural colleague's voice. Polish for clarity without inflating scope,
   certainty, impact, or effort. Follow the user's established project names and
   format rather than repository names or technical categories.
-- Group by project and meaningful work item, usually one or two connected
-  sentences per item. Fold supporting tests, logs, and routine documentation into
-  the work they support. Split only for a distinct problem, deliverable, or status;
-  substantive communication or document work may merit its own item.
+- Default to project names as top-level bullets and work items as nested bullets,
+  even for a single project. Use the user's project names and assignments in both
+  progress and plans; a shared organization or repository does not make two
+  projects one. Write item text directly, without mini-titles such as "Testing:".
+- Group by meaningful work item, usually one or two connected sentences. Lead
+  with its purpose so preparation steps are understandable. Combine preparation,
+  execution, and results for the same objective into one item, even when they
+  happened in separate sessions. Fold supporting tests, logs, and routine
+  documentation into that item; split distinct deliverables or substantive
+  communication when they merit their own item.
 - Match detail to substance, not a target bullet count. Describe small changes
   plainly; retain the meaningful scope and reason for larger changes. Avoid both
   dismissive wording and vague summaries such as "completed related adjustments."
 - Keep details that change the PM's understanding of scope, outcome, availability,
   dependencies, or next action. This can include a concrete cause, validation,
   deployment milestone, or unresolved blocker. Simplify terminology, not substance.
+  Name a known pending action instead of a vague "awaiting confirmation"; preserve
+  unresolved causes and do not imply that the action will resolve every issue.
 - Leave verification minutiae in working notes: hashes, paths, commands, test
   counts, payload fields, secondary test scenarios, implementation safeguards,
   and generic benefits already implied by the work. Exact identifiers belong
@@ -119,7 +129,11 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
 - Clarify a brief plan's subject and activity using supplied context, without
   turning communication or testing into promised delivery. Preserve meeting
   titles; a descriptive title needs no generic purpose or invented deliverables.
-  Expand an agenda only when supplied or requested.
+  Expand an agenda only when supplied or requested. Do not append generic
+  deliverables such as "compile discovered issues" unless they add requested scope.
+- For repeated testing or other repeated work, include the supplied reason for
+  doing it again and preserve the requested method. Do not present regression
+  testing after changes as first-time validation or invent a reason if none is known.
 - If useful, present evidence-backed unfinished work separately as candidates
   pending the user's choice, without assigning dates, priority, or ownership.
   Do not repeat tasks already chosen in these suggestions.
@@ -143,17 +157,19 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
 
 Return the paste-ready report, without an introduction, analysis, source appendix,
 or closing offer unless requested. Use the user's established format; otherwise
-use this template, grouping items by project as needed. Translate labels only
+use this project-grouped template. Translate labels only
 when reporting in another language; leave a blank line before each list.
 
 ```text
 昨日進度：
 
-- xxx
+- 專案名稱
+  - 工作目的、進度與結果或待處理事項。
 
 今日待辦：
 
-- xxx
+- 專案名稱
+  - 預計工作；若是再次執行，簡述已知原因。
 ```
 
 Before returning, check dates and coverage, remove duplicate or secondary detail,
