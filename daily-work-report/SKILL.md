@@ -43,10 +43,18 @@ Elsewhere, use accessible transcripts or supplied notes.
    earlier context and tool results as needed. Metadata only aids discovery:
    `updatedAt`, opening, renaming, marking read, and archiving are not work evidence.
    `bb thread output <id>` may return an older result.
-4. Group by the actual project and problem, not merely session title or parent.
+4. Scan commit history in the repositories those sessions touched. Take the
+   paths from the project sources, and include worktrees and sibling repositories
+   the sessions mention, such as an app, docs, or spec repo beside the server.
+   Use a read-only listing over the reporting period, for example
+   `git log --all --since=<start> --until=<end> --format='%h %ad %s' --date=iso`.
+   Commit messages surface work no session recorded, confirm what was merged
+   versus left on a branch, and date decisions. A commit proves only what its
+   message and timestamp say, not that the change was tested or deployed.
+5. Group by the actual project and problem, not merely session title or parent.
    Sessions can span repositories. Consolidate discussion, implementation, and QA
    records without losing distinct advances or counting the same work twice.
-5. Resolve conflicts chronologically using validation and decision records.
+6. Resolve conflicts chronologically using validation and decision records.
    A failed full run followed by focused fixes does not prove another full run
    passed. Accept the user's account of unrecorded work without requiring a
    matching session or claiming independent verification.
@@ -99,6 +107,13 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   happened in separate sessions. Fold supporting tests, logs, and routine
   documentation into that item; split distinct deliverables or substantive
   communication when they merit their own item.
+- One item is its purpose or business rule plus its outcome. Spend the words on
+  what the change means for the business, such as the rule now enforced or the
+  data source now used, not on how it was delivered. Add a second sentence only
+  for an external blocker or a result the PM must act on.
+- When a count already summarizes the members ("fixed the 5 issues", "found 6
+  new issues"), stop at the count. Do not enumerate the members, single out one
+  member's root cause, or restate the count as a parenthetical list elsewhere.
 - Match detail to substance, not a target bullet count. Describe small changes
   plainly; retain the meaningful scope and reason for larger changes. Avoid both
   dismissive wording and vague summaries such as "completed related adjustments."
@@ -109,12 +124,19 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   unresolved causes and do not imply that the action will resolve every issue.
 - Leave verification minutiae in working notes: hashes, paths, commands, test
   counts, payload fields, secondary test scenarios, implementation safeguards,
-  and generic benefits already implied by the work. Exact identifiers belong
-  only when they identify the work or explain a material issue.
-- Commit/push status, seed application, and deployment reminders usually belong
-  in notes, not a handoff checklist appended to each item. Omit irrelevant detail
-  without implying deployment or integration success. State each useful result or
-  limitation once; avoid repetitive testing/pending-work formulas and recaps.
+  observed sample values, and generic benefits already implied by the work. Exact
+  identifiers belong only when they identify the work or explain a material issue.
+- Delivery pipeline stages are notes, not report text: "developed, tested and
+  reviewed", "merged", "branch pushed", "awaiting deploy or migration", and
+  similar internal next steps. Do not narrate how a decision was reached ("as
+  agreed with X", "per discussion"); state the rule or outcome. Do not append
+  watch items or "still to confirm" tails unless the item is blocked by them.
+  Omit irrelevant detail without implying deployment or integration success.
+  State each useful result or limitation once; avoid repetitive
+  testing/pending-work formulas and recaps.
+- Housekeeping is not a work item: committing or tidying work already reported
+  on an earlier day, reorganizing report folders, cleaning branches or
+  worktrees. Fold it silently or drop it.
 - If a source link materially helps, use one recipient-accessible reference beside
   the item, subject to confidentiality. Do not dump evidence or searched-project
   inventories. Mention access gaps briefly outside the report only when they
@@ -131,6 +153,11 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   titles; a descriptive title needs no generic purpose or invented deliverables.
   Expand an agenda only when supplied or requested. Do not append generic
   deliverables such as "compile discovered issues" unless they add requested scope.
+- Expand a plan item by naming its subject and purpose, not by enumerating the
+  members behind a count. "Fix the 6 issues found in the retest" is complete;
+  a parenthetical list of the issues is not more informative to the PM. A
+  concrete follow-up already known from the evidence (for example, chasing a
+  counterparty on a pending item) may be attached in a few words.
 - For repeated testing or other repeated work, include the supplied reason for
   doing it again and preserve the requested method. Do not present regression
   testing after changes as first-time validation or invent a reason if none is known.
