@@ -146,6 +146,26 @@ Use the project's existing test framework. If none exists:
 
 These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions, and debugging. Do not assume agent-browser is more token-efficient than Playwright CLI without measurements for the actual workflow.
 
+### Browser Session Hygiene
+
+Automation browsers outlive the agent that started them unless they are closed explicitly. A leaked instance of the system Google Chrome can silently capture links the user clicks elsewhere, so the user's everyday browser appears broken.
+
+- **Do not automate the user's everyday Chrome app.** Any automation launched from `/Applications/Google Chrome.app` (Playwright's `chrome` channel, chrome-devtools MCP's default `stable` channel) registers with the OS as Chrome and can receive link-open events, even when headless. Prefer a separate binary:
+  - Playwright CLI / MCP: bundled Chromium via `PLAYWRIGHT_MCP_BROWSER=chromium`, or `"browser": { "browserName": "chromium" }` in `.playwright/cli.config.json`.
+  - chrome-devtools MCP: `--executablePath` pointing at Chrome for Testing / Chromium, or `--channel=canary`.
+  - If the config cannot be changed in the current task, say so to the user instead of silently falling back to the system Chrome.
+- **Close what you open, on every exit path.** End each Playwright CLI session with `playwright-cli -s=<session> close` when the task finishes, including after failures or aborts. Run `playwright-cli list` before handoff and confirm none of your sessions remain.
+- **Do not clean up other agents' browsers.** `playwright-cli close-all` and `kill-all` stop every session, including concurrent agents' work. Use them only when the user asks or when you have confirmed that no other session is in use.
+- **chrome-devtools MCP owns one long-lived browser.** It stays open for the lifetime of the MCP server, and its last page cannot be closed through the tools. Close only the pages you opened (`close_page`), and do not navigate or close pages the user selected. Use `--isolated` when a throwaway profile is enough.
+- **Diagnose leaks before killing.** Automation browsers carry `--remote-debugging-pipe` or `--remote-debugging-port`; the user's normal Chrome does not.
+
+  ```bash
+  pgrep -fl remote-debugging-pipe | grep -v Helper   # list automation browsers
+  ps -o ppid=,command= -p <pid>                      # find the owner; ppid 1 means an orphaned daemon
+  ```
+
+  Stop the orphaned owner (for example, a leftover `@playwright/cli` node daemon) together with its browser. Otherwise, the owner may relaunch it. Never match on `Google Chrome` alone, because that also kills the user's browser.
+
 ## Running Tests
 
 Run the smallest meaningful scope first; expand only after the focused test passes or the local failure is understood. Finish a meaningful unit of work — a feature path, bug-fix attempt, refactor step, or focused behavior change — before running. Run earlier only when feedback resolves uncertainty or diagnoses a failure. Reserve the full suite for the end of the feature, before handoff or merge.
