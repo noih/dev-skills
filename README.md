@@ -43,6 +43,7 @@ These skills record my personal defaults, not universal requirements. Explicit t
 | `road` | Explicit / natural language | Tool-neutral roadmap management with Work Item status sync from spec tool locations. |
 | `rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |
 | `sdd` | Explicit / natural language | Three quality gates for spec-driven development: grill, test, and review. |
+| `lead` | Explicit / natural language | Leader mode for orchestrating dev, test, and review agents (bb threads first, native subagents as fallback); the leader dispatches and adjudicates but never writes code. |
 | `security` | Auto | Security principles and vulnerability patterns. |
 | `sql-conventions` | Auto | SQL schema, migration, query, indexing, and transaction conventions. |
 | `testing` | Auto | Test strategy, case design, and framework recommendations. |
