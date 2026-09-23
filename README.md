@@ -46,7 +46,7 @@ These skills record my personal defaults, not universal requirements. Explicit t
 | `lead` | Explicit / natural language | Leader mode for orchestrating dev, test, and review agents (bb threads first, native subagents as fallback); the leader dispatches and adjudicates but never writes code. |
 | `security` | Auto | Security principles and vulnerability patterns. |
 | `sql-conventions` | Auto | SQL schema, migration, query, indexing, and transaction conventions. |
-| `testing` | Auto | Test strategy, case design, and framework recommendations. |
+| `testing` | Auto | Test strategy, case design, framework recommendations, and browser automation hygiene. |
 | `typescript` | Auto | TypeScript typing, narrowing, imports, nullability, and money-handling conventions. |
 
 Activation means how a skill is normally triggered:
