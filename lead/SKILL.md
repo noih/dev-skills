@@ -33,7 +33,7 @@ review findings → leader adjudicates → dispatch fix → test (affected only)
 | leader | dev / QA / reviewer thread |
 |---|---|
 | Claude | `--provider claude-code --model 'claude-opus-5-5[1m]' --reasoning-level medium --permission-mode auto` |
-| GPT / Codex | `--provider codex --model gpt-5.6-sol --reasoning-level high --permission-mode auto` |
+| GPT / Codex | `--provider codex --model gpt-6-sol --reasoning-level medium --permission-mode auto` |
 
 - The native-subagent fallback follows the same model and reasoning rules.
 - Nested delegation inherits the top-level leader's configuration; **include it in every dispatch prompt**. Explicit user configuration for the current task takes precedence.
