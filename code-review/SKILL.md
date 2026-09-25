@@ -49,6 +49,10 @@ For every meaningful change, make these passes before concluding there are no is
 
 ## What To Flag
 
+### Quality Gate Integrity
+
+Flag unexplained weakening of existing checks: lowered thresholds, disabled CI checks, new suppressions, skipped/deleted tests, or removed meaningful assertions. Legitimate changes need a rationale and adequate retained or replacement verification. Use existing project constraints, including `CONSTRAINTS.md` when present; do not invent new gates during review.
+
 ### Correctness And Behavior
 
 Flag changes that can cause incorrect behavior, regressions, data loss, broken edge cases, or mismatches with the stated requirement.
