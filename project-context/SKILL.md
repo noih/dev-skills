@@ -13,6 +13,7 @@ Before changing code, running tests, reviewing, or delegating work in a reposito
 Look for project-specific operating docs at the workspace root and relevant package/service root:
 
 - `TESTING.md`
+- `CONSTRAINTS.md`, when present — use the existing quality bar; do not create one merely to begin work
 - `README.md`
 - `AGENTS.md`
 - `docs/`
@@ -32,6 +33,10 @@ When working in a monorepo, read the closest relevant package instructions, not 
 - Respect local agent instructions for review, implementation, and handoff.
 - Preserve project-specific naming, API, data, and architecture conventions.
 - If instructions conflict, prefer the most local and task-specific file, then ask only if the conflict blocks safe progress.
+
+## Version-Sensitive Decisions
+
+For version-sensitive APIs, check the resolved version in the lockfile or installed package, then consult matching official docs; use local source/types or a focused executable check to resolve gaps. State material uncertainty and cite non-obvious version-dependent decisions. Newer docs alone do not justify dependency upgrades or rewrites.
 
 ## Tests And Tooling
 

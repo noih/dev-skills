@@ -53,9 +53,13 @@ Write operations should reflect business actions, not just CRUD mappings. When t
 
 ## Idempotency
 
-- **GET, PUT, DELETE** are idempotent by spec — repeating them produces the same result.
-- **POST** is NOT idempotent. For critical writes (payments, orders), require an `Idempotency-Key` header. The server stores the key and returns the cached response on retries, preventing double-submit.
-- Action endpoints (`POST /orders/:id/cancel`) are naturally idempotent if the action is a state transition — cancelling an already-cancelled order is a no-op, not an error.
+- **GET, PUT, DELETE** have idempotent semantics: repeating an identical request has the same intended server effect as making it once; responses need not be identical.
+- **POST** has no inherent idempotency guarantee. For critical writes (payments, orders), define and enforce an `Idempotency-Key` contract.
+- Reuse one key per business intent across retries; scope it to the tenant/caller and operation. Replays require authorization; reject the same key with a different payload.
+- Claim processing atomically before side effects. Define the response to in-flight duplicates without executing the effect again.
+- Persist intent before external calls; use downstream idempotency where supported. A timeout leaves the outcome unknown: reconcile before retrying. A local claim alone cannot guarantee exactly-once remote effects.
+- Retain keys through the supported retry window, including dead-letter replay; define behavior after expiry.
+- State transitions alone do not make action endpoints idempotent: concurrent requests and associated side effects must also be protected.
 
 ## Resource Structure
 
