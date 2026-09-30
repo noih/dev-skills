@@ -10,7 +10,7 @@ user-invocable: true
 
 ## 0. Kickoff (every time)
 
-1. `bb status --json` to confirm project / thread / environment; `bb provider models <provider>` to confirm the worker models below exist. If one is missing, report it; **never substitute silently**.
+1. `bb status --json` to confirm project / thread / environment; `bb provider models <provider>` to confirm the selected leader and worker models below exist. Configure the leader's model / reasoning through supported harness controls; if the current session cannot change them, report the mismatch. If a model is missing, report it; **never substitute silently or claim an inactive configuration is active**.
 2. If project memory has a leader playbook (e.g. tdcc-rwa `feedback-leader-playbook`), read it first; project-specific rules (environment ownership, paths, demo rules) take precedence.
 3. Read the goal and decide which phases run: **develop / test / review**. A pure bug fix may be develop + test only; a pure review task is review only. Write down the phases and WI split before dispatching.
 4. **Dispatch tool priority**: use the harness's thread / agent mechanism first (`bb thread spawn` in bb; other harnesses use their own thread / task tools). Workers then have isolated context and can be waited on, told, measured, and handed off. **Fall back to native subagents (Agent tool) only when the harness has no such tool.** Check `bb status` or the harness tool list first; do not open a subagent by reflex.
@@ -28,18 +28,26 @@ review findings → leader adjudicates → dispatch fix → test (affected only)
 - **Loop guard**: the same FAIL survives 3 rounds, or the worker reports "fixed" twice while QA still reproduces it — stop. It is usually a spec conflict, a dirty environment, or a worker whose context has degraded. The leader reads the code and adjudicates; if needed stop → WIP commit → re-spawn. Do not re-dispatch the same task in place.
 - Pure bug fixes / small tasks: the bar can shrink to "affected tests green" and review may be skipped, but the leader declares this at kickoff, not midway.
 
-## 1. Worker configuration (by the top-level leader's model family)
+## 1. Leader and worker configuration
 
-| leader | work | worker configuration |
+Choose the column by the top-level leader's model family. Each cell specifies **model / reasoning**.
+
+| work | Claude | GPT / Codex |
 |---|---|---|
-| Claude | Dev, test design / exploratory QA, reviewer | `--provider claude-code --model 'claude-opus-5-5[1m]' --reasoning-level medium --permission-mode auto` |
-| Claude | Execute existing tests / explicit browser cases, report failures | `--provider claude-code --model 'claude-sonnet-5-5[1m]' --reasoning-level medium --permission-mode auto` |
-| GPT / Codex | Dev / QA / reviewer | `--provider codex --model gpt-6.1-sol --reasoning-level medium --permission-mode auto` |
+| Leader: scope, dispatch, evidence assessment, adjudication | `claude-fable-5-1` / `high` | `gpt-6-astra` / `high` |
+| Dev | `claude-opus-5-5[1m]` / `medium` | `gpt-6.1-sol` / `medium` |
+| QA: execute existing tests / explicit browser cases, report failures | `claude-sonnet-5-5[1m]` / `medium` | `gpt-6-luna` / `medium` |
+| QA: design tests, explore business-logic / authorization / state-transition / concurrency holes | `claude-opus-5-5[1m]` / `medium` | `gpt-6.1-sol` / `medium` |
+| Reviewer: cross-file correctness, architecture, security, spec consistency | `claude-opus-5-5[1m]` / `medium` | `gpt-6.1-sol` / `high` |
+| Escalation: a difficult, clearly bounded investigation or finding | `claude-fable-5-1` / `medium` | `gpt-6-astra` / `medium` |
+| Escalation: deep security, concurrency, or cross-system spec conflicts | `claude-fable-5-1` / `high` | `gpt-6-astra` / `high` |
 
-- Choose QA configuration by the work: Sonnet executes defined cases; Opus designs coverage and hunts business-logic, authorization, state-transition, and concurrency holes. If one Claude QA assignment includes both, use Opus. A reviewer does not replace exploratory QA.
+- **QA routing**: Sonnet / Luna execute defined cases; Opus / Sol design coverage and hunt holes. If one assignment includes execution and exploration, use Opus / Sol for the whole assignment; do not split merely to save model cost. A reviewer does not replace exploratory QA.
+- **Escalation belongs to the leader**: choose it when the work warrants deeper analysis or the default worker's evidence is insufficient. Dispatch only the difficult item, with the available evidence and a clear completion condition; routine work keeps its default configuration. Model escalation does not reset the loop guard, reopen passed gates, or expand scope.
+- For a bounded escalation, Fable / Astra at `medium` is a starting point; genuinely difficult work uses `high`. Do not assume Fable / medium beats Opus / high or Astra / medium beats Sol / high. Keep the lightest configuration that meets the task's quality bar based on actual results.
+- Claude worker spawns use `--provider claude-code`; GPT worker spawns use `--provider codex`. Pass the table's `--model` and `--reasoning-level` explicitly, plus `--permission-mode auto`; never rely on project defaults. Quote model IDs containing `[1m]` in shell commands.
 - The native-subagent fallback follows the same model and reasoning rules.
-- Nested delegation follows the top-level leader's model family and the worker configuration for the delegated work; **include these rules in every dispatch prompt**. Explicit user configuration for the current task takes precedence.
-- Never rely on project defaults; every spawn states provider / model / reasoning / permission explicitly.
+- Nested delegation follows the top-level leader's **model family and task routing**, not the parent worker's model or the leader's `high` effort for every task; **include the routing and escalation rules in every dispatch prompt**. Explicit user configuration for the current task takes precedence.
 - Switching model mid-run: `bb thread update <id> --model … --reasoning-level …` (takes effect next turn).
 
 ## 2. Phase one: develop
