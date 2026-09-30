@@ -30,13 +30,15 @@ review findings → leader adjudicates → dispatch fix → test (affected only)
 
 ## 1. Worker configuration (by the top-level leader's model family)
 
-| leader | dev / QA / reviewer thread |
-|---|---|
-| Claude | `--provider claude-code --model 'claude-opus-5-5[1m]' --reasoning-level medium --permission-mode auto` |
-| GPT / Codex | `--provider codex --model gpt-6.1-sol --reasoning-level medium --permission-mode auto` |
+| leader | work | worker configuration |
+|---|---|---|
+| Claude | Dev, test design / exploratory QA, reviewer | `--provider claude-code --model 'claude-opus-5-5[1m]' --reasoning-level medium --permission-mode auto` |
+| Claude | Execute existing tests / explicit browser cases, report failures | `--provider claude-code --model 'claude-sonnet-5-5[1m]' --reasoning-level medium --permission-mode auto` |
+| GPT / Codex | Dev / QA / reviewer | `--provider codex --model gpt-6.1-sol --reasoning-level medium --permission-mode auto` |
 
+- Choose QA configuration by the work: Sonnet executes defined cases; Opus designs coverage and hunts business-logic, authorization, state-transition, and concurrency holes. If one Claude QA assignment includes both, use Opus. A reviewer does not replace exploratory QA.
 - The native-subagent fallback follows the same model and reasoning rules.
-- Nested delegation inherits the top-level leader's configuration; **include it in every dispatch prompt**. Explicit user configuration for the current task takes precedence.
+- Nested delegation follows the top-level leader's model family and the worker configuration for the delegated work; **include these rules in every dispatch prompt**. Explicit user configuration for the current task takes precedence.
 - Never rely on project defaults; every spawn states provider / model / reasoning / permission explicitly.
 - Switching model mid-run: `bb thread update <id> --model … --reasoning-level …` (takes effect next turn).
 
