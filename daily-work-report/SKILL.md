@@ -22,30 +22,43 @@ project names, and completion stages clear for readers without engineering conte
   not necessarily a factual correction or a universal ban on that detail.
   Apply corrections cumulatively; when asked for the full report, return both
   progress and plans with all accepted edits, not just the latest changed item.
+- Before discovery, establish the work-project allowlist and personal-project
+  exclusions from the user's instructions or applicable private local context.
+  Keep actual organization names, repository roots, and mappings outside this
+  public skill. Do not assume every local project or BB thread is work-related.
+  If scope is still unknown, ask once and collect only already-confirmed work.
+  Apply the same scope to BB, native transcripts, Git, and the final report.
 - If plans for the target day are missing, ask once while collecting progress.
   Bundle any invitation to add meetings, communication, or other unrecorded work.
   Do not ask again for plans already explicitly provided for that day.
 
 ## 2. Collect Read-Only Evidence
 
-In BB, use the CLI regardless of agent provider; consult `bb-cli` or live help.
-Elsewhere, use accessible transcripts or supplied notes.
+Check BB, native Claude Code, and native Codex as complementary sources, regardless
+of where this report is being drafted. Finding BB activity does not finish
+discovery. Skip unavailable sources and record material coverage gaps; do not
+install tools or resume sessions to inspect history. For native discovery, read
+[Native session evidence](references/native-sessions.md).
 
-1. Inspect projects and both current and archived sessions:
+1. When BB is available, use its CLI regardless of agent provider; consult
+   `bb-cli` or live help. Inspect projects and both current and archived sessions:
    `bb status --json`, `bb project list --json`, `bb thread list --json`, and
    `bb thread list --archived --json`. Include accessible hidden sessions when
-   relevant and account for listing limits.
+   relevant and account for listing limits. Also discover native Claude Code and
+   Codex transcripts, using project metadata to filter before reading content.
 2. Find activity in the reporting period, including standalone or unfinished
    discussions, requirements, coordination, documents, investigation, development,
    and QA. A leader, child session, commit, or file change is not required.
-3. Read dated events with `bb thread log <id> --all --json` or sequence pagination.
+3. Read dated BB events with `bb thread log <id> --all --json` or sequence
+   pagination, and dated native transcript events for the same reporting window.
    Prioritize the day's requests, corrections, analysis, and conclusions; read
    earlier context and tool results as needed. Metadata only aids discovery:
    `updatedAt`, opening, renaming, marking read, and archiving are not work evidence.
    `bb thread output <id>` may return an older result.
 4. Scan commit history in the repositories those sessions touched. Take the
-   paths from the project sources, and include worktrees and sibling repositories
-   the sessions mention, such as an app, docs, or spec repo beside the server.
+   paths from the project sources, and include in-scope worktrees and sibling
+   repositories the sessions mention, such as an app, docs, or spec repo beside
+   the server. A mention or shared parent directory does not expand the allowlist.
    Use a read-only listing over the reporting period, for example
    `git log --all --since=<start> --until=<end> --format='%h %ad %s' --date=iso`.
    Commit messages surface work no session recorded, confirm what was merged
@@ -54,6 +67,10 @@ Elsewhere, use accessible transcripts or supplied notes.
 5. Group by the actual project and problem, not merely session title or parent.
    Sessions can span repositories. Consolidate discussion, implementation, and QA
    records without losing distinct advances or counting the same work twice.
+   BB may mirror a native session: correlate provider session IDs when available,
+   otherwise use project, timestamps, and matching content. Count mirrored events,
+   resumed/forked history, and parent/child summaries only once; preserve distinct
+   later work. In mixed-project sessions, include only in-scope work items.
 6. Resolve conflicts chronologically using validation and decision records.
    A failed full run followed by focused fixes does not prove another full run
    passed. Accept the user's account of unrecorded work without requiring a
