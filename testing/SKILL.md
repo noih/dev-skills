@@ -1,6 +1,6 @@
 ---
 name: testing
-description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, deciding when to run tests, or balancing fast feedback with confidence."
+description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, running browser QA or temporary test processes, verifying their cleanup, or balancing fast feedback with confidence."
 user-invocable: false
 ---
 
@@ -146,6 +146,15 @@ Use the project's existing test framework. If none exists:
 
 These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions, and debugging. Do not assume agent-browser is more token-efficient than Playwright CLI without measurements for the actual workflow.
 
+### Test Resource Lifecycle
+
+- **The creator owns cleanup.** For resources you start, record the owner, purpose, session name or process identity (PID, command, start time), working directory, and stop method in the existing task notes. Keep browser sessions, test stubs, runners, and shared services separate; "preserve the environment" is not a blanket browser-retention instruction. Do not stop pre-existing or other agents' resources.
+- **Cleanup is part of completion.** Close task-owned resources after success, failure, cancellation, or an invalid attempt, at a safe boundary with no in-flight transaction. Save evidence, then retire an invalid browser before opening its replacement. A passing test with leftover resources is not a completed task.
+- **Retention requires a handoff.** When continuation or user review needs a live resource, record the named next owner, reason, and cleanup deadline or event. The current owner remains responsible until the recipient accepts; under a leader, unresolved ownership returns to the leader. User-requested retention takes precedence and must be recorded. Do not retain resources merely for possible future debugging.
+- **Use runner-owned teardown for repeatable tests.** Prefer fixtures or `try/finally`; shell experiments need a trap installed before launch and a bounded timeout with descendant cleanup. A trap in one shell does not manage a session used across multiple tool calls. Capture child handles/PIDs at launch; keep each attempt's PID record separate until that attempt is verified gone. Never overwrite a failed attempt's record with a retry's.
+- **Verify exit, not just the stop command.** Check the owned process tree after graceful shutdown. Revalidate command and start time before signalling surviving PIDs; never kill by a broad name or assume a reused PID is yours. Escalate only for verified task-owned leftovers. Keep cleanup errors visible; permission-denied process inspection or `kill -0` failure is not proof of exit. If verification is blocked, report cleanup as unresolved with the exact resource and error, retaining its owner and record.
+- **Report disposition before handoff or completion:** `closed (verified)` / `retained (owner, reason, expiry)` / `cleanup blocked (owner, resource, error)`. Thread stop, archive, deletion, and context replacement are not evidence that detached processes exited.
+
 ### Browser Session Hygiene
 
 Automation browsers outlive the agent that started them unless they are closed explicitly. A leaked instance of the system Google Chrome can silently capture links the user clicks elsewhere, so the user's everyday browser appears broken.
@@ -154,17 +163,17 @@ Automation browsers outlive the agent that started them unless they are closed e
   - Playwright CLI / MCP: bundled Chromium via `PLAYWRIGHT_MCP_BROWSER=chromium`, or `"browser": { "browserName": "chromium" }` in `.playwright/cli.config.json`.
   - chrome-devtools MCP: `--executablePath` pointing at Chrome for Testing / Chromium, or `--channel=canary`.
   - If the config cannot be changed in the current task, say so to the user instead of silently falling back to the system Chrome.
-- **Close what you open, on every exit path.** End each Playwright CLI session with `playwright-cli -s=<session> close` when the task finishes, including after failures or aborts. Run `playwright-cli list` before handoff and confirm none of your sessions remain.
+- **Close and verify your session.** Run `playwright-cli -s=<session> close` from its recorded workspace, then check both session inventory and the recorded daemon/browser process tree. Exit code 0 or an empty `playwright-cli list` alone is insufficient: a missing registry entry, different workspace scope, or unreachable socket can leave a live daemon undiscovered. A retained session must meet the lifecycle handoff rule above.
 - **Do not clean up other agents' browsers.** `playwright-cli close-all` and `kill-all` stop every session, including concurrent agents' work. Use them only when the user asks or when you have confirmed that no other session is in use.
 - **chrome-devtools MCP owns one long-lived browser.** It stays open for the lifetime of the MCP server, and its last page cannot be closed through the tools. Close only the pages you opened (`close_page`), and do not navigate or close pages the user selected. Use `--isolated` when a throwaway profile is enough.
-- **Diagnose leaks before killing.** Automation browsers carry `--remote-debugging-pipe` or `--remote-debugging-port`; the user's normal Chrome does not.
+- **Diagnose leaks before killing.** Debugging flags help locate candidates; they do not prove ownership or that a browser is unused. PPID 1 is normal for a detached daemon, not proof that it can be killed.
 
   ```bash
-  pgrep -fl remote-debugging-pipe | grep -v Helper   # list automation browsers
-  ps -o ppid=,command= -p <pid>                      # find the owner; ppid 1 means an orphaned daemon
+  pgrep -fl 'remote-debugging-pipe|remote-debugging-port'  # candidates only
+  ps -o pid=,ppid=,lstart=,command= -p <pid>               # compare with recorded identity
   ```
 
-  Stop the orphaned owner (for example, a leftover `@playwright/cli` node daemon) together with its browser. Otherwise, the owner may relaunch it. Never match on `Google Chrome` alone, because that also kills the user's browser.
+  Stop the verified task-owned daemon (for example, a leftover `@playwright/cli` node daemon) together with its browser descendants. Otherwise, the daemon may relaunch the browser. Recheck survivors; never match on `Google Chrome` alone, because that also kills the user's browser.
 
 ## Running Tests
 

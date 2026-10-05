@@ -88,6 +88,12 @@ The reviewer reports **differences and findings** only; it does not decide. The 
 
 Scope list, hard rules (test scope, environment ownership, things not to touch), worker configuration (for nested delegation), report format, comment rules. When a value is missing, let the worker stop and ask rather than guess. Multi-line messages always go through `--prompt-file` or `"$(cat <<'EOF' … EOF)"` — backticks inside double quotes get executed by the shell and the value turns blank.
 
+For work that starts browsers or background processes, include the cleanup contract in the dispatch itself; do not rely on the worker discovering a skill:
+
+> Own and record the resources you start (session/PID identity, cwd, stop method). Close and verify them after success, failure, cancellation, or invalid retries; preserve other owners' resources. Report `closed (verified)`, `retained (named owner, reason, expiry)`, or `cleanup blocked (owner, resource, error)`. A live handoff needs the recipient's acceptance; until then you own it, with unresolved cleanup returning to the leader. Stop/archive/delete and CLI exit code 0 do not prove process exit.
+
+Do not issue blanket "preserve all sessions/services" instructions. List the exact resources needed for continuation, separate shared services from disposable browsers, and give each retained resource an owner and cleanup deadline or event. Honor explicit user retention, recording who will own it. Artifacts should preserve completed test evidence without keeping its browser alive.
+
 **Proportionality**: simple tasks close fast. Dispatch messages are short and complete in one go; the leader writes no long adjudication docs and does not keep rewriting memory; workers skip brainstorming / grill / full-suite / smoke ceremony. Spend time on the real risk points (hard constraints, security boundaries) and move fast through the rest.
 
 ## 6. Monitoring and context management (the leader owns it)
@@ -95,6 +101,7 @@ Scope list, hard rules (test scope, environment ownership, things not to touch),
 - After dispatching, always `bb thread wait <id> --timeout 300` on every thread. On return check `bb thread log` line count; **no growth two checks in a row while active = stuck**: `bb thread tell --mode steer` to pull it back; still stuck → stop → WIP commit → re-spawn. `bb thread show`'s Updated field is unreliable.
 - Check `bb thread context <id> --json` before dispatching, when progress arrives, and during long batches. Around 50–60% start planning a handoff at a natural boundary; near 80% prefer a fresh thread and finish only a short, bounded handoff step; never interrupt an in-flight test / transaction. If compaction already happened, hand off at the next safe milestone; a lower reading is not a reason to cancel.
 - Handoff: the worker records objective / spec decisions, branch / HEAD / dirty files, done vs remaining, test results, blockers / next action, environment ownership. The new thread reads the concise handoff (no full-history fork); release the old worker's write ownership before the successor starts. **A thread change is not a new phase**; do not re-run passed tests or reviews.
+- Resource handoff is separate from write ownership: reconcile each worker's resource disposition in the existing handoff notes. Have the successor explicitly accept resources it needs and close those it supersedes. On a worker crash, stop, or context replacement, assign inspection and cleanup of its recorded resources; the leader owns unresolved entries. Do not let each fresh worker leave another unowned browser behind.
 
 ## 7. Thread pitfalls
 
@@ -108,7 +115,8 @@ Scope list, hard rules (test scope, environment ownership, things not to touch),
 
 1. At phase end run the **full gate once**: lint / tsc / all tests / smoke / build.
 2. Record in the roadmap footer: agreed deviations from spec (and who decided), what was not verified, pending adjudications.
-3. List every thread except the leader, confirm none is running, `bb thread delete <id> --yes` all at once; do not archive.
-4. Commit locally and report the branch name for the user to push; never push, never work around it.
+3. Before deleting or archiving workers, reconcile this task's resource records. Have the responsible worker verify daemon/browser and test-process exit; an empty CLI list alone is not enough. Retain only explicitly owned resources with a reason and expiry. Keep cleanup failures visible and assigned; do not declare closeout complete or delete the responsible worker while cleanup is unresolved. Do not stop unrelated agents, personal browsers, or shared services.
+4. List this task's worker threads, confirm none is running and cleanup is resolved, then `bb thread delete <id> --yes`; do not archive unless the user requests it. Thread removal does not replace process cleanup.
+5. Commit locally and report the branch name for the user to push; never push, never work around it.
 
 **Why:** three parties waiting on each other (full suite after every edit → DB wipe → other threads idle) multiplies time; accepting every reviewer suggestion lets workers rewrite the spec; a leader who writes code blows its own context.
