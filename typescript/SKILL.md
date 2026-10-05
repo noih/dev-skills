@@ -112,8 +112,8 @@ user-invocable: false
 
 ## Money (Decimal)
 
-- Use `decimal.js` for all monetary calculations — never use native `number` for money (IEEE 754 precision issues)
-- All monetary storage, transmission, and computation should go through `Decimal`; only convert to string for final display
+- Preserve the project's exact money representation. When decimal arithmetic is needed and no library is chosen, prefer `decimal.js`; do not use binary floating-point arithmetic for fractional money. Integer minor units require explicit safe-range or `bigint` handling.
+- Define scale, rounding, and range at business boundaries. Use precise decimal strings or the established exact wire/storage representation; parse into the computation type at entry and serialize at exit. Do not convert through `number` and lose precision, or require consumers to share a runtime `Decimal` class. Display formatting is a separate concern.
 
 ## Date & Time
 

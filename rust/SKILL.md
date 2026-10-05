@@ -138,9 +138,9 @@ Follow the standard library conventions:
 
 ## Money (Decimal)
 
-- Use `rust_decimal` crate for all monetary calculations — never use `f32`/`f64` for money (floating-point precision issues)
-- Use `rust_decimal_macros` with `dec!()` macro for literals: `dec!(19.99)`
-- Serialize with `#[serde(with = "rust_decimal::serde::str")]` to ensure JSON transmits as string, avoiding precision loss
+- Preserve the project's exact money representation. For decimal arithmetic without an established crate, prefer `rust_decimal` when its range and scale fit; it has a 96-bit coefficient and is not arbitrary precision. Use the existing arbitrary-precision type when the domain requires it; avoid `f32`/`f64` for monetary arithmetic.
+- Define scale, rounding, and checked overflow handling for the business operation. With `rust_decimal`, `dec!()` from the project's macro setup is useful for exact literals: `dec!(19.99)`.
+- Preserve an exact wire format, usually decimal strings. For `rust_decimal`, use its string serde support with the required crate feature enabled; do not introduce floating-point conversion at serialization boundaries. See [crate representation and features](https://docs.rs/rust_decimal/latest/rust_decimal/).
 
 ## JSON Serialization
 

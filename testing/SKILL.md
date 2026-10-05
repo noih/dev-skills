@@ -203,6 +203,10 @@ Recommended scope order:
 
 Default to the concise reporter (table below). Only rerun with verbose output when a failure needs more context.
 
+### Reuse Verification Evidence
+
+Record the tested revision (including relevant uncommitted changes), command, scope, configuration/environment, and result in existing task notes. Before reusing a result, compare its inputs with the current work. Code, dependency, configuration, fixture, or requirement changes invalidate affected evidence; a new thread or commit with unchanged relevant content does not. Choose reruns by dependency impact and risk, not changed-line count or a fixed once-per-phase quota. Keep unaffected passing evidence; broaden verification when shared behavior or uncertain impact warrants it. Distinguish existing unrelated failures and unavailable checks from regressions, without calling a failing gate passed.
+
 ### Progress visibility during runs
 
 Minimal output is not silent output. A long-running suite must emit streaming progress — file/binary boundaries, per-test pass/fail marks, final summary — so a stalled run is distinguishable from a slow one. Pick a reporter that streams (`dot`, `-q`, libtest's per-binary header), not one that buffers until the end.
@@ -217,11 +221,11 @@ Anti-patterns:
 
 Patterns:
 
-- **Stream + retain** (foreground): `command 2>&1 | tee /tmp/run.log` — live output, full log preserved for grep/replay.
-- **Background + log + tail** (long suites the agent should not block on): `command > /tmp/run.log 2>&1 &`, then periodic `tail -n 80 /tmp/run.log` or `tail -f` while watching.
+- **Stream + retain** (Bash/Zsh): `(set -o pipefail; command 2>&1 | tee "$run_log")` — choose a unique task-owned log path first. Preserve the pipeline status immediately; without `pipefail`, a successful `tee` can hide a failed test command. For other shells, use their supported mechanism to capture the test exit status.
+- **Background + log + wait**: use a runner/tool that retains a process handle and final exit status. In one owning shell: `command > "$run_log" 2>&1 & run_pid=$!`; inspect progress, then `if wait "$run_pid"; then run_status=0; else run_status=$?; fi`. Report/propagate `run_status`. A different tool-call shell cannot necessarily `wait` for that child; use the tool's session handle instead. Logs and successful launch alone do not prove test success.
 - **Per-binary header** for multi-binary runners (Rust integration scripts, e2e harnesses): surface the current binary/file as it starts, not only at the end.
 
-Rule of thumb: a 30-minute run that produces zero bytes until completion has a wrong invocation. Fix the pipeline, not the patience.
+If a long run is silent, inspect the command, log buffering, process activity, and timeout before diagnosing a stall. Prefer streaming output when available; silence alone does not prove the invocation is wrong or justify killing it.
 
 ### Default reporter (concise progress)
 

@@ -45,7 +45,7 @@ function UserProfile({ name, avatar, onEdit }: UserProfileProps) {
 
 ## Conditional Rendering
 
-- **Guard clause early return**: Handle edge cases (loading, error, empty, null) with early return at the top, keep the main render path flat
+- **Guard clause early return**: Keep the main render path flat, but call Hooks unconditionally before conditional returns so their order remains stable. Alternatively, move the conditional branch into a child component with its own Hooks
 
 ```tsx
 function UserProfile(props: UserProfileProps) {
@@ -74,14 +74,14 @@ function UserProfile(props: UserProfileProps) {
 ## Data Fetching / Server State
 
 - **Client state vs Server state**: Keep them separate. Client state (UI state like modal open/close, form input) uses `useState` or Zustand. Server state (API data with cache/sync needs) uses a dedicated library
-- **Library preference**: Follow the project's existing choice. For new projects, start with SWR for simplicity. Use TanStack Query when the project has complex needs (optimistic updates, infinite queries, advanced cache control)
+- **Library preference**: Use the framework/project's existing data-loading facilities first. If client-side cache/sync needs warrant an additional library, prefer SWR for simpler cases or TanStack Query for advanced caching and mutation flows; do not add either just for a one-off fetch
 - **Three-state handling**: Every data fetching component should handle loading, error, and empty states
 
 ## State Management
 
 - **Store separation**: Separate stores by functional domains
 - **Immutable updates**: Use Immer or the project's existing approach
-- **Prefer Zustand + Immer**: For new projects without an existing solution; otherwise follow what the project uses
+- **Prefer Zustand + Immer**: When shared client state warrants a store and none is chosen; local state or composition is enough for simpler cases. Otherwise follow what the project uses
 - **Do not update state during render**: Render must stay pure. Never mutate local state, global state, external stores, or observable state from the component body, JSX expressions, selector callbacks, or any render-time derived calculation. This applies regardless of state library. Trigger state changes from event handlers, effects, async callbacks, or explicit actions instead
 
 ## Styling

@@ -6,11 +6,13 @@ user-invocable: false
 
 # API Design Conventions
 
+These are personal defaults for new contracts. Preserve established public contracts and project conventions; do not rename fields or change formats merely to match these preferences. Use consumer needs and compatibility to resolve exceptions.
+
 ## Naming Conventions
 
 - **URL paths**: Plural nouns, kebab-case (`/user-profiles/:id/addresses`). Use nouns for resources, verbs only for actions (`/orders/:id/cancel`).
 - **JSON fields**: Follow the project's language convention — `camelCase` for JS/TS, `snake_case` for Rust/Go. Be consistent within a project.
-- **Query parameters**: Use kebab-case (`/api/v1/products?type=voucher&category=digital-points`). Do NOT use camelCase, snake_case, or other conventions for query filter names — always kebab-case.
+- **Query parameters**: Prefer kebab-case for a new contract (`/api/v1/products?type=voucher&category=digital-points`); preserve existing query parameter names and conventions
 
 ## Consumer-Driven Design
 
@@ -18,7 +20,7 @@ Design APIs based on how consumers use the data. When page references are availa
 
 ## Endpoint Granularity
 
-**List vs Detail separation**: If the feature involves browsing items and viewing individual ones, split into list and detail endpoints. The list endpoint returns only the fields the list view needs (e.g., id, title, thumbnail, summary). The detail endpoint returns the full resource. Never return all detail fields in a list response.
+**List vs Detail separation**: Separate list and detail shapes when their data needs or costs differ. Keep list payloads focused on the consumer's needs; a small resource may legitimately use the same shape for both without artificial splitting.
 
 **Single purpose**: Each endpoint should serve one clear purpose. Avoid god endpoints that accept many optional parameters and behave differently based on parameter combinations — split them into semantically distinct endpoints.
 
@@ -88,7 +90,7 @@ Follow the project's existing error format. If none exists, use a flat structure
 
 Rules:
 - **Production**: Never leak stack traces, internal paths, or SQL errors to clients
-- **Development**: Include internal error details (stack trace, query, context) to aid debugging
+- **Development**: Keep useful internal diagnostics in authorized logs/debug tooling, redacting secrets and sensitive values; development mode alone does not authorize exposing them to API callers
 - Use `details` array for validation errors — one entry per invalid field
 - Keep `message` actionable — tell the user what to fix, not what went wrong internally
 
@@ -110,13 +112,13 @@ Use status codes correctly — don't default everything to 200 or 400.
 - `422` — Unprocessable Entity (valid syntax but failed validation — prefer over 400 for validation errors)
 
 **Server errors:**
-- `500` — Internal Server Error (unexpected failure — never intentionally return this)
+- `500` — Internal Server Error (unexpected server failure; error handlers should return it with a safe response and log diagnostics, rather than disguising it as a client error)
 - `502` — Bad Gateway (upstream service returned an invalid response — e.g., calling GCP Storage or a payment gateway that errors out)
 - `503` — Service Unavailable (server temporarily unable to handle requests — dependency down, overloaded). Use `Retry-After` header when possible.
 
 ## Timestamps
 
-Use Unix epoch milliseconds (13 digits) for all timestamp fields. This keeps the wire format timezone-neutral, compact, and easy for common clients to parse.
+For new instant-valued fields without an existing format, prefer Unix epoch milliseconds with explicitly documented units. Preserve established formats such as RFC 3339; do not force date-only values or local schedules into timestamps.
 
 ```json
 {

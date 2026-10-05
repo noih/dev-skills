@@ -20,9 +20,11 @@ npx skills@latest remove -g    # global
 
 These skills record my personal defaults, not universal requirements. Explicit task constraints and existing project conventions take precedence. Preserve package and style preferences when a choice is needed; do not add dependencies, layers, or unrelated cleanup merely to satisfy a default.
 
+`sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. They can be used independently or together, sharing progress and verification evidence. `testing` provides test execution/evidence rules; `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
+
 ## Skills
 
-> **`sdd` dependency:** install `grill-me` before using `sdd`:
+> **Optional `sdd` companion:** install `grill-me` for its spec-questioning workflow; `sdd` documents fallback behavior when unavailable:
 >
 > ```bash
 > npx skills@latest add mattpocock/skills
@@ -42,7 +44,7 @@ These skills record my personal defaults, not universal requirements. Explicit t
 | `react` | Auto | React component, hook, state, styling, and performance conventions. |
 | `road` | Explicit / natural language | Tool-neutral roadmap management with Work Item status sync from spec tool locations. |
 | `rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |
-| `sdd` | Explicit / natural language | Three quality gates for spec-driven development: grill, test, and review. |
+| `sdd` | Explicit / natural language | Development progress and stage readiness for solo/team spec workflows, with grill, test, and review gates. |
 | `lead` | Explicit / natural language | Leader mode for orchestrating dev, test, and review agents (bb threads first, native subagents as fallback); the leader dispatches and adjudicates but never writes code. |
 | `security` | Auto | Security principles and vulnerability patterns. |
 | `sql-conventions` | Auto | SQL schema, migration, query, indexing, and transaction conventions. |

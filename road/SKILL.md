@@ -11,7 +11,7 @@ user-invocable: true
 
 # Roadmap Skill
 
-Tool-neutral roadmap management. A roadmap is an ordered list of Work Items (WI) pointing to specs. The spec tool owns implementation state; the roadmap **derives** WI status from the spec's location.
+Tool-neutral roadmap management. A roadmap is an ordered list of Work Items (WI) pointing to specs. The spec workflow owns implementation progress; the roadmap derives automatic WI status from spec location and preserves explicit manual overrides.
 
 ## When this skill activates
 
@@ -27,13 +27,15 @@ Examples triggering B:
 
 ## Sync rules
 
-Status is derived from Spec location.
+For automatically managed WIs, status is derived from Spec location. A WI with `Status source: manual` keeps its status until the user explicitly returns it to automatic sync; missing `Status source` defaults to automatic for compatibility.
+
+Before applying status rules after a move/archive, update affected `Spec:` paths from the observed source → destination mapping and verify the destination identifies the same spec. If the move happened outside the session, use an unambiguous recorded rename or corroborated spec identity; do not guess from the newest directory or a similar title. When the destination is ambiguous, preserve the path/status and warn. Apply this path tracking to manual-status WIs too, without changing their status.
 
 | Spec resolves to | Action |
 | --- | --- |
 | `openspec/changes/archive/<name>/` — directory exists | Set `[v] Done` |
 | `openspec/changes/<name>/` — directory exists (not under archive) | Ensure `[ ] Pending` (no demotion of Done) |
-| Generic path — any file or directory at that path exists | Ensure `[ ] Pending` |
+| Generic path — any file or directory at that path exists | Ensure `[ ] Pending` (no demotion of Done) |
 | Spec path does not resolve | **Keep existing status**; emit warning |
 | `Spec: TBD`, URL (http/https), or issue link | Never auto-synced |
 
@@ -66,7 +68,7 @@ The user can always override status via natural language or `/road edit`:
 - "WI-05 is actually done" → `[v] Done`, even if no archive is detected
 - "Revert WI-02 to Pending" → `[ ] Pending`, ask for reason → Notes
 
-Manual edits are honored. Sync does not undo them.
+For explicit manual Done/Pending changes, write `Status source: manual` so later sync preserves them. Skipped WIs already have sync protection and remain stubs without this extra field. Direct file editors can set the same marker on Done/Pending WIs; unmarked Pending rows cannot reliably be distinguished from automatic defaults. Returning to automatic sync is an explicit user choice; remove the marker and apply the Sync rules then.
 
 ## File layout
 
@@ -103,6 +105,7 @@ Semantics: src's WI-01 through WI-XX are shared history; this roadmap's own WI l
 | ID | yes | `WI-NN` (or `WI-NNN` past 99); unique per roadmap; never recycled |
 | Title | yes | kebab-case verb phrase, in H3 header (`### WI-01 add-foo`) |
 | Status | yes | `[ ] Pending` / `[v] Done` / `[~] Skipped` |
+| Status source | no | `manual` to preserve an explicit override; omit for automatic sync |
 | Delivers | yes | 1-3 sentences — **what capability the user/system gains** (not task description) |
 | Spec | yes | free string (URL / path / issue link / `TBD`) |
 | Phase | no | integer; must exist in the Overview table |
@@ -120,7 +123,7 @@ Three symbols, used both on WI (per-item) and roadmap (aggregate):
 
 **Skipped stub rule**: when a WI moves to Skipped, strip all fields except `Status` and `Notes`. The Title stays in the H3 header. Required-fields rule does not apply to Skipped WI.
 
-**"Currently in progress"** is inferred, not stored: the first `[ ]` WI in file order. For that WI's detailed progress, check its Spec tool.
+**"Next pending"** is the first `[ ]` WI in file order, not evidence that work has started. For actual in-progress work, consult the spec/task records; do not infer activity from ordering alone.
 
 **Roadmap aggregate status** (for show / list):
 
@@ -142,7 +145,7 @@ Create `roadmaps/{slug}.md` with this exact skeleton:
 
 ## Legend
 - [ ] Pending  [v] Done  [~] Skipped
-- First `[ ]` WI is currently in progress; check its Spec for details
+- First `[ ]` WI is next pending; check its Spec for actual progress
 
 ## Work Items
 ```
@@ -157,8 +160,8 @@ Any modification happens here:
 
 - **Add a WI**: auto-assign next ID (max + 1), Status `[ ] Pending`. Elicit Title, Delivers, Spec. For Delivers, ask **"what capability does the user/system gain?"** (not "what does it do"). If Spec is unknown, allow `TBD`.
 - **Skip a WI**: set Status `[~] Skipped`, strip to stub per the Skipped stub rule, ask for reason → Notes.
-- **Un-skip a WI** (`[~] → [ ]`): requires user confirmation; re-fill Delivers and Spec.
-- **Manual Done** (`[ ] → [v]` without archive): allow; no confirmation needed. For reverting Done (`[v] → [ ]`), require confirmation and write reason to Notes.
+- **Un-skip a WI** (`[~] → [ ]`): an explicit user request is sufficient; re-fill Delivers and Spec and mark `Status source: manual`.
+- **Manual Done / Pending**: apply an explicit user request, mark `Status source: manual`, and record a supplied reason in Notes. Ask only if the desired change or required missing information is unclear; do not ask again to approve the same request.
 - **Edit a field**: change Delivers / Spec / Phase / Notes / Title of a specific WI.
 - **Phase / Overview**: add or rename a phase row in the Overview table; reassign a WI's Phase.
 
@@ -169,7 +172,7 @@ No "delete WI" operation — use Skip + Notes for mistakes. IDs are never recycl
 Trigger: `/road show [slug] [--full]` or "show all roadmaps" / "{slug} progress"
 
 - **No arg**: scan `roadmaps/*.md` (not `archived/`), output a summary table of all roadmaps with Status + Progress.
-- **With slug**: show that roadmap's WI list with statuses; highlight the first `[ ]` as "currently in progress". If the roadmap has a `Branched from` header, note it at the top.
+- **With slug**: show that roadmap's WI list with statuses; highlight the first `[ ]` as "next pending". Report actual activity only with spec/task evidence. If the roadmap has a `Branched from` header, note it at the top.
 - **With slug + `--full`**: if the roadmap has `Branched from: {src} @ WI-XX`, prepend src's WI-01 through WI-XX as "inherited from {src}" (read-only display), then the roadmap's own WI. Without `--full`, only own WI are shown.
 - Progress format: `{done}/{total}[, {skipped} skipped]` — `skipped` clause shown only when skipped > 0. Branched roadmaps compute progress over own WI, not inherited history.
 
@@ -202,7 +205,7 @@ Behavior:
 
    ## Legend
    - [ ] Pending  [v] Done  [~] Skipped
-   - First `[ ]` WI is currently in progress; check its Spec for details
+   - First `[ ]` WI is next pending; check its Spec for actual progress
 
    ## Work Items
    ```
@@ -226,6 +229,7 @@ No dedicated command — natural language only: "archive the backend roadmap" �
 ## Format / validation checks (run during sync)
 
 - `error` — Status symbol matches text (`[v] Done`, `[~] Skipped`, `[ ] Pending`; no legacy `Shipped` / `Cancelled` / `In Progress`)
+- `error` — `Status source`, when present, is `manual`; manual statuses are preserved by sync
 - `error` — Required fields present (ID / Title / Status / Delivers / Spec) — except Skipped WI (stub exception)
 - `error` — Skipped WI are stubs (Status + Notes only)
 - `error` — IDs unique, no duplicates
@@ -242,7 +246,7 @@ No dedicated command — natural language only: "archive the backend roadmap" �
 
 ## Legend
 - [ ] Pending  [v] Done  [~] Skipped
-- First `[ ]` WI is currently in progress; check its Spec for details
+- First `[ ]` WI is next pending; check its Spec for actual progress
 
 ## Overview
 | Phase | Goal | Items |
@@ -279,7 +283,7 @@ No dedicated command — natural language only: "archive the backend roadmap" �
 ## Out of scope
 
 - Spec content management (this skill links to specs, doesn't write them)
-- Git operations (the user commits manually)
+- Git operations (follow the user's git workflow and `commit-conventions` when applicable)
 - Owner / deadline / label / workload tracking
 - Visualization (Gantt charts, Kanban boards)
 - Cross-project sync (each repo has its own `roadmaps/`)

@@ -17,7 +17,7 @@ user-invocable: false
 
 - **`async`/`await` over callbacks** — use promise-based APIs (`fs/promises`, `timers/promises`)
 - **Handle rejections at the responsible boundary** — let awaited failures propagate to the existing caller or framework error handler. Catch locally for recovery, cleanup, or useful context, not just to rethrow. Detached promises need an explicit error handler.
-- **`Promise.all` for concurrent work** — run independent async operations in parallel, not sequentially
+- **`Promise.all` for bounded concurrent work** — parallelize independent operations within connection, rate, memory, and file-handle limits. For large or unbounded collections, use the project's bounded worker/batching pattern; do not launch every operation at once
 - **`Promise.allSettled`** when all results are needed regardless of individual failures
 - **Don't mix async paradigms** — don't mix callbacks with promises/async-await in the same flow. Using `.catch()` for inline error transformation with `await` is fine
 - **Convert callback APIs** — use `util.promisify` to wrap callback-only packages into promises

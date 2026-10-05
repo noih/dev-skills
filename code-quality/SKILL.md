@@ -15,12 +15,12 @@ Correctness comes first. When efficiency differences are minor or theoretical, p
 ### Avoid
 
 - **Poor naming** — Vague names (`data`, `info`, `temp`, `result`), excessive abbreviations (`usr`, `mgr`), verbose names that add noise, or names that don't match actual behavior. Names should convey purpose without reading the implementation
-- **Unnecessary defensive code** — Paranoid null checks inside system boundaries. Only validate at system boundaries (user input, external APIs)
+- **Unnecessary defensive code** — Repeating checks for already-established guarantees. Validate external input at trust boundaries; retain internal invariant checks where state can become invalid or failure would otherwise be hidden
 - **Over-abstraction** — Wrappers, helpers, or factories that add indirection without clarifying a responsibility or protecting an invariant. Similar-looking code alone does not justify a shared abstraction
 - **Template patterns** — Design patterns (Factory, Strategy, etc.) where simple direct code suffices
 - **Inefficient algorithms** — O(n²) when O(n) is achievable, unnecessary iterations, missing hash-based lookups
 - **Poor error handling** — Silently swallowed errors, overly broad catch blocks, missing error context
-- **Floating-point money** — Never use native floating-point for monetary calculations (IEEE 754 precision issues). Always use an arbitrary-precision decimal library. See language-specific skills for package choices
+- **Floating-point money** — Avoid binary floating-point for monetary calculations. Use an exact decimal or integer-minor-unit representation suited to the domain's range and scale, with explicit rounding and overflow behavior. Preserve established contracts; language-specific skills provide package defaults when a choice is needed
 - **Date/time handling** — Native APIs are enough for timestamps, standard ISO serialization, comparisons, and locale formatting. For calendar arithmetic, custom parsing, or timezone rules, use the project's date library; runtime/framework skills specify my preferred packages when a library is needed. Avoid handwritten calendar and timezone logic.
 - **Magic values** — Unexplained numbers and strings; use named constants
 - **Dead code** — Unused imports, variables, functions, unreachable code. Don't comment out and keep — delete it (version control has history)

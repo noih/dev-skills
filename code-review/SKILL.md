@@ -30,7 +30,7 @@ Do not assume the diff is locally correct just because each changed line looks r
 - Do not rely on previous conversation history as evidence.
 - Prefer concrete, actionable findings over broad style commentary.
 - Preserve behavior unless the user explicitly asks for a behavior change.
-- If a suggested change might alter business logic, ask before treating it as a fix.
+- Report business-logic defects against the stated requirements without waiting for permission to raise a finding. If the intended behavior is ambiguous, label that uncertainty; ask before implementing a behavior change not already authorized by the task.
 - Trace call sites, data boundaries, and side effects when reviewing behavior changes.
 - Treat missing tests as a finding when the change affects production behavior, security, permissions, state transitions, or regression-prone logic.
 - Raise uncertain but plausible production risks as questions or risks instead of silently ignoring them.

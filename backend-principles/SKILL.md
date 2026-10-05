@@ -19,7 +19,7 @@ When a backend needs layers, I prefer Controller / Service / Repository over tra
 | Repository | Data access and persistence queries |
 | Use case / workflow | Multi-step orchestration that is complex or reused beyond HTTP |
 
-Within this structure, keep services from calling other services. Compose them in a controller or use case so the business flow stays visible and service dependencies stay acyclic. When extending a project with a different established structure, follow it rather than restructuring unrelated code.
+Within this structure, prefer composing services in a controller or use case when that clarifies the business flow and keeps dependencies acyclic. A direct, acyclic service call is acceptable when it fits the existing architecture; do not add a pass-through orchestration layer solely to prohibit it. Follow established structures rather than restructuring unrelated code.
 
 Extract orchestration when its responsibilities or reuse justify it, not at a fixed line count. Keep transaction ownership, partial failure recovery, and retry behavior explicit in the orchestrating operation; moving calls between layers does not solve consistency.
 
