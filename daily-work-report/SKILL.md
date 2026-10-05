@@ -84,22 +84,29 @@ install tools or resume sessions to inspect history. For native discovery, read
    passed. Accept the user's account of unrecorded work without requiring a
    matching session or claiming independent verification.
 
-When available, supplement these sources with in-scope AI Desktop issue activity.
-Resolve the project as in section 5, then use `issue_query` with `project`,
-`activity_after`, `activity_before`, and `activity_by="me"` for the reporting
-period. Check the tool's returned timezone and inclusive date bounds. Read the
-individual issue's comments/activity to identify the actual contribution;
-`updated_after` alone can miss comment-only activity. A current status or an
+When available, supplement these sources with in-scope project-management issue
+activity. Resolve the project as in section 5, then query the user's activity
+during the reporting period. Check the tool's timezone and date bounds. Read
+individual issue comments/activity to identify the actual contribution;
+update timestamps alone can miss comment-only activity. A current status or an
 assignment does not prove the user performed work during this period.
 
 Relevant work conversations and meeting records can fill gaps when accessible
-and within the established scope. Use AI Desktop calendar events to locate
+and within the established scope. Use calendar events to locate
 meetings and their summaries, and relevant Slack conversations for coordination
 or commitments. A calendar entry proves scheduling, not attendance or a decision.
 Treat AI summaries as fallible: verify unclear names, ownership, or conclusions
 against available records rather than guessing. Consolidate a meeting and its
 recording, and merge overlapping issue, chat, session, and meeting evidence.
 Keep private report locations and channel mappings outside this skill.
+
+Tool mapping: when using AI Desktop, use `project_list` to resolve projects,
+`issue_query` for issues, `calendar_events` for meetings, and `calendar_context`
+for meeting summaries. For issue activity, pass `project`, `activity_after`,
+`activity_before`, and `activity_by="me"`; `updated_after` alone can miss comments.
+For a single day's calendar, set both `start_date` and `end_date` to that date
+(inclusive). With other providers, use equivalent read-only tools and verify
+their filter semantics rather than assuming these parameter names apply.
 
 Keep brief private working notes per item: date, request source, work performed,
 current stage, evidence, and remaining work. These support accuracy; they are not
@@ -214,10 +221,10 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   pending the user's choice, without inventing dates, priority, or ownership.
   Do not repeat tasks already chosen in these suggestions.
 - When suggesting today's tasks, also consult the corresponding work project's
-  issues in AI Desktop project management when available. Use the read-only
-  `project_list` tool to resolve the project mapping when needed, then
-  `issue_query` scoped to that project. Keep real project IDs and mappings in
-  private context; a visible project is not automatically in scope.
+  issues in the available project-management tool. Resolve the project mapping
+  when needed, then query issues scoped to that project. Use read-only operations.
+  Keep real project IDs and mappings in private context; a visible project is
+  not automatically in scope.
 - Start with relevant open issues, especially those assigned to the user or
   connected to recent work. Read individual issue details when needed to check
   status, next action, blockers, and recorded priority or due date. Do not require
@@ -233,9 +240,9 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   Present them separately as `今日待辦建議（待確認）`, outside the paste-ready
   report, until the user selects them. Preserve any existing plan. Read issues
   only; do not change their status, assignee, priority, or comments for a report.
-- Also consult AI Desktop `calendar_events` for the report's target day, setting
-  both `start_date` and `end_date` to that date (including when drafting tomorrow's
-  report tonight). Use the reporting timezone and retain in-scope work meetings
+- Also consult the available calendar for the report's target day, limiting the
+  query to that date (including when drafting tomorrow's report tonight).
+  Use the reporting timezone and retain in-scope work meetings
   involving the user; exclude personal, canceled, or declined events. Preserve
   meeting titles and scheduled times, deduplicate against confirmed plans, and
   present additional meetings as `今日待辦建議（待確認）`. Do not invent agendas
