@@ -53,6 +53,8 @@ Before running tests, check project docs for:
 
 If the project provides a custom runner, use it unless you are explicitly diagnosing the runner or the user asks for raw framework behavior.
 
+Before launching browser QA or temporary test processes, apply the `testing` skill's resource lifecycle rules when available. Record what you start, its owner, identity, working directory, and stop method. Distinguish shared services from disposable test resources; preserve existing resources without making new ones ownerless.
+
 ## Subagents
 
 When spawning or briefing a subagent, include the relevant project context in the prompt or direct it to read the same instruction files first. A zero-knowledge subagent should not guess test commands, setup rules, or repo conventions from generic language knowledge.
@@ -60,3 +62,5 @@ When spawning or briefing a subagent, include the relevant project context in th
 ## Handoff
 
 When reporting results, mention the project-specific command or convention used, especially for tests. If you intentionally did not run a documented command, state why.
+
+For resources started during the task, include verified cleanup or explicit retention with a named owner, reason, and expiry; report any cleanup error as unresolved. A successor must accept retained resources. Context handoff or thread archival does not prove background processes have exited.
