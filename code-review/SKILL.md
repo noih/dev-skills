@@ -35,6 +35,10 @@ Do not assume the diff is locally correct just because each changed line looks r
 - Treat missing tests as a finding when the change affects production behavior, security, permissions, state transitions, or regression-prone logic.
 - Raise uncertain but plausible production risks as questions or risks instead of silently ignoring them.
 
+## Resources Used By The Review
+
+Even a solo, read-only review can create persistent files and processes. Use project-provided runners and reuse compatible outputs; if isolation requires a snapshot/worktree or separate build directory, record its exact path, owner, and cleanup point before use. After each review round, save findings and minimal reproduction evidence, stop owned processes, and remove disposable outputs once unused. Verify path removal as well as process exit. Preserve uncommitted work and shared resources; retained outputs need a named owner, reason, and expiry, accepted by a successor when handed off. Report blocked cleanup explicitly. A finished report or deleted thread does not clean its build cache. Apply the `testing` skill's teardown rules when executing tests.
+
 ## Required Review Passes
 
 For every meaningful change, make these passes before concluding there are no issues:
@@ -130,6 +134,7 @@ Watch for:
 - Avoidable O(n^2) behavior, repeated scans, or missing hash-based lookups in hot paths.
 - N+1 database or API calls.
 - Unbounded memory growth, caches, queues, subscriptions, listeners, or retained references.
+- Fixtures/runners that close handles but leave temporary databases, profiles, snapshots, or build copies on disk; missing cleanup on partial setup, failure, or cancellation. Check cleanup at the shared owner rather than relying on each test or agent to remember it.
 - Expensive work repeated instead of batched, cached, memoized, or moved out of render/request loops.
 - Large payloads, unnecessary serialization, or blocking I/O in latency-sensitive paths.
 

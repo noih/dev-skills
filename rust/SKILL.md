@@ -119,6 +119,13 @@ Follow the standard library conventions:
 - Avoid sharing Tokio-runtime-bound resources across separate `#[tokio::test]` cases via a static cache. Each `#[tokio::test]` creates its own runtime by default; cache only runtime-independent data unless the project has a custom single-runtime harness.
 - Avoid adding extra Cargo targets solely as wrappers around existing scripts. Every bin/example/test target can participate in Cargo planning and compilation; wrappers should provide real Rust behavior, not just hide a shell command.
 
+### Cargo disk usage and cleanup
+
+- Record ownership and lifetime when setting `CARGO_TARGET_DIR`. Reuse a compatible target directory for sequential work; avoid another target copy per review or retry. Keep genuinely concurrent, incompatible builds isolated, and do not clean or replace artifacts while a build or test consumer uses them.
+- Inspect target size, especially `debug/incremental` and `debug/deps`, before large repeated runs and at phase boundaries. Incremental state, debug information, integration binaries, and different feature/profile/platform builds can consume substantial disk. Cargo exiting successfully does not reclaim them.
+- For disposable review/experiment builds, evaluate `CARGO_INCREMENTAL=0` and reduced debug information such as `line-tables-only` when compatible with the required checks; measure the size/time tradeoff. Keep needed debugging capabilities, assertions, overflow checks, and required build modes. Do not change shared project profiles merely to save space in one experiment.
+- Remove task-owned disposable targets after the round's evidence is saved and consumers have stopped; retain the main development cache deliberately and review its size at phase boundaries. Use the project's scoped cleanup command or an explicitly scoped Cargo clean only on an unused, owned target; never assume the default target belongs to this task.
+
 ### Rust integration test architecture
 
 - Treat each `tests/*.rs` file as its own crate and binary. Choose file boundaries intentionally around coherent behavior flows, API surfaces, or integration resources instead of dumping unrelated scenarios into one large integration file.
@@ -126,6 +133,7 @@ Follow the standard library conventions:
 - Avoid per-test rebuilds of expensive external state unless cheaper boundaries cannot prevent pollution. Rust integration suites can become dominated by setup time because each binary already has compile/link/startup overhead.
 - Keep static caches limited to data that survives independent async runtimes and process boundaries: names, paths, immutable fixture bytes, fingerprints, or configuration. Build pools, clients, servers, routers, temporary transactions, and app state inside the current test runtime/process.
 - Pass libtest arguments after `--`, and set thread counts intentionally when tests share external resources. Do not rely on default parallelism when tests mutate the same database, filesystem namespace, ports, or singleton service.
+- Keep a scoped temporary-directory owner alive for the fixture lifetime (for example, `tempfile::TempDir` when already available); stop children and close database/file handles before removing data. Do not detach the directory from its cleanup owner without explicit retention. Destructors cannot clean up after every forced exit: the runner must track and reconcile its disposable run root, and surface removal errors.
 - Keep ignored, external, destructive, sandbox, or slow e2e tests behind explicit commands. Ordinary local Rust test runs should not accidentally call external systems or mutate non-local state.
 
 ## Money (Decimal)

@@ -1,6 +1,6 @@
 ---
 name: testing
-description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, running browser QA or temporary test processes, verifying their cleanup, or balancing fast feedback with confidence."
+description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, running browser QA or temporary test processes, managing test data and artifacts, verifying their cleanup, or balancing fast feedback with confidence."
 user-invocable: false
 ---
 
@@ -146,16 +146,27 @@ Use the project's existing test framework. If none exists:
 
 These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions, and debugging. Do not assume agent-browser is more token-efficient than Playwright CLI without measurements for the actual workflow.
 
-### Test Resource Lifecycle
+## Test Resource Lifecycle
+
+Apply this to solo work as well as delegated work, and to filesystem resources as well as processes. Cleanup belongs to each fixture/suite or completed experiment/review round, not only the final project closeout.
 
 - **The creator owns cleanup.** For resources you start, record the owner, purpose, session name or process identity (PID, command, start time), working directory, and stop method in the existing task notes. Keep browser sessions, test stubs, runners, and shared services separate; "preserve the environment" is not a blanket browser-retention instruction. Do not stop pre-existing or other agents' resources.
 - **Cleanup is part of completion.** Close task-owned resources after success, failure, cancellation, or an invalid attempt, at a safe boundary with no in-flight transaction. Save evidence, then retire an invalid browser before opening its replacement. A passing test with leftover resources is not a completed task.
 - **Retention requires a handoff.** When continuation or user review needs a live resource, record the named next owner, reason, and cleanup deadline or event. The current owner remains responsible until the recipient accepts; under a leader, unresolved ownership returns to the leader. User-requested retention takes precedence and must be recorded. Do not retain resources merely for possible future debugging.
 - **Use runner-owned teardown for repeatable tests.** Prefer fixtures or `try/finally`; shell experiments need a trap installed before launch and a bounded timeout with descendant cleanup. A trap in one shell does not manage a session used across multiple tool calls. Capture child handles/PIDs at launch; keep each attempt's PID record separate until that attempt is verified gone. Never overwrite a failed attempt's record with a retry's.
 - **Verify exit, not just the stop command.** Check the owned process tree after graceful shutdown. Revalidate command and start time before signalling surviving PIDs; never kill by a broad name or assume a reused PID is yours. Escalate only for verified task-owned leftovers. Keep cleanup errors visible; permission-denied process inspection or `kill -0` failure is not proof of exit. If verification is blocked, report cleanup as unresolved with the exact resource and error, retaining its owner and record.
-- **Report disposition before handoff or completion:** `closed (verified)` / `retained (owner, reason, expiry)` / `cleanup blocked (owner, resource, error)`. Thread stop, archive, deletion, and context replacement are not evidence that detached processes exited.
+- **Report disposition before handoff or completion:** `closed/removed (verified)` / `retained (owner, reason, expiry)` / `cleanup blocked (owner, resource, error)`. Include exact paths and sizes for substantial retained outputs. Thread stop, archive, deletion, and context replacement prove neither process exit nor disk reclamation.
 
-### Browser Session Hygiene
+### Files, Fixtures, And Build Outputs
+
+- **Register cleanup during setup.** Use the existing fixture/runner teardown, `try/finally`, or scoped temporary-directory ownership, including partial setup failure. Closing a database connection does not remove its database, WAL, or temporary directory. Stop owned children and release file handles before removing their data; surface cleanup failures without hiding the original test failure.
+- **Contain disposable outputs.** Prefer a unique run-owned root for temporary databases, browser profiles, snapshots, and isolated build outputs; explicitly direct tools into it. Record paths created outside it too. Preserve only the logs, traces, or minimal reproduction needed for a finding; retain larger data only with an owner, reason, and expiry. A global temp directory is not an automatic cleanup policy.
+- **Handle abnormal exits.** Traps and destructors cannot guarantee cleanup after a crash or forced kill. Record the run root before launch and reconcile interrupted runs at the next safe checkpoint. Verify ownership and that no writer/consumer is using each path before removal; never sweep by prefix or age alone, or delete shared caches, user data, or another agent's work.
+- **Bound repeated runs.** Reuse compatible compilation and setup, keeping test-state isolation. Check fixture cleanup and disk growth on a short run before a long repetition loop. Preserve required repeat counts and concurrency coverage; scope repetitions to the relevant cases. Avoid overlapping heavy compilation and timing-sensitive suites when contention would invalidate results.
+- **Treat caches separately.** Disposable review/experiment build directories end with that round unless explicitly retained. Reusable project caches may survive, but need an owner and a size/expiry review point. Inspect their growth at phase boundaries and prune only while unused; do not run blanket clean commands after every test.
+- **Verify filesystem cleanup.** Check that disposable paths are gone, with inspection errors reported as unresolved; a successful teardown command or zero remaining processes is insufficient. When fixing a recurring fixture/runner leak, add one focused check that success and failure leave no owned data or children, including interruption if the runner handles it.
+
+## Browser Session Hygiene
 
 Automation browsers outlive the agent that started them unless they are closed explicitly. A leaked instance of the system Google Chrome can silently capture links the user clicks elsewhere, so the user's everyday browser appears broken.
 
