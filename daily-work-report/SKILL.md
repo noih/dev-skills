@@ -16,6 +16,10 @@ project names, and completion stages clear for readers without engineering conte
   An evening draft for tomorrow reports today's work as yesterday's progress.
   Respect specified working days around weekends and holidays; ask only when
   ambiguity changes which work belongs, and collect independent evidence meanwhile.
+- When available, compare the user's latest report from supplied context or a
+  privately configured report location to preserve names and avoid repeating
+  earlier progress. Use its stated coverage, not just its posting time; it does
+  not override an explicit reporting window or automatically roll the date forward.
 - If supplied notes are sufficient, rewrite them without rescanning projects.
   Preserve accepted wording, project names, grouping, and corrections. Use the
   user's edited report as the reference for detail and format; an omission is
@@ -27,8 +31,8 @@ project names, and completion stages clear for readers without engineering conte
   Keep actual organization names, repository roots, and mappings outside this
   public skill. Do not assume every local project or BB thread is work-related.
   If scope is still unknown, ask once and collect only already-confirmed work.
-  Apply the same scope to BB, native transcripts, Git, project issues, and the
-  final report.
+  Apply the same scope to BB, native transcripts, Git, project issues, meetings,
+  work conversations, and the final report.
 - If plans for the target day are missing, ask once while collecting progress.
   Bundle any invitation to add meetings, communication, or other unrecorded work.
   Do not ask again for plans already explicitly provided for that day.
@@ -65,6 +69,9 @@ install tools or resume sessions to inspect history. For native discovery, read
    Commit messages surface work no session recorded, confirm what was merged
    versus left on a branch, and date decisions. A commit proves only what its
    message and timestamp say, not that the change was tested or deployed.
+   Include relevant uncommitted work with read-only status/diff inspection when
+   useful; establish its date and authorship from sessions or the user's account,
+   not file modification times. Do not infer completion percentages from a diff.
 5. Group by the actual project and problem, not merely session title or parent.
    Sessions can span repositories. Consolidate discussion, implementation, and QA
    records without losing distinct advances or counting the same work twice.
@@ -76,6 +83,23 @@ install tools or resume sessions to inspect history. For native discovery, read
    A failed full run followed by focused fixes does not prove another full run
    passed. Accept the user's account of unrecorded work without requiring a
    matching session or claiming independent verification.
+
+When available, supplement these sources with in-scope AI Desktop issue activity.
+Resolve the project as in section 5, then use `issue_query` with `project`,
+`activity_after`, `activity_before`, and `activity_by="me"` for the reporting
+period. Check the tool's returned timezone and inclusive date bounds. Read the
+individual issue's comments/activity to identify the actual contribution;
+`updated_after` alone can miss comment-only activity. A current status or an
+assignment does not prove the user performed work during this period.
+
+Relevant work conversations and meeting records can fill gaps when accessible
+and within the established scope. Use AI Desktop calendar events to locate
+meetings and their summaries, and relevant Slack conversations for coordination
+or commitments. A calendar entry proves scheduling, not attendance or a decision.
+Treat AI summaries as fallible: verify unclear names, ownership, or conclusions
+against available records rather than guessing. Consolidate a meeting and its
+recording, and merge overlapping issue, chat, session, and meeting evidence.
+Keep private report locations and channel mappings outside this skill.
 
 Keep brief private working notes per item: date, request source, work performed,
 current stage, evidence, and remaining work. These support accuracy; they are not
@@ -119,6 +143,13 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   even for a single project. Use the user's project names and assignments in both
   progress and plans; a shared organization or repository does not make two
   projects one. Write item text directly, without mini-titles such as "Testing:".
+- If a work item maps to a verified project-management issue, prefix its text
+  with the exact display ID in brackets, for example `[DEMO-42] ...`. Apply this
+  to progress, confirmed plans, and task suggestions. Verify the project and
+  issue content rather than guessing from similar titles; leave unmatched work
+  unnumbered. Keep the user's grouping and order. For a consolidated batch, use
+  a relevant umbrella issue if one exists; do not expand a concise count into an
+  exhaustive ticket list or imply one ticket covers unrelated work.
 - Group by meaningful work item, usually one or two connected sentences. Lead
   with its purpose so preparation steps are understandable. Combine preparation,
   execution, and results for the same objective into one item, even when they
@@ -202,6 +233,11 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   Present them separately as `今日待辦建議（待確認）`, outside the paste-ready
   report, until the user selects them. Preserve any existing plan. Read issues
   only; do not change their status, assignee, priority, or comments for a report.
+- Apply the same candidate rules to unfinished items from the previous report,
+  work-chat commitments, and meeting action items assigned to the user. Check
+  later records for completion or changed ownership before suggesting them;
+  a commit alone does not prove the whole task is done. Neither an older promise
+  nor a meeting assignment establishes the user's plan for the target day.
 - If plans remain missing, leave today's tasks pending input and continue drafting
   progress. Missing plans do not mean no work is planned.
 
@@ -226,6 +262,8 @@ a clearly separate block; never blend them into confirmed plans.
 Use the user's established format; otherwise
 use this project-grouped template. Translate labels only
 when reporting in another language; leave a blank line before each list.
+Render the report as Markdown, not inside a code fence. Keep each bullet's text
+on one source line so it can be copied without manual line-break artifacts.
 
 ```text
 昨日進度：
@@ -240,6 +278,7 @@ when reporting in another language; leave a blank line before each list.
 ```
 
 Before returning, check dates and coverage, remove duplicate or secondary detail,
-confirm stage and uncertainty, and verify that every planned task was chosen by
-the user. Preserve material scope and blockers while matching their accepted
+confirm stage and uncertainty, verify issue IDs against the matched work, and
+verify that every planned task was chosen by the user.
+Preserve material scope and blockers while matching their accepted
 level of detail.
