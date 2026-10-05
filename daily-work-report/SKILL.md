@@ -27,7 +27,8 @@ project names, and completion stages clear for readers without engineering conte
   Keep actual organization names, repository roots, and mappings outside this
   public skill. Do not assume every local project or BB thread is work-related.
   If scope is still unknown, ask once and collect only already-confirmed work.
-  Apply the same scope to BB, native transcripts, Git, and the final report.
+  Apply the same scope to BB, native transcripts, Git, project issues, and the
+  final report.
 - If plans for the target day are missing, ask once while collecting progress.
   Bundle any invitation to add meetings, communication, or other unrecorded work.
   Do not ask again for plans already explicitly provided for that day.
@@ -179,8 +180,28 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   doing it again and preserve the requested method. Do not present regression
   testing after changes as first-time validation or invent a reason if none is known.
 - If useful, present evidence-backed unfinished work separately as candidates
-  pending the user's choice, without assigning dates, priority, or ownership.
+  pending the user's choice, without inventing dates, priority, or ownership.
   Do not repeat tasks already chosen in these suggestions.
+- When suggesting today's tasks, also consult the corresponding work project's
+  issues in AI Desktop project management when available. Use the read-only
+  `project_list` tool to resolve the project mapping when needed, then
+  `issue_query` scoped to that project. Keep real project IDs and mappings in
+  private context; a visible project is not automatically in scope.
+- Start with relevant open issues, especially those assigned to the user or
+  connected to recent work. Read individual issue details when needed to check
+  status, next action, blockers, and recorded priority or due date. Do not require
+  recent activity: an older open issue can still be a useful candidate. Account
+  for query limits before claiming coverage; an unavailable source is not an
+  empty backlog.
+- Select a short, useful subset rather than copying the backlog. Favor actionable
+  follow-ups supported by recent work, recorded urgency, or deadlines; explain
+  each suggestion briefly. Exclude completed/canceled items, duplicates, and
+  tasks already in the user's plan. Do not imply someone else's assignment is
+  the user's task or that a blocked issue is ready to implement.
+- Issue candidates are suggestions, not commitments or proof of work completed.
+  Present them separately as `今日待辦建議（待確認）`, outside the paste-ready
+  report, until the user selects them. Preserve any existing plan. Read issues
+  only; do not change their status, assignee, priority, or comments for a report.
 - If plans remain missing, leave today's tasks pending input and continue drafting
   progress. Missing plans do not mean no work is planned.
 
@@ -200,7 +221,9 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
 ## Output and Final Check
 
 Return the paste-ready report, without an introduction, analysis, source appendix,
-or closing offer unless requested. Use the user's established format; otherwise
+or closing offer unless requested. Task suggestions from section 5 may follow in
+a clearly separate block; never blend them into confirmed plans.
+Use the user's established format; otherwise
 use this project-grouped template. Translate labels only
 when reporting in another language; leave a blank line before each list.
 
