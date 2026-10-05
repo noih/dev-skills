@@ -233,6 +233,13 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   Present them separately as `今日待辦建議（待確認）`, outside the paste-ready
   report, until the user selects them. Preserve any existing plan. Read issues
   only; do not change their status, assignee, priority, or comments for a report.
+- Also consult AI Desktop `calendar_events` for the report's target day, setting
+  both `start_date` and `end_date` to that date (including when drafting tomorrow's
+  report tonight). Use the reporting timezone and retain in-scope work meetings
+  involving the user; exclude personal, canceled, or declined events. Preserve
+  meeting titles and scheduled times, deduplicate against confirmed plans, and
+  present additional meetings as `今日待辦建議（待確認）`. Do not invent agendas
+  or deliverables, modify events, or treat unavailable calendar data as no meetings.
 - Apply the same candidate rules to unfinished items from the previous report,
   work-chat commitments, and meeting action items assigned to the user. Check
   later records for completion or changed ownership before suggesting them;
