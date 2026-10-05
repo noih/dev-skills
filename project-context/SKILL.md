@@ -53,7 +53,16 @@ Before running tests, check project docs for:
 
 If the project provides a custom runner, use it unless you are explicitly diagnosing the runner or the user asks for raw framework behavior.
 
-Before launching browser QA or temporary test processes, apply the `testing` skill's resource lifecycle rules when available. Record what you start, its owner, identity, working directory, and stop method. Distinguish shared services from disposable test resources; preserve existing resources without making new ones ownerless.
+## Resource Ownership (Including Solo Work)
+
+These rules apply to ordinary development, debugging, builds, and review without a leader or subagents.
+
+- Before creating temporary resources, identify the project's teardown commands and record ownership in existing task notes: process/session identity, exact paths, purpose, cleanup method, and lifetime. Include test data, browser profiles, snapshots/worktrees, isolated build outputs, and containers/volumes. Distinguish disposable resources from retained project caches and shared services.
+- Reuse the project's runner and compatible build cache. For an isolated experiment or review, prefer one task-owned temporary root containing its disposable source copy, build output, and test data. Keep deliverables and small reproduction evidence outside the disposable root before removal. Do not create another large cache per retry by default.
+- Clean at the end of each experiment, review round, or development phase, including failed attempts; do not defer everything to final project completion. Stop owned writers, release handles, remove disposable data, and verify both process exit and path removal. Confirm exact path ownership before deletion; names, age, or a temporary location alone do not prove a resource is unused. Preserve unrelated resources and uncommitted work.
+- For large builds or repeated suites, check free space and relevant output sizes before starting and at phase boundaries. Keep reusable project caches deliberately, with an owner and a size/expiry review point; prune only when no build or consumer uses them. If space is insufficient, resolve owned leftovers or report the constraint before launching more heavy work. Do not globally wipe caches to make room.
+
+When running tests or browser QA, also apply the `testing` skill's fixture and process teardown rules when available. Fix recurring leaks in the responsible fixture/runner when in scope; manual cleanup alone does not prevent the next run from leaking.
 
 ## Subagents
 
@@ -63,4 +72,4 @@ When spawning or briefing a subagent, include the relevant project context in th
 
 When reporting results, mention the project-specific command or convention used, especially for tests. If you intentionally did not run a documented command, state why.
 
-For resources started during the task, include verified cleanup or explicit retention with a named owner, reason, and expiry; report any cleanup error as unresolved. A successor must accept retained resources. Context handoff or thread archival does not prove background processes have exited.
+For resources created during the task, report `closed/removed (verified)`, `retained (owner, reason, expiry)`, or `cleanup blocked (owner, resource, error)`, including paths and sizes for substantial retained outputs. A successor must accept retained resources; without a successor, the current task owns cleanup. Context handoff or thread archival proves neither process exit nor disk reclamation. After an interrupted run, reconcile its recorded resources before creating replacements.
