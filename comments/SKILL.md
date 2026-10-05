@@ -49,8 +49,8 @@ for (const user of users) { ... }
 Examples worth keeping or adding:
 
 ```javascript
-// Using setTimeout to avoid a race with DOM rendering.
-setTimeout(() => updateUI(), 0);
+// The provider retries callbacks; claim the event before applying its effect.
+await claimEvent(event.id);
 
 // Discount only applies to orders over 100 by marketing requirement JIRA-1234.
 if (order.total > 100) { ... }

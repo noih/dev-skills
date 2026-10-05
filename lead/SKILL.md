@@ -8,6 +8,8 @@ user-invocable: true
 
 `/lead <goal>`: act as leader to complete the goal in `$ARGUMENTS`. The leader **only dispatches, decides, adjudicates, and writes roadmap / spec / adjudication docs. It never writes code** (not even one line; dispatch it instead).
 
+`lead` owns team assignment, coordination, resource ownership, handoffs, and adjudication. `sdd`, when in use, manages development progress and stage readiness for either solo or team work. They can operate together: use the same task state and verification evidence, let `sdd` identify what remains, and let the leader assign who completes it. Neither requires enabling the other.
+
 ## 0. Kickoff (every time)
 
 1. `bb status --json` to confirm project / thread / environment; `bb provider models <provider>` to confirm the selected leader and worker models below exist. Configure the leader's model / reasoning through supported harness controls; if the current session cannot change them, report the mismatch. If a model is missing, report it; **never substitute silently or claim an inactive configuration is active**.
@@ -20,11 +22,11 @@ user-invocable: true
 
 ```
 develop → test ─FAIL→ develop (fix) → test (affected + red files only) … until the bar is met → review
-review findings → leader adjudicates → dispatch fix → test (affected only) → no full re-review, only re-check the fixed items
+review findings → leader adjudicates → dispatch fix → verify affected behavior and review impact
 ```
 
-- **Bar for entering review** (set by the leader, written into the dispatch prompt at kickoff): all WIs in scope done, affected tests plus one full phase run green, zero regressions, contract delivered and wired on the frontend. Do not send to review before the bar; otherwise the reviewer burns a round on trivial errors.
-- Fix rounds run only the affected test files plus last round's red files; the full suite runs once, when the bar is met.
+- **Bar for entering closeout review** (set at kickoff): in-scope implementation complete, agreed test gate satisfied with current evidence, and required integration connected. Coordinate this with SDD stage readiness when used. An explicitly requested diagnostic review may inspect unfinished/failing work without claiming closeout readiness.
+- Fix rounds reuse valid evidence and run affected checks, including transitive callers and shared behavior. Re-check fixes and their impact; expand testing/review when new changes or risks invalidate earlier evidence. Do not repeat a full gate solely because a round or worker changed.
 - **Loop guard**: the same FAIL survives 3 rounds, or the worker reports "fixed" twice while QA still reproduces it — stop. It is usually a spec conflict, a dirty environment, or a worker whose context has degraded. The leader reads the code and adjudicates; if needed stop → WIP commit → re-spawn. Do not re-dispatch the same task in place.
 - Pure bug fixes / small tasks: the bar can shrink to "affected tests green" and review may be skipped, but the leader declares this at kickoff, not midway.
 
@@ -54,9 +56,9 @@ Choose the column by the top-level leader's model family. Each cell specifies **
 
 Optimize for throughput, not ceremony.
 
-- **Never run the full suite after a one-line change.** A change runs only its affected test files plus tsc / lint. The full suite (including DB integration and smoke) runs **once per phase**, at phase end; flakes re-run only the red files.
+- **Choose checks by impact, not line count.** Start with affected tests and relevant static checks; shared contract, dependency, configuration, or security changes can justify broader verification even for a one-line diff. Apply `testing`'s evidence rules, with a full phase gate on the deliverable when required; reuse it while its inputs remain valid.
 - Staged relay: backend finishes a batch and returns a **contract** (endpoints + field names + types + sample values) → the leader hands it to web (threads cannot message each other; the leader is the only channel; web must not guess field names without a contract) → QA starts only after the frontend wraps up. One side moves per stage; nobody waits on the environment.
-- The dev environment (server port / dev DB / external simulators) has **exactly one owner** (usually backend) and exactly one process. Others do not reset or restart it. While QA is running, the owner does not commit or edit src (hot reload interrupts QA).
+- Each shared dev environment has **exactly one owner** (usually backend) and one managed instance of each required service. Others do not reset or restart it. While QA uses it, do not change its source, data, or runtime in ways that invalidate the run; coordinate updates at a safe boundary.
 - Small WIs get a proposal + tasks only, no design doc. One WI, one instruction, one report.
 - Comments: English only, and only where the code is non-obvious (gotchas, invariants, why-not-the-obvious-way).
 
@@ -67,7 +69,7 @@ High quality and efficient. When dispatching QA / dev to write tests, spell thes
 - **Happy path** to prove the business logic, **plus edge cases**: basic error handling (invalid input, missing fields, wrong permissions), illegal state transitions, boundary values, concurrency / duplicate submits, and **deliberate hunting for business-logic holes** (bypassing gates, double spend, negative amounts, privilege escalation).
 - **Efficiency**: avoid wiping the DB repeatedly; share fixtures / seed once, isolate with transaction rollback or separate schemas; keep the test DB separate from the dev DB.
 - **Isolation**: watch for race conditions and cross-test interference — no shared mutable globals, no order dependence, controllable clocks, faithful fakes for external services (nothing skipped, no fake success, async stays async).
-- Integration / side-by-side browser QA runs once per phase. Each report line carries "expected vs actual + file:line + category". Close only at **0 FAIL, 0 regressions**; each round is appended to the same report as "Round N" and committed.
+- Plan integration / side-by-side browser QA at phase boundaries; reuse valid results and rerun affected flows when their inputs change. Each finding carries "expected vs actual + file:line + category". Close only when the agreed gate is satisfied, with baseline failures, blocked checks, and explicit waivers reported honestly; each round is appended to the same report as "Round N" and committed.
 
 ## 4. Phase three: review
 
@@ -96,13 +98,13 @@ Do not issue blanket "preserve all sessions/services" instructions. List the exa
 
 Budget disk and heavy-work concurrency at phase boundaries: inspect free space and substantial retained outputs, reuse a bounded set of compatible build directories, and retire superseded snapshots/targets before creating replacements. Do not overlap heavy compilation with timing-sensitive QA when contention would invalidate results. Keep necessary shared caches under explicit ownership; do not ask workers to globally purge caches or wait until project completion to reclaim disposable outputs.
 
-**Proportionality**: simple tasks close fast. Dispatch messages are short and complete in one go; the leader writes no long adjudication docs and does not keep rewriting memory; workers skip brainstorming / grill / full-suite / smoke ceremony. Spend time on the real risk points (hard constraints, security boundaries) and move fast through the rest.
+**Proportionality**: simple tasks close fast. Keep dispatches and adjudication notes concise; avoid redundant brainstorming, repeated records, and checks whose evidence remains valid. This does not waive agreed SDD stages, required independent review, or project quality gates. Spend time on the real risk points and move fast through the rest.
 
 ## 6. Monitoring and context management (the leader owns it)
 
-- After dispatching, always `bb thread wait <id> --timeout 300` on every thread. On return check `bb thread log` line count; **no growth two checks in a row while active = stuck**: `bb thread tell --mode steer` to pull it back; still stuck → stop → WIP commit → re-spawn. `bb thread show`'s Updated field is unreliable.
+- Monitor every dispatched worker using the harness's wait/status tools within its responsiveness limits. Repeatedly unchanged logs trigger investigation, not an automatic stuck verdict: inspect the active command, process activity, tool session, output buffering, and expected timeout. If evidence shows a stall, steer the worker; stop/checkpoint/re-spawn only when recovery requires it, preserving resource ownership. A timestamp or line count alone cannot prove progress or deadlock.
 - Check `bb thread context <id> --json` before dispatching, when progress arrives, and during long batches. Around 50–60% start planning a handoff at a natural boundary; near 80% prefer a fresh thread and finish only a short, bounded handoff step; never interrupt an in-flight test / transaction. If compaction already happened, hand off at the next safe milestone; a lower reading is not a reason to cancel.
-- Handoff: the worker records objective / spec decisions, branch / HEAD / dirty files, done vs remaining, test results, blockers / next action, environment ownership. The new thread reads the concise handoff (no full-history fork); release the old worker's write ownership before the successor starts. **A thread change is not a new phase**; do not re-run passed tests or reviews.
+- Handoff: the worker records objective / spec decisions, branch / HEAD / dirty files, done vs remaining, verification inputs/scope/results, blockers / next action, environment ownership. The new thread reads the concise handoff (no full-history fork); release the old worker's write ownership before the successor starts. **A thread change is not a new phase**: verify evidence still matches current inputs, reuse valid results, and rerun only invalidated checks. Carry the same progress/evidence into `sdd` when used.
 - Resource handoff is separate from write ownership: reconcile each worker's resource disposition in the existing handoff notes, including temporary roots, snapshots, and build directories. Have the successor explicitly accept resources it needs and clean up those it supersedes once unused. On a worker crash, stop, or context replacement, assign inspection and cleanup of its recorded resources; the leader owns unresolved entries. Do not let each fresh worker leave another unowned browser or build copy behind.
 
 ## 7. Thread pitfalls
@@ -115,7 +117,7 @@ Budget disk and heavy-work concurrency at phase boundaries: inspect free space a
 
 ## 8. Closeout
 
-1. At phase end run the **full gate once**: lint / tsc / all tests / smoke / build.
+1. At phase end satisfy the **agreed project gate** with evidence for the delivered state: relevant lint / typecheck / tests / smoke / build. Reuse matching results; run missing or invalidated checks rather than repeating a gate just for closeout.
 2. Record in the roadmap footer: agreed deviations from spec (and who decided), what was not verified, pending adjudications.
 3. Before deleting or archiving workers, reconcile this task's resource records. Have the responsible worker verify daemon/browser and test-process exit **and removal of disposable files/directories**; an empty CLI list alone is not enough. Retain only explicitly owned resources with a reason and expiry, recording paths/sizes for substantial retained outputs. Keep cleanup failures visible and assigned; do not declare closeout complete or delete the responsible worker while cleanup is unresolved. Do not stop unrelated agents, personal browsers, or shared services, or remove their data/caches.
 4. List this task's worker threads, confirm none is running and cleanup is resolved, then `bb thread delete <id> --yes`; do not archive unless the user requests it. Thread removal does not replace process or filesystem cleanup.

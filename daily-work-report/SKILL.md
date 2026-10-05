@@ -182,11 +182,13 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   counts, payload fields, secondary test scenarios, implementation safeguards,
   observed sample values, and generic benefits already implied by the work. Exact
   identifiers belong only when they identify the work or explain a material issue.
-- Delivery pipeline stages are notes, not report text: "developed, tested and
+- Delivery pipeline minutiae normally belong in notes, not report text: "developed, tested and
   reviewed", "merged", "branch pushed", "awaiting deploy or migration", and
   similar internal next steps. Do not narrate how a decision was reached ("as
   agreed with X", "per discussion"); state the rule or outcome. Do not append
   watch items or "still to confirm" tails unless the item is blocked by them.
+  Keep a stage or pending action when it changes the PM's understanding of availability,
+  delivery, or the next decision (for example, implemented but not yet deployed).
   Omit irrelevant detail without implying deployment or integration success.
   State each useful result or limitation once; avoid repetitive
   testing/pending-work formulas and recaps.

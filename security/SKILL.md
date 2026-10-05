@@ -36,8 +36,8 @@ Assume all external input is malicious.
 
 - **Secrets in code** — API keys, passwords, tokens, credentials committed to source or hardcoded
 - **Logging sensitive data** — Passwords, tokens, PII in log output
-- **Insecure storage** — Passwords not hashed, tokens not encrypted; sensitive data in localStorage/sessionStorage without encryption
-- **Data leakage** — PII in error messages, API responses, or client-side state exposed in DevTools
+- **Insecure storage** — Passwords need an appropriate password hash; secrets/tokens need storage controls suited to their use and threat model. Avoid storing session secrets in JavaScript-readable browser storage where possible. Frontend encryption alone does not protect against same-origin malicious scripts that can access plaintext or use decryption keys; evaluate key management and device-access threats separately. See [OWASP browser storage guidance](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#storage-apis).
+- **Data leakage** — Sensitive fields exposed beyond the recipient's authorization or purpose, including excessive API responses, errors, and logs. DevTools visibility alone is not a leak when the user is authorized to receive the data; never send unauthorized fields and rely on hiding them in the UI.
 
 ## Dependencies & Configuration
 
@@ -60,8 +60,8 @@ Assume all external input is malicious.
 - **Shared mutable state** — Missing locks, unsafe concurrent access
 - **Double-spend / double-submit** — Missing idempotency protections
 
-## Acceptable when
+## Assess Findings In Context
 
-- Theoretical vulnerabilities with unlikely attack vectors
-- Security handled by the framework (e.g., CSRF tokens auto-applied, React's JSX auto-escaping)
-- Internal-only code that never touches external input
+- Identify the attacker, entry point, affected asset, and existing controls before raising or dismissing a risk.
+- Credit verified framework protections on the actual path (e.g., escaping text does not make raw HTML insertion safe).
+- Internal placement or an apparently unlikely attack is not sufficient to waive a vulnerability. Explain reachability and impact; use the project's risk-acceptance process for real residual risks. Avoid adding controls for scenarios that the evidence rules out.

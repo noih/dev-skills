@@ -18,11 +18,26 @@ Existing-convention rows (rows 1-2 in the heuristics table) come first — if sp
 
 ## Decision log full template (`.sdd/logs/<slug>.md`)
 
-One file per spec. Overwritten section-by-section by each HOOK run — file always represents latest state. Sections absent if that HOOK didn't run. Each HOOK section has bounded structure; attempts list grows within a run, frozen on completion.
+One file per spec. Update the progress summary and affected evidence as work changes; preserve valid results and scoped waivers across handoffs. Link to existing task/test reports instead of duplicating their contents. Omit sections for gates that have not run.
 
 ```markdown
 # SDD Log — <slug>
 _Goal: <one-to-two-sentence summary of what this spec delivers>_
+
+## Progress
+**Stage:** <spec / implementation / test / review / ready for closeout>
+**Task source:** <existing spec/task artifact>
+**Completed / remaining:** <concise deliverables or task references>
+**Blockers / next action:** <what remains and who owns it, if assigned>
+
+## Evidence inputs
+**Spec:** <path and version/content fingerprint>
+**Code:** <revision plus relevant dirty/untracked content fingerprint or retained patch>
+**Configuration / environment:** <inputs material to the checks>
+**Evidence:** <accessible test/review report or handoff location>
+
+Gate-specific results below identify their input snapshot when it differs; do not
+overwrite an input reference and make an old result appear current.
 
 ## Project layout
 **Layout:** single-project | multi-project | monorepo
@@ -34,6 +49,7 @@ _Goal: <one-to-two-sentence summary of what this spec delivers>_
 ## HOOK 1 grill
 **Status:** passed | skipped-by-user | skipped-no-grill-me | halted-severe
 **Mode:** user-mode | agent-autonomous | agent-with-leader
+**Spec examined:** <input reference>
 **Project context inspected:** <specs / plans / docs / files / modules / tests checked before questions>
 ### Context-derived answers
 - <question or assumption>. Answer: <what existing project context shows>. Evidence: <path / symbol / decision record / behavior>.
@@ -45,18 +61,21 @@ _Goal: <one-to-two-sentence summary of what this spec delivers>_
 - <issue>. Path: <asked user | asked leader | halted>. Outcome: <...>.
 
 ## HOOK 2 test
-**Status:** passed | failed-overridden | skipped-no-framework | halted-severe
+**Status:** passed | failed | blocked | failed-overridden | skipped-no-framework | halted-severe
+**Inputs / scope:** <tested input reference and covered deliverables/checks>
 **Command:** `<test command>`
+**Result:** <exit status and evidence; baseline failures / unavailable checks separately>
 **Attempts:** <N>
 ### Attempts
 1. <failure + fix>
 N. <final state>
 ### Overrides
-- Reason: <why>
+- Reason: <why>. Authority: <who waived>. Scope/conditions: <what the waiver covers>.
 
 ## HOOK 3 review
-**Status:** passed | skipped-by-user | halted-severe
-**Dispatched to:** superpowers:requesting-code-review | /review
+**Status:** passed | findings-open | blocked | skipped-by-user | halted-severe
+**Reviewed inputs / base:** <input reference and intended comparison base>
+**Reviewer / method:** <actual reviewer or clearly labelled self-review; independence requirement/result>
 ### Findings addressed
 - <finding>. Fix: <...>.
 ### Findings deferred

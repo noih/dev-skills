@@ -20,6 +20,8 @@ Look for project-specific operating docs at the workspace root and relevant pack
 - `scripts/` usage notes or script headers
 - framework-specific or package-specific instruction files
 
+Read the relevant entrypoints and follow references needed for this task; `docs/` and `scripts/` are search locations, not an instruction to load every file. Reuse context already read unless it changed.
+
 Do not spend attention re-reading standard AI instruction entrypoints that the current runtime already loads, such as `CLAUDE.md` for Claude Code or `.github/copilot-instructions.md` for GitHub Copilot. Read them only when you are outside that runtime, unsure whether they were applied, diagnosing instruction behavior, or preparing context for a zero-knowledge subagent.
 
 Quick-scan `CONTRIBUTING.md` only when it exists and only for workflow rules that affect the task: setup, test, lint, format, commit, CI, migrations, generated files, or release commands. Do not spend context on community contribution process unless the task involves PR/release workflow.
