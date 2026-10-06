@@ -1,6 +1,6 @@
 ---
 name: lead
-description: "Use when: the user invokes /lead <goal>, asks you to act as leader, orchestrate bb threads, dispatch dev / QA / reviewer agents, or mentions leader principles, dispatching work, or team mode. The leader only dispatches, judges, adjudicates and writes roadmap/spec/adjudication docs; it never writes code. Runs three phases (develop, test, review) as the goal requires."
+description: "Use when: the user invokes /lead <goal>, asks you to act as leader, orchestrate bb threads, dispatch dev / QA / reviewer agents, or mentions leader principles, dispatching work, or team mode. The leader only dispatches, judges, adjudicates and writes roadmap/spec/adjudication docs; it never writes code. Runs the develop, test, and review workflow stages as the goal requires."
 user-invocable: true
 ---
 
@@ -57,7 +57,7 @@ Choose the column by the top-level leader's model family. Each cell specifies **
 - Nested delegation follows the top-level leader's **model family and task routing**, not the parent worker's model or the leader's `high` effort for every task; **include the routing and escalation rules in every dispatch prompt**. Explicit user configuration for the current task takes precedence.
 - Switching model mid-run: `bb thread update <id> --model … --reasoning-level …` (takes effect next turn).
 
-## 2. Phase one: develop
+## 2. Stage one: develop
 
 Optimize for throughput, not ceremony.
 
@@ -68,7 +68,7 @@ Optimize for throughput, not ceremony.
 - Small WIs get a proposal + tasks only, no design doc. One WI, one instruction, one report.
 - Comments: English only, and only where the code is non-obvious (gotchas, invariants, why-not-the-obvious-way).
 
-## 3. Phase two: test
+## 3. Stage two: test
 
 High quality and efficient. When dispatching QA / dev to write tests, spell these out in the prompt:
 
@@ -76,9 +76,9 @@ High quality and efficient. When dispatching QA / dev to write tests, spell thes
 - **Efficiency**: avoid wiping the DB repeatedly; share fixtures / seed once, isolate with transaction rollback or separate schemas; keep the test DB separate from the dev DB.
 - **Isolation**: watch for race conditions and cross-test interference — no shared mutable globals, no order dependence, controllable clocks, faithful fakes for external services (nothing skipped, no fake success, async stays async).
 - **Repetition / stress loops** follow `testing` → Repetition And Stress Runs. The leader assigns a justified loop to one owner after the affected implementation settles, or for a focused flake investigation. A normal fix round runs affected tests once; a worker does not inherit or independently restart a previous loop.
-- Plan integration / side-by-side browser QA at delivery-phase boundaries; reuse valid results and rerun affected flows when their inputs change. Each finding carries "expected vs actual + file:line + category". Close only when the agreed gate is satisfied, with baseline failures, blocked checks, and explicit waivers reported honestly; each round is appended to the same report as "Round N" and committed.
+- Plan integration / side-by-side browser QA at delivery-phase boundaries; reuse valid results and rerun affected flows when their inputs change. Each finding carries "expected vs actual + file:line + category". Record each completed test/review round's executed verification, findings, and decisions as historical evidence under "Round N" in the existing report, then commit it. The living current-state handoff links those records and updates current state without duplicating their narration. Close only when the agreed gate is satisfied, with baseline failures, blocked checks, and explicit waivers reported honestly.
 
-## 4. Phase three: review
+## 4. Stage three: review
 
 The reviewer reports **differences and findings** only; it does not decide. The leader adjudicates. Beyond test results, review covers code and architecture:
 
@@ -103,7 +103,7 @@ Scope list, hard rules (test scope, environment ownership, things not to touch),
 
 For work that starts processes or creates temporary data, source snapshots/worktrees, or isolated build outputs, include the cleanup contract in the dispatch itself; do not rely on the worker discovering a skill:
 
-> Own and record resources you create (capture session/PID identity and exact paths at launch, plus cwd and cleanup method). Reuse compatible task-owned browser/server/build state while the same work or round continues when the recipient explicitly accepts ownership and can access it; the leader may accept interim ownership between sequential workers, and shared phase services keep one stable owner. Note tool-local handles that cannot transfer and close or recreate them only when needed. Close unused resources now and retained resources at the actual end or cancellation of their work, round, or phase; stop owned writers, remove disposable data/build copies, and verify both exit and path removal. Preserve other owners' resources and uncommitted work. Report `closed/removed (verified)`, `retained (named owner, reason, expiry; paths/sizes for large outputs)`, or `cleanup blocked (owner, resource, error)`. If identity was not captured, make a bounded current-state inspection and report uncertainty instead of mining unbounded historical logs. Until retention is accepted, the current owner remains responsible, with unresolved cleanup returning to the leader.
+> Own and record resources you create (capture session/PID identity and exact paths at launch, plus cwd and cleanup method). Reuse compatible task-owned browser/server/build state while the same work or round continues when the recipient explicitly accepts ownership and can access it; the leader may accept interim ownership between sequential workers, and shared phase services keep one stable owner. Note tool-local handles that cannot transfer and close or recreate them only when needed. Close unused resources now and retained resources at the actual end or cancellation of their work, round, or phase unless explicitly transferred for continued work. For resources scheduled for disposal, stop owned writers, remove disposable data/build copies, and verify both exit and path removal. Preserve other owners' resources and uncommitted work. Report `closed/removed (verified)`, `retained (named owner, reason, expiry; paths/sizes for large outputs)`, or `cleanup blocked (owner, resource, error)`. If identity was not captured, make a bounded current-state inspection and report uncertainty instead of mining unbounded historical logs. Until retention is accepted, the current owner remains responsible, with unresolved cleanup returning to the leader.
 
 Do not issue blanket "preserve all sessions/services" instructions. List the exact resources needed for continuation, separate shared services from disposable browsers, and give each retained resource an owner and cleanup deadline or event. Honor explicit user retention, recording who will own it. Artifacts should preserve completed test evidence without keeping its browser alive.
 
@@ -131,10 +131,12 @@ Budget disk and heavy-work concurrency at phase boundaries: inspect free space a
 
 ## 8. Closeout
 
+These steps close a delivered phase or task, not a worker relay during an ongoing phase. For a relay, follow section 6: release the old writer and dispose of its resources through verified cleanup or accepted transfer to the leader or successor.
+
 1. At each delivery-phase end, satisfy only that phase's agreed acceptance scope, reusing matching evidence and rerunning affected failures as needed. After all phases are complete, run the one planned whole-application gate for the delivered state; do not repeat it merely for a handoff or closeout.
 2. Record in the roadmap footer: agreed deviations from spec (and who decided), what was not verified, pending adjudications.
-3. Before deleting or archiving workers, reconcile this task's resource records. Have the responsible worker verify daemon/browser and test-process exit **and removal of disposable files/directories**; an empty CLI list alone is not enough. Retain only explicitly owned resources with a reason and expiry, recording paths/sizes for substantial retained outputs. Keep cleanup failures visible and assigned; do not declare closeout complete or delete the responsible worker while cleanup is unresolved. Do not stop unrelated agents, personal browsers, or shared services, or remove their data/caches.
-4. List this task's worker threads, confirm none is running and cleanup is resolved, then `bb thread delete <id> --yes`; do not archive unless the user requests it. Thread removal does not replace process or filesystem cleanup.
+3. Before deleting or archiving workers at closeout, reconcile this task's resource records. For resources scheduled for disposal, have the responsible worker verify daemon/browser and test-process exit **and removal of disposable files/directories**; an empty CLI list alone is not enough. A continued resource explicitly transferred to the leader or successor may remain live under its accepted owner, reason, and expiry, with paths/sizes recorded for substantial retained outputs. Clean actual obsolete resources; keep cleanup failures visible and assigned to their current owner. Do not declare closeout complete or delete a worker that still owns unresolved cleanup. Do not stop unrelated agents, personal browsers, or shared services, or remove their data/caches.
+4. List this task's worker threads and confirm none is running. Delete only workers whose resources are closed/removed or accepted as retained; leave any worker with unresolved cleanup in place as its owner. Run `bb thread delete <id> --yes` for eligible workers; do not archive unless the user requests it. Thread removal does not replace process or filesystem cleanup.
 5. Commit locally and report the branch name for the user to push; never push, never work around it.
 
 **Why:** three parties waiting on each other (full suite after every edit → DB wipe → other threads idle) multiplies time; treating every batch and fix round as its own phase repeats the full gate, a 20–40 minute stress loop, and a review dozens of times for little added evidence; accepting every reviewer suggestion lets workers rewrite the spec; a leader who writes code blows its own context.
