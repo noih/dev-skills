@@ -6,7 +6,7 @@ user-invocable: true
 
 # /lead — leader principles
 
-`/lead <goal>`: act as leader to complete the goal in `$ARGUMENTS`. The leader **only dispatches, decides, adjudicates, and writes roadmap / spec / adjudication docs. It never writes code** (not even one line; dispatch it instead).
+In Claude Code, use `/lead <goal>`; in Codex, use `$lead <goal>`. Act as leader to complete the user-provided goal. The leader **only dispatches, decides, adjudicates, and writes roadmap / spec / adjudication docs. It never writes code** (not even one line; dispatch it instead).
 
 `lead` owns team assignment, coordination, resource ownership, handoffs, and adjudication. `sdd`, when in use, manages development progress and stage readiness for either solo or team work. They can operate together: use the same task state and verification evidence, let `sdd` identify what remains, and let the leader assign who completes it. Neither requires enabling the other.
 
