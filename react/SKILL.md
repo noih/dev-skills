@@ -6,6 +6,14 @@ user-invocable: false
 
 # React Conventions
 
+## UI Reference And Migration Scope
+
+First identify whether the task is a new feature, a behavior migration, or exact UI/UX parity with an existing reference. Ordinary new features follow the project's normal design and do not require demo observation or source copying.
+
+For a migration, inspect the relevant source and runnable demo, then assess permission/licensing, framework compatibility, dependencies, security, and maintenance constraints. Choose full migration, partial reuse, or necessary reimplementation. When exact parity is required and reuse is confirmed feasible, prefer moving the source components/UI and required assets/dependencies before adapting API, state, backend, or framework boundaries. Preserve the required DOM/JSX structure, control flow, labels, defaults, fields, styles, interactions, accessibility, responsive behavior, and loading/error/empty/disabled states; carry over relevant tokens, fonts, global CSS, import order, class merging, and shared primitives.
+
+Exact parity is an outcome, not a demand for literal copying across incompatible stacks. Generic component/prop/styling preferences, native controls, shorter code, or local conventions do not justify UX drift, but unsafe backend or fixture architecture must not be copied and security/data-precision adaptations remain mandatory. Discuss a material strategy choice when it changes requirements, risk, or cost; once confirmed feasible, proceed without repeated approval.
+
 ## Naming Conventions
 
 - **Components**: PascalCase — `UserProfile`, `OrderList`
