@@ -20,7 +20,7 @@ spec-tool: archive / merge-spec      →  HOOK 3  review
 
 `layout check` not HOOK — one-shot classification of cwd before new spec file created, so file lands in right dir (sub-project vs monorepo root). See "Project layout check" under HOOK 1.
 
-Within an active spec workflow, trigger the relevant stage without an upfront confirmation. HOOK 1 (grill) checks the spec before implementation; HOOK 2 (test) verifies readiness after implementation; HOOK 3 (review) checks the deliverable before closeout. "Done implementing" can chain test → review using current evidence. Do not mark test readiness passed on failing, skipped, or unavailable checks; explicit waivers remain visible. Honor user stop/skip instructions as described below. These are agent workflow instructions, not installed runtime hooks.
+Within an active spec workflow, trigger the relevant stage without an upfront confirmation. HOOK 1 (grill) checks the spec before implementation; HOOK 2 (test) verifies readiness after the whole agreed acceptance scope is implemented; HOOK 3 (review) checks that deliverable before closeout. In a multi-phase project, that scope is the current coherent business delivery phase, not a page, module, WI, commit, worker checkpoint, or handoff. Partial progress updates the completed/remaining record but does not trigger test or review. A scope-complete "done implementing" can chain test → review using current evidence. Do not mark test readiness passed on failing, skipped, or unavailable checks; explicit waivers remain visible. Honor user stop/skip instructions as described below. These are agent workflow instructions, not installed runtime hooks.
 
 ## Communication style
 
@@ -85,7 +85,7 @@ Interpret the following signals only for the active spec workflow (tool-neutral 
 |------|----------------|--------------------------|
 | — layout check | Proposal-creation signals: "new proposal", "new spec", "let's plan X", "start a change", `openspec add`, `.superpowers/plans/<slug>` being created | Reuse the recorded layout while the target and convention remain applicable |
 | 1 grill | "grill this", "review the spec", "spec is done", "ready for spec review", explicit `/sdd grill` | Before apply / implementation, examine the spec if no current grill result or applicable explicit skip exists |
-| 2 test | "done implementing", "ready to review", "ready to archive", explicit `/sdd test` | Before closeout review, run missing/invalidated checks unless covered by a recorded waiver |
+| 2 test | Scope-complete "done implementing", "ready to review", "ready to archive", explicit `/sdd test` | A partial worker/WI handoff only updates progress; before closeout review, run missing/invalidated checks unless covered by a recorded waiver |
 | 3 review | "archive this", "ship it", "merge this", "wrap up", archive command invoked, explicit `/sdd review` | Review if no current review result or applicable explicit skip exists; satisfy test readiness first |
 
 ### Stage Evidence And Reuse
@@ -170,7 +170,7 @@ Per "Execution modes": user mode asks unresolved questions; autonomous mode self
 
 ## HOOK 2 test
 
-Goal: establish appropriate verification for every spec deliverable and track remaining gaps before review. Identify missing coverage, arrange authorized tests/fixes, and verify the agreed gate. Use `testing` for execution scope, result validity, and resource cleanup; do not start a second testing policy or repeat unchanged evidence.
+Goal: establish appropriate verification for the completed acceptance scope and track remaining gaps before review. Identify missing coverage, arrange authorized tests/fixes, and verify the agreed gate. Use `testing` for phase-batched execution, final whole-application scope, result validity, and resource cleanup; do not start a second testing policy or repeat unchanged evidence.
 
 ### Coverage scope
 
@@ -203,7 +203,7 @@ Common markers can locate test tooling, but do not replace project operating doc
 
 ### Gate
 
-HOOK 2 writes to `.sdd/logs/<slug>.md` + session flags. Auto-fire on done-implementing signal — no upfront ask.
+HOOK 2 writes to `.sdd/logs/<slug>.md` + session flags. Auto-fire only when the agreed acceptance scope is done — no upfront ask. A worker relay or partial implementation checkpoint records remaining work and waits for scope completion.
 
 1. **Coverage audit.** Map spec deliverables to existing tests and valid results. Record material gaps; add focused tests when authorized, route through the leader in team work, or report gaps in a read-only assignment.
 2. **Run needed checks.** Reuse evidence matching current inputs; execute missing/invalidated checks with the project runner. If execution is unavailable or requires permission, report the exact missing verification and obtain the needed input.
