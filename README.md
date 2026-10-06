@@ -22,6 +22,14 @@ These skills record my personal defaults, not universal requirements. Explicit t
 
 `sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. They can be used independently or together, sharing progress and verification evidence. `testing` provides test execution/evidence rules; `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
 
+## Compatibility
+
+Skill names, descriptions, and Markdown bodies use the shared Agent Skills format. Preserve existing `user-invocable` fields: in Claude Code, this extension controls direct user invocation, and `false` hides or disables slash-command invocation while still allowing model selection. Codex does not document this field as an invocation control, so this repository makes no claim about its runtime treatment.
+
+Codex can optionally set `policy.allow_implicit_invocation: false` in `agents/openai.yaml` to prevent automatic invocation while keeping explicit `$skill-name` invocation available. This is not a translation of `user-invocable: false`; add it only when explicit-only Codex behavior is requested. None is needed here.
+
+Common-format validation, platform-extension checks, and actual platform loading are distinct. A failure from one validator does not by itself prove runtime rejection. See the official [Claude Code skills](https://code.claude.com/docs/en/skills), [OpenAI skills](https://learn.chatgpt.com/docs/build-skills), and [Agent Skills specification](https://agentskills.io/specification) documentation.
+
 ## Skills
 
 > **Optional `sdd` companion:** install `grill-me` for its spec-questioning workflow; `sdd` documents fallback behavior when unavailable:
