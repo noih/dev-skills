@@ -165,8 +165,15 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   communication when they merit their own item.
 - One item is its purpose or business rule plus its outcome. Spend the words on
   what the change means for the business, such as the rule now enforced or the
-  data source now used, not on how it was delivered. Add a second sentence only
+  data source now used, not on how it was delivered or how it behaves internally
+  (UI sequence, endpoint added, test harness used). Add a second sentence only
   for an external blocker or a result the PM must act on.
+- Listing an item under progress already says it is done. Do not append
+  completion confirmations such as "deployed and verified online", "review
+  passed", "merged to main", or "acceptance passed"; the PM reads them as noise.
+  Only an unfinished item carries a stage, in one clause, and when the user's
+  plan for today already names the remaining step, the progress line stays
+  plain and the plan carries the stage.
 - When a count already summarizes the members ("fixed the 5 issues", "found 6
   new issues"), stop at the count. Do not enumerate the members, single out one
   member's root cause, or restate the count as a parenthetical list elsewhere.
@@ -174,21 +181,24 @@ rerun tests, reset data, deploy, or retry operations to produce the report.
   plainly; retain the meaningful scope and reason for larger changes. Avoid both
   dismissive wording and vague summaries such as "completed related adjustments."
 - Keep details that change the PM's understanding of scope, outcome, availability,
-  dependencies, or next action. This can include a concrete cause, validation,
-  deployment milestone, or unresolved blocker. Simplify terminology, not substance.
+  dependencies, or next action: a concrete cause, an unresolved blocker, a
+  residual risk, a decision taken, or a count that sizes the work. A deployment
+  or validation milestone belongs only when it is itself the news, such as a
+  previously blocked item finally going live. Simplify terminology, not substance.
   Name a known pending action instead of a vague "awaiting confirmation"; preserve
   unresolved causes and do not imply that the action will resolve every issue.
 - Leave verification minutiae in working notes: hashes, paths, commands, test
   counts, payload fields, secondary test scenarios, implementation safeguards,
   observed sample values, and generic benefits already implied by the work. Exact
   identifiers belong only when they identify the work or explain a material issue.
-- Delivery pipeline minutiae normally belong in notes, not report text: "developed, tested and
+- Delivery pipeline minutiae belong in notes, not report text: "developed, tested and
   reviewed", "merged", "branch pushed", "awaiting deploy or migration", and
   similar internal next steps. Do not narrate how a decision was reached ("as
   agreed with X", "per discussion"); state the rule or outcome. Do not append
   watch items or "still to confirm" tails unless the item is blocked by them.
-  Keep a stage or pending action when it changes the PM's understanding of availability,
-  delivery, or the next decision (for example, implemented but not yet deployed).
+  An unfinished stage that changes availability or the next decision (for
+  example, implemented but not yet deployed) goes in today's plan when the user
+  scheduled the remaining step, otherwise as one clause on the progress item.
   Omit irrelevant detail without implying deployment or integration success.
   State each useful result or limitation once; avoid repetitive
   testing/pending-work formulas and recaps.
@@ -294,7 +304,8 @@ on one source line so it can be copied without manual line-break artifacts.
 ```
 
 Before returning, check dates and coverage, remove duplicate or secondary detail,
-confirm stage and uncertainty, verify issue IDs against the matched work, and
-verify that every planned task was chosen by the user.
+strip completion confirmations and internal mechanics from progress items,
+confirm stage and uncertainty only where work is unfinished, verify issue IDs
+against the matched work, and verify that every planned task was chosen by the user.
 Preserve material scope and blockers while matching their accepted
 level of detail.
