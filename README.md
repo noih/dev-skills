@@ -20,7 +20,7 @@ npx skills@latest remove -g    # global
 
 These skills record my personal defaults, not universal requirements. Explicit task constraints and existing project conventions take precedence. Preserve package and style preferences when a choice is needed; do not add dependencies, layers, or unrelated cleanup merely to satisfy a default.
 
-`sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. They can be used independently or together, sharing progress and verification evidence. `testing` provides test execution/evidence rules; `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
+`sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. They can be used independently or together, sharing progress and verification evidence. `testing` selects verification by risk and total cost, including agent tokens, while preserving the agreed quality bar; it owns execution and evidence rules. `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
 
 ## Compatibility
 
