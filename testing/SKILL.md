@@ -30,7 +30,19 @@ Write the test before the implementation when the expected behavior is already p
 
 Write the implementation first when the behavior itself is still being discovered — spikes, exploratory work, an API shape you are still choosing. Add the tests once the shape settles, before the change is considered done.
 
-If a separate test-first workflow is in play for this task, follow it; this section only decides the default when nothing else specifies an order.
+Run the focused test against the original behavior when needed to prove the regression or establish a refactor baseline; batch the broader suite at the planned checkpoint. Writing a test early does not require running every related suite early. If a separate test-first workflow is in play for this task, follow it; this section only decides the default when nothing else specifies an order.
+
+## Verification Cost And Risk
+
+Keep the agreed delivery quality bar fixed. Choose the lowest-total-cost verification that supplies sufficient evidence for required behavior and material risks. Test count, run count, and coverage percentage are not goals. Count authoring, setup, execution, agent tokens for reading output and diagnosis, maintenance, and likely rework from delayed feedback; do not invent precise token estimates without measurements.
+
+- **Reduce failure opportunities first.** Reuse proven code, simplify branches and state, and use types and data constraints. Static checks and review can resolve appropriate questions, but cannot prove runtime behavior or replace required tests.
+- **Identify the evidence gap before adding or running a test.** Name the behavior or failure risk, check existing coverage and still-valid results, then choose the cheapest check that can actually prove it. Prioritize impact, likelihood, and uncertainty; a smaller count of tests is not a saving if important risks remain uncovered.
+- **Use the appropriate boundary.** Test pure calculations directly, persistence and transaction behavior against the relevant integration, and complete user journeys through E2E only where necessary. Duplicate assertions across layers need a distinct failure mechanism to justify their cost. Mocked success does not prove a real integration works.
+- **Choose timing by the cost of late discovery.** Verify a risky assumption before dependent work compounds it, especially contracts, authorization, money, and data integrity. Otherwise defer execution while a coherent change is in progress, with a named trigger such as integration completion or phase acceptance. Deferred checks remain pending, with an owner in team work; deferral is not a waiver or a pass.
+- **Batch and reuse.** Share setup in one invocation, retain valid evidence, and rerun only invalidated scope. Do not remove existing regression coverage merely to make a run smaller. Use affected-test selection only when dependencies are understood; investigate uncertain impact and broaden where it remains unresolved.
+- **Bound agent overhead.** Keep successful output concise while retaining streaming progress, commands, scope, and results; inspect failure details as needed. Share one evidence record across workers instead of repeating runs or copying full logs into each context.
+- **Stop when evidence is sufficient.** Once required behavior and material risks have current evidence and required checks pass, stop adding tests, full-suite runs, or reassurance reviews. A full-application run needs a project/user requirement or an unresolved cross-feature risk that narrower checks cannot cover. Cost limits never justify weakening assertions, lowering the agreed bar, or calling incomplete verification passed; report remaining gaps and reassess the plan.
 
 ## Test Case Design
 
@@ -188,7 +200,7 @@ Automation browsers outlive the agent that started them unless they are closed e
 
 ## Running Tests
 
-For a multi-phase project, treat each coherent business delivery phase as the implementation-and-acceptance unit. Complete the whole phase before its planned unit / integration / browser / visual checks. During development, run a targeted diagnostic or compiler check only for a concrete uncertainty or failure, or an explicit user/project requirement; do not automatically run checks after each page, module, WI, commit, or worker handoff. Test-first work may still write tests before implementation, but an explicit phase-batching instruction controls when suites execute. Small bug fixes and review-only work keep proportionate affected checks rather than adopting this full schedule.
+For a multi-phase project, treat each coherent business delivery phase as the implementation-and-acceptance unit. Choose its checks using Verification Cost And Risk; not every phase needs every test layer. Batch scheduled acceptance after the coherent implementation is ready, while allowing focused earlier checks for risky assumptions, regression proof, failures, or explicit user/project requirements. Do not automatically run checks after each page, module, WI, commit, or worker handoff. Small bug fixes and review-only work keep proportionate affected checks rather than adopting this full schedule.
 
 Tests should provide feedback at planned checkpoints, not become a background reaction to every file save. Give one delivery phase one defined scope, owner, and time budget; use existing task notes rather than creating an evidence framework. The cost of reflexive runs grows with setup overhead: compiling test binaries, building containers, migrating databases, starting services, seeding fixtures, bundling assets, or provisioning emulators. Pay that cost on the complete phase, not after every page.
 
@@ -199,7 +211,7 @@ Choose the one scope that matches the current purpose; this is a selection guide
 1. The specific test by name when changing one behavior.
 2. The affected test file.
 3. The package, module, or crate suite.
-4. The whole-application suite once after all planned phases are complete.
+4. The whole-application suite when required or when narrower checks cannot cover unresolved cross-feature risk; phase completion alone does not require it.
 
 Phase B verifies Phase B. Keep Phase A's passing evidence unless a specific shared API, authentication, style, dependency, fixture, or environment change invalidates named Phase A cases; rerun only those affected cases with Phase B. A broad build + lint + mocked/real variants + screenshots per page is not an "affected check" exception. Failure fixes rerun the affected tests until they pass; the planned phase run is a schedule, not a hard once-only quota.
 

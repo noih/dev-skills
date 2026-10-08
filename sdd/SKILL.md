@@ -170,11 +170,11 @@ Per "Execution modes": user mode asks unresolved questions; autonomous mode self
 
 ## HOOK 2 test
 
-Goal: establish appropriate verification for the completed acceptance scope and track remaining gaps before review. Identify missing coverage, arrange authorized tests/fixes, and verify the agreed gate. Use `testing` for phase-batched execution, final whole-application scope, result validity, and resource cleanup; do not start a second testing policy or repeat unchanged evidence.
+Goal: establish appropriate verification for the completed acceptance scope and track remaining gaps before review. Identify missing coverage, arrange authorized tests/fixes, and verify the agreed gate. Use `testing` for cost/risk-based selection and timing, result validity, and resource cleanup; do not start a second testing policy or repeat unchanged evidence. Closeout requires sufficient current evidence, not a fresh full-application run by default.
 
 ### Coverage scope
 
-Production-grade. For each capability spec delivers, tests must cover:
+For each capability spec delivers, map required behavior and material risks to evidence. Use the following to identify relevant scenarios, not as a mandatory matrix of new tests for every capability:
 
 - Happy path — function returns expected output for valid input.
 - Edge cases — boundary values, empty inputs, max sizes, off-by-one regions.
@@ -182,7 +182,7 @@ Production-grade. For each capability spec delivers, tests must cover:
 - Security-relevant invariants when spec touches auth / data correctness / user input — authz checks, input validation, injection-safe boundaries.
 - Concurrency / ordering invariants when spec touches shared state.
 
-Skip coverage of code unrelated to this spec — HOOK 2 scopes to spec deliverables, not whole repo.
+Reuse existing coverage and valid results before adding tests; select the lowest-cost checks that fill remaining gaps under `testing`. Preserve explicit acceptance requirements and relevant security/data invariants. Deferred checks remain pending until completed or explicitly waived. Include affected shared behavior and transitive callers; skip unrelated code.
 
 ### Test framework signals
 
