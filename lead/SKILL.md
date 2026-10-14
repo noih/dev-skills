@@ -10,7 +10,9 @@ In Claude Code, use `/lead <goal>`; in Codex, use `$lead <goal>`. Act as leader 
 
 `lead` owns team assignment, coordination, resource ownership, handoffs, and adjudication. `sdd`, when in use, manages development progress and stage readiness for either solo or team work. They can operate together: use the same task state and verification evidence, let `sdd` identify what remains, and let the leader assign who completes it. Neither requires enabling the other.
 
-For feature planning and behavior changes, use `bdd` from the initial discussion through acceptance: it owns current `.feature` scenarios in the deterministic workflow and their correspondence to bindings/tests; `testing` owns how to verify them. The spec tool owns requirement intent/change history. Follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption), including legacy migration, direct/generated execution, and OpenSpec compatibility. If `bdd` is unavailable, carry those rules into dispatch/acceptance directly; do not install the skill automatically or silently replace requested deterministic acceptance with legacy evidence.
+For feature planning and behavior changes, use `bdd` from the initial discussion through acceptance: it owns current `.feature` scenarios in the deterministic workflow and their correspondence to bindings/tests; `testing` owns how to verify them. The spec tool owns requirement intent/change history. When the BDD reference is available, follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption), including legacy migration, direct/generated execution, and OpenSpec compatibility.
+
+Without `bdd` or its reference, use agreed existing spec scenarios in legacy projects. For new executable BDD acceptance and existing feature-driven projects, default to versioned feature/bindings consumed directly or through deterministic generation, without model scenario translation or binding supply. A missing path or required unexecuted cases remain gaps; do not auto-install the skill or silently downgrade required deterministic acceptance.
 
 ## 0. Kickoff (every time)
 

@@ -10,7 +10,9 @@ Manage development progress for individuals and teams: track the active spec, cu
 
 The project spec tool owns spec authoring and implementation mechanics. `sdd` tracks progress and ensures the next stage's conditions are met, including arranging missing tests and fixes within the authorized task. `lead`, when present, owns team assignment, coordination, and adjudication; route work through that leader rather than starting a separate dispatch tree. In solo work, the current agent performs authorized work directly. Neither skill requires the other.
 
-For features and behavior changes, use `bdd` during planning/spec formulation and carry its agreed scenarios into implementation and acceptance. BDD owns scenario quality, current `.feature` scenarios in the deterministic workflow, and scenario-to-test correspondence; the spec tool owns requirement intent/change history. SDD checks readiness using those artifacts and evidence, without copying scenarios into its task list. Follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption), including legacy migration and OpenSpec compatibility limits. Pure refactors reuse behavior-preservation evidence; editorial changes do not need new scenario discovery.
+For features and behavior changes, use `bdd` during planning/spec formulation and carry its agreed scenarios into implementation and acceptance. BDD owns scenario quality, current `.feature` scenarios in the deterministic workflow, and scenario-to-test correspondence; the spec tool owns requirement intent/change history. SDD checks readiness using those artifacts and evidence, without copying scenarios into its task list. When the BDD reference is available, follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption), including legacy migration and OpenSpec compatibility limits. Pure refactors reuse behavior-preservation evidence; editorial changes do not need new scenario discovery.
+
+Without `bdd` or its reference, use agreed existing spec scenarios in legacy projects. For new executable BDD acceptance and existing feature-driven projects, default to versioned feature/bindings consumed directly or through deterministic generation, without model scenario translation or binding supply. A missing path or required unexecuted cases remain gaps; do not auto-install the skill or silently downgrade required deterministic acceptance.
 
 ## Gates
 
@@ -44,7 +46,7 @@ When a step needs a decision, apply the matching mode. Reuse explicit user decis
 
 | Skill | Purpose | Source | If missing |
 |-------|---------|--------|------------|
-| bdd | Business scenario discovery, formulation, and deterministic acceptance | `noih/dev-skills` | Follow the linked contract/adoption boundaries directly and check scenario outcomes against assertions/execution; do not auto-install the skill |
+| bdd | Business scenario discovery, formulation, and deterministic acceptance | `noih/dev-skills` | Use the inline fallback above and check scenario outcomes against assertions/execution; do not auto-install the skill |
 | grill-me | HOOK 1 adversarial questioning | `mattpocock/skills/grill-me` — user must install + vet manually; sdd never auto-install, no fetch / execute remote code | User mode: prompt install or skip. Agent autonomous: skip only the grill-me pass, perform scenario readiness, record `Status: skipped-no-grill-me` in `.sdd/logs/<slug>.md`, continue |
 | superpowers:requesting-code-review | HOOK 3 preferred review path | Part of superpowers plugin | Use an available harness review capability or the `code-review` skill; see HOOK 3 |
 
