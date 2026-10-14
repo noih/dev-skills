@@ -32,7 +32,7 @@ If Playwright Test is also missing:
 npm install --save-dev @playwright/test playwright-bdd
 ```
 
-Check Node/Playwright compatibility for the selected adapter version. Merge into the existing config; retain its fixtures, projects, filters, and setup. If ordinary Playwright tests already exist, preserve their project and use the BDD `testDir` in a BDD project. When no config exists, this minimal `playwright.config.ts` discovers TS steps and features:
+Check Node/Playwright compatibility for the selected adapter version. Merge into the existing config; retain its fixtures, projects, filters, and setup. If ordinary Playwright tests already exist, retain explicit non-BDD project(s) with their own `testDir` and prior settings, and use the BDD `testDir` only in BDD projects. If the old config has only a top-level `testDir`, add a non-BDD project preserving that directory and inherited settings when introducing `projects`; do not replace ordinary test discovery with BDD-only projects. Keep non-BDD selection excluding generated BDD output through a separate directory or `testIgnore`, so ordinary tests remain discovered without running BDD wrappers twice. When no config exists, this minimal `playwright.config.ts` discovers TS steps and features:
 
 ```ts
 import { defineConfig } from '@playwright/test';
@@ -60,7 +60,7 @@ Generate from current features/bindings/config and execute, preserving failure s
 npx bddgen && npx playwright test
 ```
 
-Use the same selected config for both commands if it is not the default. With pnpm, use `pnpm exec bddgen && pnpm exec playwright test`; with Yarn, use `yarn bddgen && yarn playwright test`. Keep wrappers (default `.features-gen/`) read-only; fix source and regenerate. Do not run stale wrappers after generation fails. Inspect scenario/Examples identities in results against the required scope.
+Use the same selected config for both commands if it is not the default. With pnpm, use `pnpm exec bddgen && pnpm exec playwright test`. For Yarn PnP, first consult the selected adapter version's [official installation PnP setup](https://github.com/vitalets/playwright-bdd/blob/main/docs/getting-started/installation.md#yarn) and apply its required `packageExtensions` in `.yarnrc.yml` using compatible dependency versions; then use `yarn bddgen && yarn playwright test`. Keep wrappers (default `.features-gen/`) read-only; fix source and regenerate. Do not run stale wrappers after generation fails. Inspect scenario/Examples identities in results against the required scope.
 
 Official docs: [installation](https://github.com/vitalets/playwright-bdd/blob/main/docs/getting-started/installation.md), [configuration and first run](https://github.com/vitalets/playwright-bdd/blob/main/docs/getting-started/write-first-test.md), [custom fixtures](https://github.com/vitalets/playwright-bdd/blob/main/docs/writing-steps/playwright-style.md#custom-fixtures), [multiple projects](https://github.com/vitalets/playwright-bdd/blob/main/docs/configuration/multiple-projects.md), [browser installation](https://playwright.dev/docs/browsers#install-browsers).
 
@@ -110,7 +110,7 @@ Install in the project's existing Python test environment (pip example):
 python -m pip install pytest-bdd
 ```
 
-Features alone are not collected as pytest tests. In `tests/test_acceptance.py`, bind them explicitly; paths default to being relative to that test module:
+Features alone are not collected as pytest tests. Reuse existing `scenarios()`/`@scenario` bindings; add a new test module only for features/scenarios not already bound, without binding the same scenario twice. If the entire feature directory is unbound, this minimal `tests/test_acceptance.py` binds it explicitly; paths default to being relative to that test module:
 
 ```python
 from pytest_bdd import scenarios
@@ -118,19 +118,19 @@ from pytest_bdd import scenarios
 scenarios("../features")
 ```
 
-Use `@scenario` instead when individual binding is needed. Define matching `@given`, `@when`, `@then` steps from `pytest_bdd` in the collected module or visible `conftest.py`; reuse pytest fixtures for state/action and put actual assertions in the steps. Retain existing `bdd_features_base_dir` if configured and adapt paths accordingly. Ensure pytest's configured discovery includes this module (`test_*.py` by default), then run:
+Use `@scenario` instead when individual binding is needed, selecting only unbound scenarios. Define matching `@given`, `@when`, `@then` steps from `pytest_bdd` in the collected module; put shared steps in a visible parent `conftest.py`, since another test module's steps are not automatically visible. Reuse pytest fixtures for state/action and put actual assertions in the steps. Retain existing `bdd_features_base_dir` if configured and adapt paths accordingly. Ensure pytest's configured discovery includes the binding modules (`test_*.py` by default), then run the existing modules or, for the example above:
 
 ```sh
 python -m pytest tests/test_acceptance.py
 ```
 
-Optional authoring help, only to a **new** test module in an existing test directory:
+Optional authoring help, only from an existing feature whose scenarios are all unbound, to a **new** test module in an existing test directory (the example assumes `cancellation.feature` is unbound):
 
 ```sh
 pytest-bdd generate features/cancellation.feature > tests/test_cancellation.py
 ```
 
-This prints empty scenario/step source skeletons. Review and edit them into maintained source with real implementations/assertions; do not overwrite existing bindings or regenerate over completed source. Adjust generated feature paths for the module location/base directory and ensure pytest collects it. These skeletons are authoring scaffolds, **not runner-derived output** subject to the read-only rule. Unlike `bddgen` wrappers, they are not acceptance-ready just because generation succeeds. Runtime pytest-bdd still reads the feature through scenario bindings.
+This prints empty scenario/step source skeletons. Review and edit them into maintained source with real implementations/assertions; do not overwrite existing bindings, create a second feature copy/binding, or regenerate over completed source. Reuse shared steps from `conftest.py`. Adjust generated feature paths for the module location/base directory and ensure pytest collects it. These skeletons are authoring scaffolds, **not runner-derived output** subject to the read-only rule. Unlike `bddgen` wrappers, they are not acceptance-ready just because generation succeeds. Runtime pytest-bdd still reads the feature through scenario bindings.
 
 Official docs: [installation and scenario binding](https://pytest-bdd.readthedocs.io/en/stable/), [feature paths](https://pytest-bdd.readthedocs.io/en/stable/#feature-file-paths), [editable code generation helpers](https://pytest-bdd.readthedocs.io/en/stable/#test-code-generation-helpers), [pytest discovery](https://docs.pytest.org/en/stable/explanation/goodpractices.html#conventions-for-python-test-discovery).
 
