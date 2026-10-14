@@ -32,6 +32,7 @@ _Goal: <one-to-two-sentence summary of what this spec delivers>_
 
 ## Evidence inputs
 **Spec:** <path and version/content fingerprint>
+**Executable contract (when applicable):** <feature/binding fingerprints, runner/generator version/configuration/filters; link existing evidence>
 **Code:** <revision plus relevant dirty/untracked content fingerprint or retained patch>
 **Configuration / fixtures / environment:** <inputs material to the checks>
 **Evidence:** <accessible test/review report or handoff location>
@@ -51,7 +52,7 @@ overwrite an input reference and make an old result appear current.
 **Mode:** user-mode | agent-autonomous | agent-with-leader
 **Spec examined:** <input reference>
 **Project context inspected:** <specs / plans / docs / files / modules / tests checked before questions>
-**Scenario readiness (behavior work):** <spec scenario references, agreed vs proposed outcomes, unresolved policy/gaps; link existing artifacts>
+**Scenario readiness (behavior work):** <requirement/change and current feature references, agreed vs proposed outcomes, unresolved policy/integration gaps; link existing artifacts>
 ### Context-derived answers
 - <question or assumption>. Answer: <what existing project context shows>. Evidence: <path / symbol / decision record / behavior>.
 ### Decisions
@@ -69,8 +70,8 @@ overwrite an input reference and make an old result appear current.
 **Inputs / scope:** <tested input reference and covered deliverables/checks>
 **Command:** `<test command>`
 **Result:** <exit status and evidence; baseline failures / unavailable checks separately>
-**Scenario coverage (behavior work):** <link scenario-to-test/assertion/evidence mapping in the existing report, or record a compact mapping here; no duplicate ledger>
-**Scenario gaps:** <uncovered outcomes, manual verification, deferred automation, blocked checks; explicit waivers under Overrides>
+**Scenario coverage (behavior work):** <link required scenario/Examples identities to bindings/tests, outcome assertions and actual execution results; no duplicate ledger or counts-only proof>
+**Scenario gaps:** <uncovered outcomes, required unexecuted cases, missing deterministic integration, manual verification, deferred automation, blocked checks; explicit waivers under Overrides>
 **Attempts:** <N>
 ### Attempts
 1. <failure + fix>
