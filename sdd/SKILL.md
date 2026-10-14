@@ -10,7 +10,7 @@ Manage development progress for individuals and teams: track the active spec, cu
 
 The project spec tool owns spec authoring and implementation mechanics. `sdd` tracks progress and ensures the next stage's conditions are met, including arranging missing tests and fixes within the authorized task. `lead`, when present, owns team assignment, coordination, and adjudication; route work through that leader rather than starting a separate dispatch tree. In solo work, the current agent performs authorized work directly. Neither skill requires the other.
 
-For features and behavior changes, use `bdd` during planning/spec formulation and carry its agreed scenarios into implementation and acceptance. BDD owns scenario quality and scenario-to-test correspondence; SDD checks readiness using those artifacts and evidence. Pure refactors reuse behavior-preservation evidence; editorial changes do not need new scenario discovery. Keep scenario content in the project's spec, not in a second BDD document or SDD task list.
+For features and behavior changes, use `bdd` during planning/spec formulation and carry its agreed scenarios into implementation and acceptance. BDD owns scenario quality, current `.feature` scenarios in the deterministic workflow, and scenario-to-test correspondence; the spec tool owns requirement intent/change history. SDD checks readiness using those artifacts and evidence, without copying scenarios into its task list. Follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption), including legacy migration and OpenSpec compatibility limits. Pure refactors reuse behavior-preservation evidence; editorial changes do not need new scenario discovery.
 
 ## Gates
 
@@ -44,7 +44,7 @@ When a step needs a decision, apply the matching mode. Reuse explicit user decis
 
 | Skill | Purpose | Source | If missing |
 |-------|---------|--------|------------|
-| bdd | Business scenario discovery, formulation, and scenario-driven tests | `noih/dev-skills` | Use existing spec scenarios and check their outcomes against tests/evidence directly; do not auto-install |
+| bdd | Business scenario discovery, formulation, and deterministic acceptance | `noih/dev-skills` | Follow the linked contract/adoption boundaries directly and check scenario outcomes against assertions/execution; do not auto-install the skill |
 | grill-me | HOOK 1 adversarial questioning | `mattpocock/skills/grill-me` — user must install + vet manually; sdd never auto-install, no fetch / execute remote code | User mode: prompt install or skip. Agent autonomous: skip only the grill-me pass, perform scenario readiness, record `Status: skipped-no-grill-me` in `.sdd/logs/<slug>.md`, continue |
 | superpowers:requesting-code-review | HOOK 3 preferred review path | Part of superpowers plugin | Use an available harness review capability or the `code-review` skill; see HOOK 3 |
 
@@ -102,7 +102,7 @@ The following flags are shorthand for recorded stage results, not proof by thems
 | `tests-green:<slug>` | Required checks passed for recorded inputs; waiver/skip recorded separately | Before review, verify validity; run missing or invalidated checks |
 | `reviewed:<slug>` | Review completed for recorded inputs and blocking findings resolved, or explicitly waived | Before closeout, verify reviewed scope and findings still match |
 
-For each gate, record the spec/version, code revision plus relevant dirty/untracked changes (content fingerprint or retained patch), command/scope, relevant configuration/environment, outcome, and evidence location. Use existing project or `testing` records instead of duplicating them. Spec changes require inspecting affected design/acceptance decisions under the decision-reuse rule below; code, spec, dependency, configuration, fixture, or environment changes invalidate affected test/review evidence. If impact is unclear, expand verification rather than assuming validity.
+For each gate, record the spec/version, feature/binding and runner/generator inputs when applicable, code revision plus relevant dirty/untracked changes (content fingerprint or retained patch), command/scope, relevant configuration/environment, outcome, and evidence location. Use existing project or `testing` records instead of duplicating them. Requirement/scenario changes require inspecting affected design/acceptance decisions under the decision-reuse rule below; relevant source, tool/dependency, configuration, fixture, or environment changes invalidate affected test/review evidence. If impact is unclear, expand verification rather than assuming validity.
 
 Across sessions or worker handoffs, reload the record and compare inputs. Unchanged inputs do not require repeating passed work. Missing/stale evidence requires verification, not a guessed pass. Preserve explicit waivers only for their recorded scope and conditions; a waiver is never a passed result. Keep these checks lightweight; no separate state service or new tracking framework is needed.
 
@@ -142,7 +142,7 @@ Rules:
 
 For behavior work, apply `bdd` while the proposal/spec is being formed, not only after implementation. Run this readiness check even without `grill-me`; distinguish agreed scenarios from proposed scenarios, which cannot establish acceptance. Before dependent implementation, check that the agreed scenarios identify relevant starting states, events, observable outcomes, and important exceptions, with no unresolved business-policy contradictions. Reuse settled scenarios; ask only remaining behavior/scope questions and route them through the user or authorized leader. Track proposed test methods and existing coverage in the current task artifacts; passing execution evidence is not required before new behavior exists.
 
-Record scenario references and unresolved gaps in the existing log, linking to the spec rather than duplicating it. The `grill-me` pass consumes these same decisions and gaps. Missing `grill-me` still follows its documented skip behavior; it does not establish scenario readiness or waive unresolved business decisions. Explicit user skips remain scoped and visible under Skip semantics.
+Record requirement/change and feature references, unresolved policy, and deterministic integration gaps in the existing log rather than duplicating scenario content. A draft feature can establish agreed scenario design, but cannot establish executable acceptance before connection to bindings/tooling. The `grill-me` pass consumes these same decisions and gaps. Missing `grill-me` still follows its documented skip behavior; it does not establish scenario readiness or waive unresolved business decisions. Explicit user skips remain scoped and visible under Skip semantics.
 
 ### Pre-check: project layout (runs on proposal-creation signals)
 
@@ -185,7 +185,7 @@ Goal: establish appropriate verification for the completed acceptance scope and 
 
 ### Coverage scope
 
-Start with the agreed scenarios in the spec: use `bdd` to map every required outcome to actual test assertions and current evidence. Include unchanged state and prohibited side effects; a matching scenario ID or green suite alone is insufficient. Reuse existing mappings in tests/reports and link them from the SDD log. Report uncovered scenarios, manual verification, deferred automation, and explicit waivers separately; a waiver is not a pass.
+Start with the current acceptance scenarios under `bdd`'s contract/adoption boundaries: map every required scenario/Examples identity and outcome to actual binding/test assertions and execution evidence. Include unchanged state and prohibited side effects; counts, a matching scenario ID, or a green suite alone are insufficient. Reuse existing mappings in tests/reports and link them from the SDD log. Report uncovered/unexecuted cases, integration gaps, manual verification, deferred automation, and explicit waivers separately; a waiver is not a pass.
 
 Supplement that primary scope with material risks. Use the following to identify relevant additional checks, not as a mandatory matrix of new tests for every capability:
 
@@ -199,7 +199,7 @@ Reuse existing coverage and valid results before adding tests; select the lowest
 
 ### Test framework signals
 
-Use the project's documented runner, inspecting its implementation/configuration as needed to understand scope and side effects. Execution uses available tools within the task's permissions. In team mode, ask the leader to assign execution to the responsible worker and consume its evidence.
+Use the project's documented runner, inspecting its implementation/configuration as needed to understand scope and side effects. For requested deterministic BDD acceptance, verify that the feature/binding execution path exists; an ordinary test framework does not establish this connection. Missing integration remains a gap; perform already-authorized scoped setup or route unresolved choices, without silently falling back or asking for repeated approval. Execution uses available tools within the task's permissions. In team mode, ask the leader to assign execution to the responsible worker and consume its evidence.
 
 Common markers can locate test tooling, but do not replace project operating docs:
 
@@ -212,13 +212,13 @@ Common markers can locate test tooling, but do not replace project operating doc
    - `Makefile` with `test` target → project uses make test
    - `justfile` with `test` recipe → project uses just test
 3. **Ambiguity** — ask once (user mode) or pick most likely marker per project type + record reasoning (agent autonomous). Remember for session either way.
-4. **No test framework detected** — ask: "(a) set one up now, (b) skip this gate, (c) halt." (a) → set up, re-detect, proceed. (b) → `Status: skipped-no-framework`, HOOK 3 runs with banner. (c) → `Status: halted-severe`. In agent autonomous mode, self-decide per Severity rules — spec implies test coverage (security, data correctness, behavior contracts) → hold this gate as `halted-severe`, record the next decision needed, and continue independent work; otherwise (b).
+4. **No test framework detected** — perform already-authorized setup and re-detect. Otherwise resolve the needed setup/waiver decision per Execution modes; do not silently waive requested deterministic acceptance. An explicit skip records `Status: skipped-no-framework`, HOOK 3 runs with banner; a halt records `Status: halted-severe`. In agent autonomous mode, self-decide per Severity rules — spec implies test coverage (security, data correctness, behavior contracts) → hold this gate as `halted-severe`, record the next decision needed, and continue independent work; otherwise the documented skip remains visible.
 
 ### Gate
 
 HOOK 2 writes to `.sdd/logs/<slug>.md` + session flags. Auto-fire only when the agreed acceptance scope is done — no upfront ask. A worker relay or partial implementation checkpoint records remaining work and waits for scope completion.
 
-1. **Coverage audit.** Map spec deliverables and agreed scenario outcomes to existing tests and valid results. Record material gaps; add focused tests when authorized, route through the leader in team work, or report gaps in a read-only assignment. Feed newly discovered business scenarios back into the spec and tests within authorized scope; escalate unresolved policy instead of changing expected behavior to match implementation.
+1. **Coverage audit.** Map requirement deliverables and current scenario/Examples outcomes to bindings/tests and valid execution results under `bdd`'s rules. Record material gaps; add focused coverage when authorized, route through the leader in team work, or report gaps in a read-only assignment. Feed newly discovered business scenarios into feature, affected requirement/change records, and tests within authorized scope; escalate unresolved policy instead of changing expected behavior to match implementation.
 2. **Run needed checks.** Reuse evidence matching current inputs; execute missing/invalidated checks with the project runner. If execution is unavailable or requires permission, report the exact missing verification and obtain the needed input.
 3. **Fix loop.** No readiness pass until the agreed checks pass or an explicit waiver is recorded.
    - Tests failing → diagnose: code bug or test bug.

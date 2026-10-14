@@ -1,6 +1,29 @@
 # BDD Examples
 
-Read when choosing scenario wording, boundary examples, structured inputs, or shared context/metadata. All policies and values below are illustrative, not default business requirements. Use only the forms that clarify the actual agreed contract; tags, tables, and Background are optional.
+Read for deterministic contract/adoption boundaries or scenario wording, boundary examples, structured inputs, and shared context/metadata. Business policies and values below are illustrative, not default requirements; tags, tables, and Background are optional. Gherkin snippets illustrate wording and may need a Feature wrapper to form a complete `.feature` file.
+
+## Deterministic contract and adoption
+
+| Artifact | Role |
+| --- | --- |
+| OpenSpec main specs | Current requirement intent/index in the spec tool's supported format. |
+| Active change/delta | Proposed behavior evolution and recorded decisions; read with main intent until sync/archive. Proposals alone are not agreed acceptance. |
+| Archives | Historical requirements/decisions/evidence, not a second current scenario authority. |
+| `.feature` | Agreed acceptance scenarios for the current branch/commit in the deterministic workflow. |
+| Bindings and runner/generator configuration | Versioned executable setup/actions/assertions and deterministic tool inputs. |
+| Generated tests, if used | Derived output; regenerate from source, never hand-edit. |
+
+Link requirements and features using existing conventions; no mandatory one-to-one names or new registry. A direct Gherkin runner needs no generated test file. Either path must consume versioned feature/binding source without a model interpreting/translating scenarios or supplying bindings during generation/execution. This governs scenario-to-test plumbing; model calls in an AI product under test remain allowed. AI authoring before source review is allowed; AI-written standalone tests without this connection do not establish deterministic feature execution. Before running generated tests, regenerate from current inputs or verify that committed output matches them; read-only stale output is not current evidence.
+
+For example, a feature branch changes the maximum reservation duration from 120 to 180 minutes. Record the delta/decision, update the branch's feature boundaries and affected bindings/product together, and retain the archive's 120-minute history. Before sync, main intent plus the agreed active delta explains the branch's intended behavior. After a merge or rollback, reconcile these artifacts; do not select the globally newest timestamp or overwrite history to resolve disagreement.
+
+**OpenSpec integration is a compatibility boundary.** Preserve the installed version's required Markdown structure. A scenario containing only a feature link, or a custom artifact schema, does not by itself prove native validator, sync/merge, or archive compatibility. Check those operations against the installed version before adopting such a representation. Record unresolved integration honestly; this skill does not supply a converter or claim working support. Existing historical snapshots may remain; new scenario snapshots must be mechanical, tied to the source revision, and labelled historical rather than maintained as current copies. Sync/archive occurs only within the task's authorization; report pending lifecycle work without claiming completion.
+
+**Adoption is scoped.** Legacy projects may keep their existing spec/test conventions until migration is in scope. When deterministic acceptance is requested but no feature runner/binding path exists, ordinary passing tests and Markdown scenarios remain useful evidence but do not satisfy that gate. During authorized adoption, draft `.feature` source and continue independent discovery while reporting the missing connection. Reuse compatible project tooling and tests; do not demand wholesale migration, install tools for discussion/editorial work, or ask again for already-authorized setup. Unresolved material choices follow the existing authority rules.
+
+**Acceptance checks identities and assertions.** Enumerate the required scenarios and each Scenario Outline's Examples rows from current source, then reconcile them with actual runner results and binding assertions. Existing runner identities or feature path/scenario/row references are sufficient; do not invent an ID service. Counts alone can conceal omitted cases replaced by unrelated ones. Inspect every required outcome, including unchanged state and prohibited side effects. Required skipped, pending, filtered/excluded, undefined, ambiguous, or otherwise unexecuted cases are gaps; a successful exit or unrelated green suite cannot pass them. Preserve retry/failure evidence and explicit waivers under existing testing rules. Keep additional security and implementation-risk tests.
+
+Evidence inputs include feature/binding content, tool/dependency versions, generator/runner configuration and filters, fixtures/environment, product revision, and requirement/change references. Reuse results only while their relevant inputs remain valid; no fresh run is needed solely for a handoff or commit with unchanged content.
 
 ## Business event versus UI choreography
 
