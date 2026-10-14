@@ -24,9 +24,17 @@ Good tests answer:
 - What side effects must happen exactly once?
 - What state must remain consistent after partial failure?
 
+## Scenario-Driven Business Tests
+
+For features and behavior changes, use `bdd` when available to discover or reuse agreed scenarios before designing business acceptance tests. Start from those scenarios in the existing spec, then supplement them with material risks below. Do not independently invent a different acceptance scope from the implementation. If `bdd` is unavailable, preserve the same scenario-to-test correspondence using the project spec; no skill or framework installation is implied.
+
+Map each scenario's preconditions, action, and all required outcomes to test setup and meaningful assertions, including prohibited side effects and unchanged state. Reference stable scenario names/IDs through existing test names, metadata, or the acceptance report. One scenario may require several tests, and one parameterized test may cover several examples; neither one-to-one mapping nor browser E2E is mandatory. Tests primarily prove the agreed behavior, while relevant security and implementation-risk tests fill additional gaps.
+
+Before claiming acceptance, check required scenarios against actual assertions and current execution evidence, not just suite status or matching IDs. Report missing coverage, manual checks, deferred automation, and waivers explicitly. Newly discovered business scenarios feed back into the spec and tests within authorized scope; unresolved policy goes to the user/leader. Pure implementation checks need not become spec scenarios, and pure refactors reuse behavior-preservation evidence without a new discovery cycle.
+
 ## Writing Tests First
 
-Write the test before the implementation when the expected behavior is already pinned down: a reproducible bug, a stated acceptance criterion, a protocol or schema you must match, or a refactor that must preserve current behavior. The failing test is the specification, and seeing it fail first is what proves it can fail at all.
+Write the test before the implementation when the expected behavior is already pinned down: a reproducible bug, a stated acceptance criterion, a protocol or schema you must match, or a refactor that must preserve current behavior. For new or changed behavior, observe failure for the expected missing behavior so the test demonstrates that it detects the gap. A refactor instead establishes a passing preservation baseline. Tests are executable checks of the agreed behavior; they do not override the requirement source.
 
 Write the implementation first when the behavior itself is still being discovered — spikes, exploratory work, an API shape you are still choosing. Add the tests once the shape settles, before the change is considered done.
 

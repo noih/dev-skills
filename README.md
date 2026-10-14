@@ -20,7 +20,9 @@ npx skills@latest remove -g    # global
 
 These skills record my personal defaults, not universal requirements. Explicit task constraints and existing project conventions take precedence. Preserve package and style preferences when a choice is needed; do not add dependencies, layers, or unrelated cleanup merely to satisfy a default.
 
-`sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. They can be used independently or together, sharing progress and verification evidence. `testing` selects verification by risk and total cost, including agent tokens, while preserving the agreed quality bar; it owns execution and evidence rules. `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
+`bdd` discovers business rules through concrete examples, records agreed scenarios in the existing spec, and makes those scenarios the backbone of test design and acceptance. `sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. They can be used independently or together, sharing progress and verification evidence. `testing` selects verification by risk and total cost, including agent tokens, while preserving the agreed quality bar; it owns execution and evidence rules. `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
+
+For features and behavior changes, the main flow is discussion of rules/examples → scenarios in OpenSpec (or the project's spec tool) → scenario readiness → implementation with scenario-driven tests → acceptance evidence → review. `bdd` works standalone or through `sdd` / `lead`; no Cucumber installation or duplicate `.feature` files are required. Track scenario → test → result in existing artifacts, while retaining additional security and implementation-risk checks. Pure refactors reuse existing behavior evidence; editorial changes do not require scenario discovery.
 
 ## Compatibility
 
@@ -42,6 +44,7 @@ Common-format validation, platform-extension checks, and actual platform loading
 | --- | --- | --- |
 | `api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
 | `backend-principles` | Auto | Personal layering preferences and criteria for adopting DDD. |
+| `bdd` | Explicit / natural language | Business scenario discovery and specification, scenario-driven tests, and traceable acceptance; also used by the main development workflow. |
 | `code-quality` | Auto | General code quality conventions. |
 | `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
 | `comments` | Auto | Guidance for adding, updating, or removing comments. |

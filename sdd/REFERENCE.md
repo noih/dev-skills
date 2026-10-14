@@ -33,7 +33,7 @@ _Goal: <one-to-two-sentence summary of what this spec delivers>_
 ## Evidence inputs
 **Spec:** <path and version/content fingerprint>
 **Code:** <revision plus relevant dirty/untracked content fingerprint or retained patch>
-**Configuration / environment:** <inputs material to the checks>
+**Configuration / fixtures / environment:** <inputs material to the checks>
 **Evidence:** <accessible test/review report or handoff location>
 
 Gate-specific results below identify their input snapshot when it differs; do not
@@ -47,24 +47,30 @@ overwrite an input reference and make an old result appear current.
 **Reason:** <heuristic that matched>
 
 ## HOOK 1 grill
-**Status:** passed | skipped-by-user | skipped-no-grill-me | halted-severe
+**Status:** passed | blocked | skipped-by-user | skipped-no-grill-me | halted-severe
 **Mode:** user-mode | agent-autonomous | agent-with-leader
 **Spec examined:** <input reference>
 **Project context inspected:** <specs / plans / docs / files / modules / tests checked before questions>
+**Scenario readiness (behavior work):** <spec scenario references, agreed vs proposed outcomes, unresolved policy/gaps; link existing artifacts>
 ### Context-derived answers
 - <question or assumption>. Answer: <what existing project context shows>. Evidence: <path / symbol / decision record / behavior>.
 ### Decisions
-- <decision>. Reason: <why>.
+- <authorized decision or provisional assumption>. Authority/status: <source of delegation or pending decision-maker>. Reason/impact: <why, affected dependencies and next decision needed>.
+### Derived examples / reopened decisions (when applicable)
+- <new example>. Derivation: <agreed rule/decision reference>; scenario/test: <location>.
+- Previous decision: <reference and agreed behavior>. New evidence/change: <counterexample, policy gap, assumption or requirement>. Impact/recommendation: <affected decisions/dependencies and proposed action>.
 ### Open questions resolved
 - <question>. Resolution: <how>. Reason: <why>.
 ### Escalations
-- <issue>. Path: <asked user | asked leader | halted>. Outcome: <...>.
+- <issue>. Path: <asked user | asked leader | affected dependency held>. Outcome: <...>.
 
 ## HOOK 2 test
 **Status:** passed | failed | blocked | failed-overridden | skipped-no-framework | halted-severe
 **Inputs / scope:** <tested input reference and covered deliverables/checks>
 **Command:** `<test command>`
 **Result:** <exit status and evidence; baseline failures / unavailable checks separately>
+**Scenario coverage (behavior work):** <link scenario-to-test/assertion/evidence mapping in the existing report, or record a compact mapping here; no duplicate ledger>
+**Scenario gaps:** <uncovered outcomes, manual verification, deferred automation, blocked checks; explicit waivers under Overrides>
 **Attempts:** <N>
 ### Attempts
 1. <failure + fix>
