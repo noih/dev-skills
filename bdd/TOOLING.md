@@ -6,12 +6,17 @@ Read when adopting/configuring a BDD runner or generating/running tests. Use [SK
 
 Inspect the project's test commands, dependencies/lockfile, runtime, module format, and existing feature/binding/config paths. Choose an installed compatible runner before adding one. For authorized new executable BDD, add only the missing setup; preserve existing tests and integrate into the project's runner/CI command. Persist runner-level feature/support paths and loader settings in versioned runner-appropriate config or a project script, and expose any required generation plus execution as one reproducible project command invoked by the local workflow and existing CI; direct runners need no artificial generation. Discussion, editorial work, and legacy work outside scoped adoption need no installation.
 
+For new authorized adoption without an existing compatible runner, default to Cucumber.js for general JS/TS Node/API testing, or `playwright-bdd` when Playwright Test already exists or browser-first testing calls for Playwright; use Cucumber-JVM on JUnit Platform for Java, the `cucumber` crate for Rust, and `godog` for Go. These defaults do not require migrating a working runner.
+
 Use the project's package manager, environment, dependency constraints, and lockfile. The commands below show package names with npm or pip as examples, not a request to switch managers or upgrade existing dependencies. Select compatible versions before installation and consult their matching official docs; `main`, `stable`, and `latest` documentation can differ from installed releases. Run local project binaries in the existing workspace/virtual environment, not global tools or commands that fetch a different runner on demand.
 
 | Project fit | Tool/packages to add if missing | Feature-to-test execution | Required connection |
 | --- | --- | --- | --- |
-| JS/TS with Playwright Test | `playwright-bdd`, plus `@playwright/test` if absent | `bddgen` generates runnable wrappers; Playwright runs them | `defineBddConfig` feature/step paths and its returned `testDir`; reviewed steps/fixtures |
-| JS/TS with direct Gherkin execution | `@cucumber/cucumber`; compatible TS transpiler if needed | `cucumber-js` reads features directly | Feature paths, loaded support code, correct JS/TS module loader |
+| JS/TS with Playwright Test or browser-first testing | `playwright-bdd`, plus `@playwright/test` if absent | `bddgen` generates runnable wrappers; Playwright runs them | `defineBddConfig` feature/step paths and its returned `testDir`; reviewed steps/fixtures |
+| General JS/TS Node/API testing | `@cucumber/cucumber`; compatible TS transpiler if needed | `cucumber-js` reads features directly | Feature paths, loaded support code, correct JS/TS module loader |
+| Java on JUnit Platform | `io.cucumber:cucumber-java`, `io.cucumber:cucumber-junit-platform-engine`, `org.junit.platform:junit-platform-suite` | JUnit Platform discovers and executes features through the suite | Test dependencies, discoverable `@Suite`, feature resources and glue packages |
+| Rust | `cucumber` and a compatible async executor in dev-dependencies | A Cargo test target invokes the feature runner | `[[test]]` with `harness = false`, a `World`, registered steps, awaited runner |
+| Go | `github.com/cucumber/godog` in the project module | A Go test entrypoint invokes the feature runner | Discoverable `TestFeatures`, scenario initializer, feature paths, strict status propagation |
 | Python using pytest | `pytest-bdd` | pytest collects scenario bindings and executes feature steps | Discoverable `test_*.py` module with `scenarios()` or `@scenario`, visible step definitions/fixtures |
 | Python with a direct feature runner | `behave` | `behave` reads features directly | Feature directory containing `steps/` and Python step implementations |
 | .NET test project | One matching `Reqnroll.NUnit`, `Reqnroll.MSTest`, or `Reqnroll.xUnit` package | MSBuild generates test classes; existing test framework runs them | Existing test SDK/adapter, included features and compiled `[Binding]` classes |
@@ -102,7 +107,98 @@ npx cucumber-js 'features/**/*.feature' --import ./tsx-register.js --import 'fea
 
 Choose only the matching loader/config; do not add a second transpiler or competing config. Undefined/pending snippets are editable authoring scaffolds needing implementations and assertions, not passed tests.
 
+After saving paths/support/loader settings in the existing Cucumber config/profile, add a package script such as `"test:bdd": "cucumber-js"` and invoke `npm run test:bdd` (or the project's package-manager equivalent) from the existing test/CI command, preserving ordinary tests and failure propagation. Keep strict pending-step handling enabled; required skipped or missing cases still need the final execution reconciliation.
+
 Official docs: [installation](https://github.com/cucumber/cucumber-js/blob/main/docs/installation.md), [discovery/configuration](https://github.com/cucumber/cucumber-js/blob/main/docs/configuration.md), [TS/module loading](https://github.com/cucumber/cucumber-js/blob/main/docs/transpiling.md). Check the release's docs rather than assuming `main` applies.
+
+## Java: Cucumber-JVM On JUnit Platform
+
+Add `io.cucumber:cucumber-java` and `io.cucumber:cucumber-junit-platform-engine` as Maven test-scope dependencies or Gradle `testImplementation` dependencies. Include `org.junit.platform:junit-platform-suite` (suite API and engine), or its matching API/engine artifacts in their appropriate test compile/runtime configurations. Preserve compatible Cucumber/JUnit dependency management and build-plugin versions; upstream `main` currently describes JUnit 6, so select documentation matching the project's JDK/JUnit/Cucumber versions.
+
+Put features under `src/test/resources/com/example/bdd/` and glue under `src/test/java/com/example/bdd/`, adapting both to existing paths. Register real `@Given`, `@When`, `@Then` methods from `io.cucumber.java.en` in that glue package, reuse scenario state/hooks, and assert with the project's test assertion library. This `src/test/java/com/example/bdd/RunCucumberTest.java` selects the matching feature resource package:
+
+```java
+package com.example.bdd;
+
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.Suite;
+
+@Suite
+@IncludeEngines("cucumber")
+@SelectPackages("com.example.bdd")
+@ConfigurationParameter(key = "cucumber.glue", value = "com.example.bdd")
+public class RunCucumberTest {}
+```
+
+Ensure Maven Surefire's JUnit Platform provider discovers this `*Test` suite, or configure the existing Gradle test task with `useJUnitPlatform()` and include the suite in discovery. Retain ordinary test engines and filters outside this Cucumber-only suite; do not also select the same features through competing root discovery or `cucumber.features`. Run `./mvnw test` or `./gradlew test` from the module using its existing wrapper (otherwise its configured Maven/Gradle command), and keep that flow in the existing local/CI command. Undefined/pending steps and assertion failures must fail execution; excluded, skipped, or undiscovered required cases remain gaps even when ordinary tests pass.
+
+Official docs: [Cucumber JUnit Platform engine and build discovery](https://github.com/cucumber/cucumber-jvm/tree/main/cucumber-junit-platform-engine), [Java step definitions](https://github.com/cucumber/cucumber-jvm/tree/main/cucumber-java), [JUnit suite API/engine](https://docs.junit.org/current/advanced-topics/junit-platform-suite-engine.html), [Gradle test configuration](https://docs.gradle.org/current/userguide/java_testing.html).
+
+## Rust: Cucumber
+
+Add a compatible `cucumber` version with its `macros` feature enabled to `[dev-dependencies]` in `Cargo.toml`; reuse the project's async executor, or add compatible `futures` with executor support for the entrypoint below. Keep versions/lockfile under the project's existing dependency policy. Add this target alongside existing tests:
+
+```toml
+[[test]]
+name = "bdd"
+harness = false
+```
+
+In `tests/bdd.rs`, define a scenario state `AcceptanceWorld` deriving `Debug`, `Default`, and `cucumber::World` (or use the documented custom initializer). Compile its step modules into this target; register matching `#[given]`, `#[when]`, `#[then]` attributes from `cucumber`, with real setup/actions and assertions or failing `Result` returns. Once that World and its steps exist, this entrypoint awaits execution:
+
+```rust
+use cucumber::World;
+
+fn main() {
+    futures::executor::block_on(async {
+        AcceptanceWorld::cucumber()
+            .fail_on_skipped()
+            .run_and_exit("tests/features")
+            .await;
+    });
+}
+```
+
+`fail_on_skipped()` makes unmatched/skipped steps fail, except scenarios tagged `@allow.skipped`; do not use that exemption for required cases. `run_and_exit()` propagates parsing/step failures through a panic and nonzero test result; `World::run()` alone does not enforce skipped-step failure. Use `cargo test --test bdd` from the crate root for this target, retaining it in the existing project test/CI command alongside ordinary tests; `cargo test` does not independently scan `.feature` files. Missing or filtered required scenarios still need final reconciliation even with zero exit status.
+
+Official docs: [quickstart and Cargo target/executor setup](https://cucumber-rs.github.io/cucumber/current/quickstart.html), [World and automatic step registration](https://docs.rs/cucumber/latest/cucumber/trait.World.html), [skipped-step handling and run result propagation](https://docs.rs/cucumber/latest/cucumber/struct.Cucumber.html#method.fail_on_skipped). Match these APIs to the selected crate version rather than copying the quickstart's example versions.
+
+## Go: Godog
+
+Add a compatible `github.com/cucumber/godog` version to the existing module's `go.mod`/`go.sum` through the project's dependency workflow; no global Godog CLI is needed. In a discoverable `*_test.go` file, implement `InitializeScenario(sc *godog.ScenarioContext)` and register matching expressions with `sc.Step(expression, implementation)`, resetting state per scenario through context/hooks. Steps must perform real actions and return assertion errors or fail via the test framework, not return `nil` unconditionally.
+
+With that initializer implemented in the same test package, use this entrypoint (adapt the package name and feature path; paths are relative to the tested package):
+
+```go
+package acceptance_test
+
+import (
+    "testing"
+
+    "github.com/cucumber/godog"
+)
+
+func TestFeatures(t *testing.T) {
+    suite := godog.TestSuite{
+        ScenarioInitializer: InitializeScenario,
+        Options: &godog.Options{
+            Format:   "pretty",
+            Paths:    []string{"features"},
+            TestingT: t,
+            Strict:   true,
+        },
+    }
+    if status := suite.Run(); status != 0 {
+        t.Fatalf("Godog failed with status %d", status)
+    }
+}
+```
+
+`TestingT` exposes scenario subtests; `Strict: true` makes pending/undefined/ambiguous steps fail, and the explicit status check propagates suite failure. Run `go test -count=1 -v ./...` from the module root through the existing local/CI command to execute features afresh and retain regular Go tests. Do not replace an existing `TestMain`; ensure its filters/build tags include this entrypoint, and reconcile required scenario identities rather than treating an empty or filtered green run as acceptance.
+
+Official docs: [module usage and Go Test function integration](https://github.com/cucumber/godog#subtests-of-testingt), [strict and test options](https://github.com/cucumber/godog/blob/main/internal/flags/options.go). Use the selected module version's APIs.
 
 ## Pytest-BDD
 
