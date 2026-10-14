@@ -10,6 +10,8 @@ Manage development progress for individuals and teams: track the active spec, cu
 
 The project spec tool owns spec authoring and implementation mechanics. `sdd` tracks progress and ensures the next stage's conditions are met, including arranging missing tests and fixes within the authorized task. `lead`, when present, owns team assignment, coordination, and adjudication; route work through that leader rather than starting a separate dispatch tree. In solo work, the current agent performs authorized work directly. Neither skill requires the other.
 
+For features and behavior changes, use `bdd` during planning/spec formulation and carry its agreed scenarios into implementation and acceptance. BDD owns scenario quality and scenario-to-test correspondence; SDD checks readiness using those artifacts and evidence. Pure refactors reuse behavior-preservation evidence; editorial changes do not need new scenario discovery. Keep scenario content in the project's spec, not in a second BDD document or SDD task list.
+
 ## Gates
 
 ```
@@ -32,17 +34,18 @@ sdd runs in one of three modes. Mode is detected from invocation context, not as
 
 | Mode | Detection | Interactive steps |
 |------|-----------|-------------------|
-| **User mode** | Human-driven session, user in loop | Wait for user input on every interactive step (ask, confirm, choose) |
-| **Agent autonomous** | Agent run, no leader / controller | Self-Q&A. Pick most likely answer per spec + goal. Log decision + reasoning in `.sdd/logs/<slug>.md`. Escalate only on Severe per Severity rules — Severe in autonomous mode = halt |
-| **Agent with leader** | Agent run inside team / orchestrator | Same as autonomous for Minor / Moderate. On Severe → ask leader instead of halting |
+| **User mode** | Human-driven session, user in loop | Batch unresolved decisions by phase; wait for answers before affected dependent work, while continuing independent work |
+| **Agent autonomous** | Agent run, no leader / controller | Use inspected evidence and reversible local assumptions within authority; log their status and reasoning. Apply the authority check below at every severity; hold only affected dependencies when a decision is unavailable |
+| **Agent with leader** | Agent run inside team / orchestrator | Same authority check as autonomous; route unresolved decisions to the leader, who may decide only within explicit delegated authority |
 
-When a step needs a decision, apply the matching mode. Reuse explicit user decisions and repository evidence; ask only for unresolved choices, not routine execution or repeated approval. Verification means checking evidence, not automatically asking the user.
+When a step needs a decision, apply the matching mode. Reuse explicit user decisions and repository evidence; ask only for unresolved choices, not routine execution or repeated approval. Prior explicit delegation and scoped waivers remain valid. Verification means checking evidence, not automatically asking the user. Batch questions by phase with a recommendation and impact; raise blocking decisions before dependent implementation or acceptance, not at final review.
 
 ## Requirements (optional, skill degrades gracefully if missing)
 
 | Skill | Purpose | Source | If missing |
 |-------|---------|--------|------------|
-| grill-me | HOOK 1 adversarial questioning | `mattpocock/skills/grill-me` — user must install + vet manually; sdd never auto-install, no fetch / execute remote code | User mode: prompt install or skip. Agent autonomous: skip HOOK 1, record `Status: skipped-no-grill-me` in `.sdd/logs/<slug>.md`, continue |
+| bdd | Business scenario discovery, formulation, and scenario-driven tests | `noih/dev-skills` | Use existing spec scenarios and check their outcomes against tests/evidence directly; do not auto-install |
+| grill-me | HOOK 1 adversarial questioning | `mattpocock/skills/grill-me` — user must install + vet manually; sdd never auto-install, no fetch / execute remote code | User mode: prompt install or skip. Agent autonomous: skip only the grill-me pass, perform scenario readiness, record `Status: skipped-no-grill-me` in `.sdd/logs/<slug>.md`, continue |
 | superpowers:requesting-code-review | HOOK 3 preferred review path | Part of superpowers plugin | Use an available harness review capability or the `code-review` skill; see HOOK 3 |
 
 Check actual tool/skill availability; a built-in `/review` is not guaranteed. Do not invent commands or claim independent review when only self-review was possible. No test framework → follow HOOK 2's explicit skip/setup handling.
@@ -99,7 +102,7 @@ The following flags are shorthand for recorded stage results, not proof by thems
 | `tests-green:<slug>` | Required checks passed for recorded inputs; waiver/skip recorded separately | Before review, verify validity; run missing or invalidated checks |
 | `reviewed:<slug>` | Review completed for recorded inputs and blocking findings resolved, or explicitly waived | Before closeout, verify reviewed scope and findings still match |
 
-For each gate, record the spec/version, code revision plus relevant dirty/untracked changes (content fingerprint or retained patch), command/scope, relevant configuration/environment, outcome, and evidence location. Use existing project or `testing` records instead of duplicating them. Spec changes invalidate affected design/acceptance decisions; code, dependency, fixture, or environment changes invalidate affected test/review evidence. If impact is unclear, expand verification rather than assuming validity.
+For each gate, record the spec/version, code revision plus relevant dirty/untracked changes (content fingerprint or retained patch), command/scope, relevant configuration/environment, outcome, and evidence location. Use existing project or `testing` records instead of duplicating them. Spec changes require inspecting affected design/acceptance decisions under the decision-reuse rule below; code, spec, dependency, configuration, fixture, or environment changes invalidate affected test/review evidence. If impact is unclear, expand verification rather than assuming validity.
 
 Across sessions or worker handoffs, reload the record and compare inputs. Unchanged inputs do not require repeating passed work. Missing/stale evidence requires verification, not a guessed pass. Preserve explicit waivers only for their recorded scope and conditions; a waiver is never a passed result. Keep these checks lightweight; no separate state service or new tracking framework is needed.
 
@@ -119,7 +122,9 @@ Slug identifies spec in `.sdd/logs/<slug>.md` + session flags. Resolved silently
 
 ## HOOK 1 grill
 
-Goal: catch design / scope problems before implementation.
+Goal: clarify known policy, boundaries, and exceptions up front and catch design / scope problems before implementation, not certify that all unknowns are exhausted.
+
+Apply `bdd`'s decision-reuse rule: trust recorded agreements and do not restart discovery/questions solely for a handoff, worker, or skill change. Derivable examples proceed within authorized scope with their derivation and scenario/test recorded. Reopen only affected decisions for new evidence/counterexamples, newly exposed policy gaps, changed assumptions, or user requirements; report the previous decision, new evidence, and impact/recommendation. If `bdd` is unavailable, follow this same rule directly. Authority and provisional-prototype boundaries below still apply.
 
 ### Pre-check: existing project context (runs before grilling questions)
 
@@ -132,6 +137,12 @@ Rules:
 - Ask only for decisions that remain unclear after inspecting relevant context, or where current spec, prior records, and implementation conflict.
 - In agent autonomous mode, base self-Q&A on spec + inspected project context, not on the spec alone.
 - Record inspected areas and context-derived answers in `.sdd/logs/<slug>.md` under `## HOOK 1 grill`.
+
+### Scenario readiness
+
+For behavior work, apply `bdd` while the proposal/spec is being formed, not only after implementation. Run this readiness check even without `grill-me`; distinguish agreed scenarios from proposed scenarios, which cannot establish acceptance. Before dependent implementation, check that the agreed scenarios identify relevant starting states, events, observable outcomes, and important exceptions, with no unresolved business-policy contradictions. Reuse settled scenarios; ask only remaining behavior/scope questions and route them through the user or authorized leader. Track proposed test methods and existing coverage in the current task artifacts; passing execution evidence is not required before new behavior exists.
+
+Record scenario references and unresolved gaps in the existing log, linking to the spec rather than duplicating it. The `grill-me` pass consumes these same decisions and gaps. Missing `grill-me` still follows its documented skip behavior; it does not establish scenario readiness or waive unresolved business decisions. Explicit user skips remain scoped and visible under Skip semantics.
 
 ### Pre-check: project layout (runs on proposal-creation signals)
 
@@ -164,7 +175,7 @@ sdd invokes grill-me immediately on spec-written / apply signal — no upfront a
 
 1. **Spec content** — full text of detected spec artifact.
 2. **Goal summary** — one-to-two sentence summary of what change delivers. Use spec tool's "delivers" / "goal" field if present; otherwise derive from title + first paragraph. No confirmation step — if wrong, grilling surfaces fast.
-3. **Project context** — concise notes from inspected existing specs / docs / code / tests, including any answers already resolved from the repository and any conflicts that still need questioning.
+3. **Project context** — concise notes from inspected existing specs / docs / code / tests, including recorded agreed decisions to reuse, any answers already resolved from the repository, and new evidence/conflicts that warrant reopening affected decisions.
 
 Per "Execution modes": user mode asks unresolved questions; autonomous mode self-Q&As against the spec and inspected context. Log decisions, open questions, resolutions, and escalations in `## HOOK 1 grill`. Record the examined inputs on completion or an explicit skip; honor stop requests without treating an interrupted stage as passed. Missing grill-me follows the documented fallback rather than inventing an invocation.
 
@@ -174,7 +185,9 @@ Goal: establish appropriate verification for the completed acceptance scope and 
 
 ### Coverage scope
 
-For each capability spec delivers, map required behavior and material risks to evidence. Use the following to identify relevant scenarios, not as a mandatory matrix of new tests for every capability:
+Start with the agreed scenarios in the spec: use `bdd` to map every required outcome to actual test assertions and current evidence. Include unchanged state and prohibited side effects; a matching scenario ID or green suite alone is insufficient. Reuse existing mappings in tests/reports and link them from the SDD log. Report uncovered scenarios, manual verification, deferred automation, and explicit waivers separately; a waiver is not a pass.
+
+Supplement that primary scope with material risks. Use the following to identify relevant additional checks, not as a mandatory matrix of new tests for every capability:
 
 - Happy path — function returns expected output for valid input.
 - Edge cases — boundary values, empty inputs, max sizes, off-by-one regions.
@@ -199,13 +212,13 @@ Common markers can locate test tooling, but do not replace project operating doc
    - `Makefile` with `test` target → project uses make test
    - `justfile` with `test` recipe → project uses just test
 3. **Ambiguity** — ask once (user mode) or pick most likely marker per project type + record reasoning (agent autonomous). Remember for session either way.
-4. **No test framework detected** — ask: "(a) set one up now, (b) skip this gate, (c) halt." (a) → set up, re-detect, proceed. (b) → `Status: skipped-no-framework`, HOOK 3 runs with banner. (c) → `Status: halted-severe`. In agent autonomous mode, self-decide per Severity rules — spec implies test coverage (security, data correctness, behavior contracts) → halt-severe; otherwise (b).
+4. **No test framework detected** — ask: "(a) set one up now, (b) skip this gate, (c) halt." (a) → set up, re-detect, proceed. (b) → `Status: skipped-no-framework`, HOOK 3 runs with banner. (c) → `Status: halted-severe`. In agent autonomous mode, self-decide per Severity rules — spec implies test coverage (security, data correctness, behavior contracts) → hold this gate as `halted-severe`, record the next decision needed, and continue independent work; otherwise (b).
 
 ### Gate
 
 HOOK 2 writes to `.sdd/logs/<slug>.md` + session flags. Auto-fire only when the agreed acceptance scope is done — no upfront ask. A worker relay or partial implementation checkpoint records remaining work and waits for scope completion.
 
-1. **Coverage audit.** Map spec deliverables to existing tests and valid results. Record material gaps; add focused tests when authorized, route through the leader in team work, or report gaps in a read-only assignment.
+1. **Coverage audit.** Map spec deliverables and agreed scenario outcomes to existing tests and valid results. Record material gaps; add focused tests when authorized, route through the leader in team work, or report gaps in a read-only assignment. Feed newly discovered business scenarios back into the spec and tests within authorized scope; escalate unresolved policy instead of changing expected behavior to match implementation.
 2. **Run needed checks.** Reuse evidence matching current inputs; execute missing/invalidated checks with the project runner. If execution is unavailable or requires permission, report the exact missing verification and obtain the needed input.
 3. **Fix loop.** No readiness pass until the agreed checks pass or an explicit waiver is recorded.
    - Tests failing → diagnose: code bug or test bug.
@@ -213,7 +226,7 @@ HOOK 2 writes to `.sdd/logs/<slug>.md` + session flags. Auto-fire only when the 
      - Test bug — correct it without weakening meaningful assertions, then verify affected behavior.
      - Existing unrelated failure or unavailable environment — record it separately and resolve its effect on the gate; do not expand the assignment silently or label it passed.
    - Each iteration recorded in `.sdd/logs/<slug>.md` `### Attempts`.
-   - Severity classification (see "Escalation"): Minor / Moderate handled in-loop; Severe escalates per mode rules.
+   - Severity classification (see "Escalation"): Minor / Moderate handled in-loop within authority; unresolved policy at any level and Severe follow the decision routing below.
 4. **Tests green** — set `tests-green:<slug>` only with current evidence; record `Status: passed`, inputs, scope, result, and tests added. Update completed/remaining deliverables and next action.
 5. **Override** — user (or agent with explicit authority) may explicitly waive ("skip tests, I know they fail" or equivalent). Record `Status: failed-overridden`, reason, authority, and scope/conditions. HOOK 3 may proceed with this waiver disclosed; do not set a passed `tests-green:<slug>` result.
 
@@ -243,20 +256,27 @@ Record findings, dispositions, reviewed inputs, and next action. Fixes invalidat
 
 ## Escalation
 
-Three-level severity applies uniformly to HOOK 1, 2, 3. Core question: **does decision risk drifting from spec's original goal?**
+Apply authority before severity at every stage. Severity measures impact; it does not grant decision authority.
+
+- Reuse explicit decisions and delegation. An authorized decision establishes behavior or acceptance; a provisional assumption is a labelled hypothesis, not agreed business policy.
+- Make routine authorized implementation choices and local reversible assumptions autonomously. Before committing to dependent implementation or acceptance, resolve missing authority, unresolved business policy, and material dependency/rework risk with the user or explicitly authorized leader, regardless of severity.
+- A clearly labelled, isolated prototype may explore a hypothesis within a bounded scope and cost to gather decision evidence. Its outputs and tests do not establish agreed acceptance; do not propagate unresolved policy into production-dependent work.
+- If no decision-maker is available, hold only the affected dependency, record the open decision, recommendation/impact and next decision needed, and continue independent work. Do not reopen prior explicit authorization or waivers merely to request approval again.
+
+Three-level severity applies uniformly to HOOK 1, 2, 3 within those authority boundaries. Core question: **does the decision risk drifting from the spec's original goal?**
 
 - **Minor** — obvious from spec or mechanical fix; decide + record.
-- **Moderate** — needs judgment but does not change what the spec delivers; decide + record reason, proceed.
+- **Moderate** — needs judgment within explicit authority and does not change what the spec delivers; decide + record reason, proceed.
 - **Severe** — would change spec deliverables, contradict goal, or reveal goal unachievable; escalate.
 
-Severe action by mode: User mode → pause + ask user. Agent with leader → interrupt + ask leader. Agent autonomous → halt; write `Status: halted-severe` in relevant HOOK section of `.sdd/logs/<slug>.md` with problem summary + recommended next steps.
+Severe action by mode: User mode → ask user. Agent with leader → ask leader within their authority, otherwise route to the user. Agent autonomous → hold the affected dependency; write `Status: halted-severe` in the relevant HOOK section with the problem, affected scope, and next decision needed. Continue independent work while the decision is pending in every mode.
 
 ### Severity guidelines (use judgment; see tie-breakers)
 
 | HOOK | Minor | Moderate | Severe |
 |------|-------|----------|--------|
-| 1 grill | Question's answer directly inferrable from spec | Answer requires product-intent assumption but either choice still delivers goal | Question exposes spec's goal ambiguous / self-contradictory / technically infeasible |
-| 2 test | Clear bug, mechanical fix (typo / off-by-one / missing import) | Test vs impl ambiguity; needs product judgment to resolve | Failure suggests spec's declared behavior cannot be delivered as specified |
+| 1 grill | Question's answer directly inferrable from spec | Reversible local design choice within authority; no unresolved product-policy dependency | Question exposes spec's goal ambiguous / self-contradictory / technically infeasible |
+| 2 test | Clear bug, mechanical fix (typo / off-by-one / missing import) | Test vs impl ambiguity resolved from agreed behavior; unresolved product judgment needs an authorized decision | Failure suggests spec's declared behavior cannot be delivered as specified |
 | 3 review | Style, naming, small refactor | Architectural suggestion that does not block delivered goal | Security hole, data-correctness bug, architectural flaw, or spec-drift in implementation |
 
 ### Tie-breakers

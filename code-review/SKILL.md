@@ -51,6 +51,8 @@ For every meaningful change, make these passes before concluding there are no is
 6. **Test evidence** — Are there focused tests for the behavior most likely to break?
 7. **Simplicity** — Is the solution as direct as the problem allows, without premature abstraction or hidden coupling?
 
+For behavior work, use `bdd` when available and inspect the agreed spec scenarios alongside tests and results. Check that assertions prove each required outcome, including unchanged state and prohibited side effects; scenario IDs and a green suite are not sufficient evidence. Flag missing outcomes, contradictory expectations, or specs changed merely to fit the implementation. Newly discovered business scenarios go back to the user/leader for unresolved policy and authorized spec/test updates. Keep relevant implementation and security risks in review even when the original scenarios omit them; do not start a new discovery cycle for a pure refactor.
+
 ## What To Flag
 
 ### Quality Gate Integrity
