@@ -71,7 +71,7 @@ Optimize for throughput, not ceremony.
 - Staged relay: backend finishes a batch and returns a **contract** (endpoints + field names + types + sample values) → the leader hands it to web (threads cannot message each other; the leader is the only channel; web must not guess field names without a contract). Relays carry the delivery phase's remaining work and evidence; scheduled acceptance QA starts after the whole phase implementation wraps up. Focused earlier checks follow `testing`'s cost-of-late-discovery rule and explicit user/project requirements. One side moves per stage; nobody waits on the environment.
 - Each shared dev environment has **exactly one owner** (usually backend) and one managed instance of each required service. Others do not reset or restart it. While QA uses it, do not change its source, data, or runtime in ways that invalidate the run; coordinate updates at a safe boundary.
 - Small WIs get a proposal + tasks only, no design doc. One WI, one instruction, one report.
-- Comments: English only, and only where the code is non-obvious (gotchas, invariants, why-not-the-obvious-way).
+- Comments: prohibit comments in application and test source code; only JSDoc consumed by the project's OpenAPI generator is exempt. Deployment files, operational scripts, and configuration are outside the prohibition. Apply the `comments` skill for adoption cleanup and conflicts. Most code needs no explanation; record only exceptionally important constraints or decisions worth preserving long-term in the existing spec.
 
 ## 3. Stage two: test
 
@@ -92,7 +92,8 @@ The reviewer reports **differences and findings** only; it does not decide. The 
 - Security: input validation, authorization boundaries, secret handling, injection, races.
 - Business logic: conflicting specs producing contradictory implementation; incomplete state machines.
 - Technology / package choices: suggestions are welcome (swap a package, change an approach); the leader decides whether to adopt.
-- Test quality: agreed scenario outcomes actually asserted and backed by evidence? edge cases covered? cross-test interference? comment language and density.
+- Test quality: agreed scenario outcomes actually asserted and backed by evidence? edge cases covered? cross-test interference?
+- Comment policy: no prohibited source comments in changed code or policy-adoption cleanup; preserve and verify OpenAPI generator annotations under the `comments` skill.
 
 **Adjudication bar**: the leader decides against the user's original instruction (the prompt), under two premises — **the goal is met** and **the original requirements are not violated**. For each reviewer finding ask: would leaving it unfixed keep the goal unmet or violate a requirement? Yes = dispatch a fix. No = log it, do not dispatch (this includes "it would be nicer to…" and "a cleaner approach would be…" suggestions; reject them or collect them for the user at the end). When the user has agreed a demo / prototype as requirements, it is the reference; an exploratory prototype remains provisional evidence, not agreed policy or acceptance. Before adjudicating what the demo means, **read its source yourself**; do not rely on the reviewer's paraphrase.
 

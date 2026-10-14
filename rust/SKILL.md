@@ -105,7 +105,7 @@ Follow the standard library conventions:
 
 - **Unit tests**: Place in a `#[cfg(test)] mod tests` block at the bottom of the same file
 - **Integration tests**: Place in the `tests/` directory at the crate root. Each file is compiled as a separate crate — they test the public API
-- **Doc tests**: Code blocks in `///` doc comments are compiled and run as tests. Keep them simple and focused
+- **Doc tests**: Do not add `///` doc comments to introduce tests; use ordinary unit or integration tests. When removing existing doc comments, preserve their executable coverage in ordinary tests under the `comments` policy
 - **`#[should_panic]`**: Use for tests that verify a `panic!` occurs — include `expected = "message"` to avoid false positives
 - **Test naming**: `snake_case` describing the scenario — `fn rejects_empty_input()`, not `fn test_1()`
 - **Assertions**: Prefer `assert_eq!` / `assert_ne!` over `assert!(a == b)` — the error message shows both values on failure

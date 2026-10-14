@@ -159,7 +159,8 @@ Do not flag theoretical performance concerns when the code path is small, cold, 
 - Treat missing or weak tests as review findings when the changed behavior is important, user-facing, permission-sensitive, stateful, or historically easy to regress.
 - Skip issues that a formatter, linter, typechecker, or compiler would trivially catch unless they indicate a deeper problem.
 - Do not over-fix; some patterns are acceptable in local context.
-- Leave comment-specific writing guidance to the `comments` skill unless comments create a real review risk.
+- Apply the `comments` skill to changed source and policy-adoption cleanup: flag prohibited comments and preserve JSDoc consumed by the project's OpenAPI generator. Do not request explanatory comments as a fix; use clearer code or tests. Most code needs no explanation; only exceptionally important constraints or decisions worth preserving long-term belong in the existing spec.
+- In projects with lint tooling, require an enforced comment-policy rule and verify that its OpenAPI exception does not allow unrelated comments.
 
 Raise a finding only when you can explain the concrete risk and a practical fix.
 

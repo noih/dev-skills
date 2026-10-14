@@ -42,4 +42,6 @@ Before removing a structure, inspect callers, tests, and relevant history to und
 
 ## Comment Conventions
 
-Comments preserve intent, constraints, and non-obvious behavior. Prefer clearer code to syntax narration; keep explanations that a rename cannot replace. Use the `comments` skill when comment conventions need closer attention.
+Do not add comments to application or test source code, even for non-obvious behavior. Express behavior in code and tests; most code needs no explanation. Record only exceptionally important constraints or decisions worth preserving long-term in the existing spec. JSDoc consumed by the project's OpenAPI generator is the only exception. Deployment files, operational scripts, and configuration are outside the prohibition. Use the `comments` skill for scope, adoption cleanup, and conflict handling.
+
+In projects with lint tooling, ensure the policy is enforced as a lint error with the narrow OpenAPI exception; add or configure the rule if missing, following the `comments` skill's enforcement and verification requirements.

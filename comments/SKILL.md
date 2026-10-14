@@ -1,80 +1,44 @@
 ---
 name: comments
-description: "Use when: adding comments, reviewing comment quality, documenting non-obvious code, removing stale comments, or deciding whether a code comment is necessary."
+description: "Use when: writing or reviewing source code for the no-comments rule, removing existing comments, or maintaining JSDoc consumed by an OpenAPI generator."
 user-invocable: false
 ---
 
-# Comment Guidelines
+# No Comments in Source Code
 
-Use this skill when deciding whether code should have a comment. Comments should explain useful context that the code cannot express clearly on its own. Prefer clearer code over comments that restate what the code does.
+Do not add comments to application or test source code except for the OpenAPI JSDoc below. This is a prohibition, not a preference for fewer comments. An existing comment style does not authorize new comments.
 
-## Core Principle
+## Scope
 
-Write comments for future readers who need intent, constraints, or surprising context. Do not write comments to narrate syntax, repeat names, or compensate for unclear code that can be made clearer directly.
+- Prohibit inline and block comments, file headers, section dividers, TODO/FIXME notes, commented-out code, and documentation comments or docstrings, except for the OpenAPI exception below.
+- Deployment files, operational scripts, configuration, and standalone documentation are outside this prohibition. Classify by purpose, not file extension; application code does not become exempt by calling it a script.
+- Express behavior through clear names, straightforward structure, types, and meaningful tests. Do not add abstractions or split functions solely to replace comments.
+- Most code needs no explanation. Record only exceptionally important constraints or decisions worth preserving long-term in the existing spec. Do not document every implementation detail or move every removed comment into the spec. Complexity or a useful explanation of "why" is not an exception.
 
-Before adding a comment, ask:
+## OpenAPI Generation Exception
 
-1. Can a better name, smaller function, or simpler structure make this obvious?
-2. Does the comment explain why, not merely what?
-3. Will the comment still be useful when the code changes later?
+Allow JSDoc that the project's configured tool consumes to generate OpenAPI JSON. These blocks are API contract inputs: preserve and update endpoint declarations, summaries, tags, parameters, response definitions, typedefs, properties, and their descriptions as the API changes.
 
-If the answer is no, improve the code instead of adding a comment.
+Confirm the generator actually consumes the annotations; JSDoc syntax alone does not qualify. Keep the blocks focused on the generated API contract, without unrelated implementation explanations. Do not introduce a generator merely to justify comments. When changing these annotations, use the project's generation or validation command to check the affected contract.
 
-## Remove Comments When They Are
+## Existing Comments
 
-- Redundant: the code is already self-explanatory.
-- Obvious: the comment states what the code literally does.
-- Outdated: the comment no longer matches behavior.
-- Noise: commented-out code, placeholder notes, or TODOs without actionable context.
+When adopting this policy, remove all existing prohibited comments from application and test source, not just comments in changed files. This cleanup is part of policy adoption; do not retain a legacy baseline or limit enforcement to changed files. Preserve OpenAPI JSDoc and retain any executable coverage in ordinary tests. Removing a comment does not itself require a spec entry; apply the importance threshold above.
 
-Examples to remove:
+## Conflicts
 
-```javascript
-const count = 0; // Initialize count to 0
+For both existing comments and new code, inspect tool directives, required license notices, and comments/docstrings with runtime or generated-output effects before changing them. Prefer an equivalent implementation or external configuration that does not require source comments. If no equivalent is available or a notice must remain, report the concrete conflict for user resolution and hold only the affected work; do not blindly delete it or invent another exception. Do not use inline suppression directives to bypass this policy.
 
-// Loop through users
-for (const user of users) { ... }
+If an explicit project requirement mandates prohibited comments, report the conflicting requirements for user resolution before the affected work. Do not silently override either rule or treat existing comment usage as permission.
 
-// TODO: fix this
-// const oldCode = something;
-```
+## Lint Enforcement
 
-## Add Comments When They Explain
+When working in a project that already uses a lint tool (ESLint, Oxlint, or another language's tooling), ensure a rule rejects prohibited source comments as errors in the existing lint command and any CI lint gate; add or configure it if missing. Written guidance alone is insufficient. Scope the rule to application and test source, excluding deployment files, operational scripts, configuration, and standalone documentation.
 
-- Complex logic: non-obvious algorithms, business rules, or edge cases.
-- Unusual code: workarounds, hacks, or unconventional patterns.
-- Context: why something is done a certain way.
-- External constraints: limitations or requirements from outside systems.
+Use a supported rule or installed plugin when available; otherwise implement the smallest project-local rule using the tool's supported extension mechanism. Inspect the installed version and configuration before choosing a rule; do not invent rule names or assume different linters support the same plugins. If the tool cannot enforce the policy, report the concrete limitation and remaining enforcement gap instead of claiming completion. Do not introduce a linter solely for projects without one.
 
-Examples worth keeping or adding:
+Configure the OpenAPI exception from the actual generator inputs and annotation format. Allow only the JSDoc blocks it consumes, including their contract descriptions; other comments in the same files must still fail. Do not exempt an entire API directory, all JSDoc, or every block containing an OpenAPI-looking tag.
 
-```javascript
-// The provider retries callbacks; claim the event before applying its effect.
-await claimEvent(event.id);
+Use syntax-aware inspection so strings, URLs, regular expressions, and comment-like text in data do not trigger the rule. Do not enable automatic comment deletion: annotations and existing comments can affect behavior or required outputs.
 
-// Discount only applies to orders over 100 by marketing requirement JIRA-1234.
-if (order.total > 100) { ... }
-
-// Binary search is valid because fetchData sorts this list upstream.
-const index = binarySearch(sortedItems, target);
-```
-
-## File Headers
-
-For new or significantly changed files, follow the project's existing file header convention. If the project has no convention, use the language's normal documentation style:
-
-- JS/TS: JSDoc `@file` header.
-- Rust: module-level `//!` doc comment.
-- Python: module docstring.
-
-Only add a header when it meaningfully helps future readers understand the file's purpose.
-
-## Daily Coding Guidance
-
-- Match the project's existing comment style, language, and density.
-- Keep comments close to the code they explain.
-- Keep comments concise; a precise sentence is usually better than a paragraph.
-- Update nearby comments when changing behavior.
-- Delete stale comments instead of letting them drift.
-- Do not add file headers, section dividers, or explanatory blocks unless they create real reader value.
-- Do not paste issue history or implementation diary details into code comments; summarize the durable constraint.
+Verify the configured rule with small passing and failing cases: ordinary comments fail, consumed OpenAPI JSDoc passes, unrelated JSDoc and explanatory comments beside valid annotations fail, comment-like string content passes, and excluded operational files remain unaffected. Check documentation comments/docstrings for the applicable language. Run the affected lint command and, when the OpenAPI exception is configured, the project's OpenAPI generation or validation command. Resolve existing prohibited comments as part of adoption. Report unresolved conflicts and the affected lint gate as pending, not passing; do not silently weaken the rule.
