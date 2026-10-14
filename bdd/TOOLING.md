@@ -4,7 +4,7 @@ Read when adopting/configuring a BDD runner or generating/running tests. Use [SK
 
 ## Choose And Integrate
 
-Inspect the project's test commands, dependencies/lockfile, runtime, module format, and existing feature/binding/config paths. Choose an installed compatible runner before adding one. For authorized new executable BDD, add only the missing setup; preserve existing tests and integrate into the project's runner/CI command. Discussion, editorial work, and legacy work outside scoped adoption need no installation.
+Inspect the project's test commands, dependencies/lockfile, runtime, module format, and existing feature/binding/config paths. Choose an installed compatible runner before adding one. For authorized new executable BDD, add only the missing setup; preserve existing tests and integrate into the project's runner/CI command. Persist runner-level feature/support paths and loader settings in versioned runner-appropriate config or a project script, and expose any required generation plus execution as one reproducible project command invoked by the local workflow and existing CI; direct runners need no artificial generation. Discussion, editorial work, and legacy work outside scoped adoption need no installation.
 
 Use the project's package manager, environment, dependency constraints, and lockfile. The commands below show package names with npm or pip as examples, not a request to switch managers or upgrade existing dependencies. Select compatible versions before installation and consult their matching official docs; `main`, `stable`, and `latest` documentation can differ from installed releases. Run local project binaries in the existing workspace/virtual environment, not global tools or commands that fetch a different runner on demand.
 
@@ -15,6 +15,8 @@ Use the project's package manager, environment, dependency constraints, and lock
 | Python using pytest | `pytest-bdd` | pytest collects scenario bindings and executes feature steps | Discoverable `test_*.py` module with `scenarios()` or `@scenario`, visible step definitions/fixtures |
 | Python with a direct feature runner | `behave` | `behave` reads features directly | Feature directory containing `steps/` and Python step implementations |
 | .NET test project | One matching `Reqnroll.NUnit`, `Reqnroll.MSTest`, or `Reqnroll.xUnit` package | MSBuild generates test classes; existing test framework runs them | Existing test SDK/adapter, included features and compiled `[Binding]` classes |
+
+The matrix is non-exhaustive: for unlisted languages/test frameworks, use a compatible feature runner following its version-specific primary documentation and verify the real feature/binding connection and execution of every required case; if no viable runner path exists, report an integration gap rather than treating passing ordinary tests as deterministic acceptance.
 
 Bind every step to real setup/action/assertions and inspect required outcomes, including state and prohibited side effects. Tool installation, discovery, generated empty methods, or a dry run alone is not acceptance. Prefer service/API/domain fixtures when they prove the behavior; browser tooling is needed only for browser cases.
 
@@ -72,7 +74,7 @@ Install locally in the existing JS/TS package:
 npm install --save-dev @cucumber/cucumber
 ```
 
-Implement `Given`, `When`, `Then` from `@cucumber/cucumber` in loaded support files, with scenario state in the project's World/hooks and real assertions (for example `node:assert/strict`). Cucumber executes features directly; no wrapper-generation command is required. Reuse the existing config/profile and include hooks/World files in its support paths. For a minimal setup without configured paths, these examples explicitly load the steps:
+Implement `Given`, `When`, `Then` from `@cucumber/cucumber` in loaded support files, with scenario state in the project's World/hooks and real assertions (for example `node:assert/strict`). Cucumber executes features directly; no wrapper-generation command is required. Reuse the existing config/profile and include hooks/World files in its support paths. For a minimal setup without configured paths, these setup examples explicitly load the steps; persist their path/loader arguments in the reusable config or project command:
 
 ```sh
 npx cucumber-js 'features/**/*.feature' --require 'features/step-definitions/**/*.js'
