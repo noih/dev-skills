@@ -91,6 +91,8 @@ individual issue comments/activity to identify the actual contribution;
 update timestamps alone can miss comment-only activity. A current status or an
 assignment does not prove the user performed work during this period.
 
+When `issue-tracking` is available, reuse its verified project/issue mapping and evidence links for these reads. Reporting does not trigger its mutation workflow; distinguish observed work from pending or failed tracker synchronization.
+
 Relevant work conversations and meeting records can fill gaps when accessible
 and within the established scope. Use calendar events to locate
 meetings and their summaries, and relevant Slack conversations for coordination
@@ -100,13 +102,10 @@ against available records rather than guessing. Consolidate a meeting and its
 recording, and merge overlapping issue, chat, session, and meeting evidence.
 Keep private report locations and channel mappings outside this skill.
 
-Tool mapping: when using AI Desktop, use `project_list` to resolve projects,
-`issue_query` for issues, `calendar_events` for meetings, and `calendar_context`
-for meeting summaries. For issue activity, pass `project`, `activity_after`,
-`activity_before`, and `activity_by="me"`; `updated_after` alone can miss comments.
-For a single day's calendar, set both `start_date` and `end_date` to that date
-(inclusive). With other providers, use equivalent read-only tools and verify
-their filter semantics rather than assuming these parameter names apply.
+Read the selected connector's tool documentation for read-only access to projects,
+issue activity, calendars, and meeting records. Verify relevant actor filters,
+timezone handling, and inclusive or exclusive time boundaries against the actual
+tool schema and semantics; do not assume field names.
 
 Keep brief private working notes per item: date, request source, work performed,
 current stage, evidence, and remaining work. These support accuracy; they are not

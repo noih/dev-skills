@@ -28,6 +28,8 @@ Projects with lint tooling require a lint rule that rejects prohibited comments 
 
 For new executable BDD acceptance and existing feature-driven projects, deterministic execution is the default. The main flow is discussion of rules/examples → requirement/change records and `.feature` scenarios → scenario/integration readiness → implementation with reviewed bindings → deterministic execution → acceptance evidence → review. Direct Gherkin runners and deterministic test generation are both allowed; no model interprets/translates scenarios or supplies bindings during generation/execution, and generated tests are read-only. Legacy projects retain existing conventions until scoped migration, but a missing runner cannot satisfy requested deterministic acceptance. Track scenario/Examples identities → assertions → execution results in existing artifacts, retaining security and implementation-risk checks. Pure refactors reuse existing behavior evidence; editorial or discussion-only work does not require a runner. See [BDD integration boundaries](bdd/REFERENCE.md#deterministic-contract-and-adoption) for OpenSpec compatibility and adoption limits; this repository supplies policy, not a runner or verified integration.
 
+`issue-tracking` records progress, blockers, handoffs, and QA/review follow-ups in the project's chosen tracker or existing local task record. It is optional alongside `sdd`, `testing`, `code-review`, `lead`, and `road`; keep project mappings private or in project instructions. Use the selected connector's current tool descriptions and usage guides for platform mechanics. These are workflow instructions, not a background sync service or verified live integrations.
+
 ## Compatibility
 
 Skill names, descriptions, and Markdown bodies use the shared Agent Skills format. Preserve existing `user-invocable` fields: in Claude Code, this extension controls direct user invocation, and `false` hides or disables slash-command invocation while still allowing model selection. Codex does not document this field as an invocation control, so this repository makes no claim about its runtime treatment.
@@ -54,6 +56,7 @@ Common-format validation, platform-extension checks, and actual platform loading
 | `comments` | Auto | Prohibit source comments, with an exception for JSDoc consumed by an OpenAPI generator. |
 | `commit-conventions` | Auto | Commit message conventions and git commit workflow rules. |
 | `daily-work-report` | Explicit / natural language | Daily progress and plans for project managers, based on activity across work sessions. |
+| `issue-tracking` | Natural language / auto | Progress, blockers, handoffs, and QA/review follow-ups in the project's chosen tracker or local task record. |
 | `nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
 | `project-context` | Auto | Pre-work workflow for reading repository instructions, testing docs, and local conventions before acting. |
 | `react` | Auto | React component, hook, state, styling, and performance conventions. |
