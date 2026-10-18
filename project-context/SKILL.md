@@ -74,6 +74,8 @@ When spawning or briefing a subagent, include the relevant project context in th
 
 ## Handoff
 
+Before reporting completion or handing off issue-linked work, check whether its recorded status still matches the actual outcome and next action. Use `issue-tracking` when available or the project's existing tracking workflow, respecting write authority and any designated tracking owner. An accurate status can stay unchanged; disclose a needed update that could not be made. Work without a linked issue does not need a new tracking record for this check.
+
 When reporting results, mention the project-specific command or convention used, especially for tests. If you intentionally did not run a documented command, state why.
 
 For resources created during the task, report `closed/removed (verified)`, `retained (owner, reason, expiry)`, or `cleanup blocked (owner, resource, error)`, including paths and sizes for substantial retained outputs. A successor or, in a team task, the leader may accept retained resources; until then, the current owner remains responsible for cleanup. In solo work with no recipient, the current task remains responsible. Context handoff or thread archival proves neither process exit nor disk reclamation. After an interrupted run, reconcile its recorded resources before creating replacements.
