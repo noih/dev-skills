@@ -1,6 +1,6 @@
 ---
 name: issue-tracking
-description: Track development progress, blockers, handoffs, and QA/review follow-ups in the project's chosen issue tracker or local task record. Use for explicit tracking requests or agreed tracking checkpoints during issue-linked work; not for coding or read-only review alone.
+description: Track development progress, blockers, handoffs, and QA/review follow-ups in the project's chosen issue tracker or local task record. Use for explicit tracking requests and to assess whether linked issues need updates at implementation, verification, handoff, or closeout checkpoints; not for unrelated coding or read-only review alone.
 ---
 
 # Issue Tracking
@@ -48,6 +48,8 @@ For issue titles, descriptions, and comments, follow the user's explicit languag
 Unless project conventions specify otherwise, use comments for meaningful progress and decisions, fields for current state, and the description for current requirements and acceptance conditions; link existing specs for detailed requirements instead of duplicating them.
 
 Read the issue's current scope, acceptance conditions, dependencies, and relevant activity before changing it. Map progress to the project's actual states; a blocker may be a field, label, or note rather than a separate status. Do not create workflow states or taxonomies merely to fit this skill.
+
+At a meaningful checkpoint or before reporting completion of issue-linked work, check whether the current state still reflects the actual outcome and next action. Ready for review, accepted completion, remaining implementation, and blocked or waiting work may call for different states under the project's conventions. Keep an accurate state unchanged; a checkpoint does not require a transition or a redundant comment. When an update is warranted, apply it within existing authority and confirm persistence using the write/recover rules below. If it cannot be made, disclose the pending update and reason. This is a reminder to assess the situation, not an additional acceptance gate.
 
 | Event | Record or action |
 | --- | --- |
