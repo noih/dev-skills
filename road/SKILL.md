@@ -13,6 +13,8 @@ user-invocable: true
 
 Tool-neutral roadmap management. A roadmap is an ordered list of Work Items (WI) pointing to specs. The spec workflow owns implementation progress; the roadmap derives automatic WI status from spec location and preserves explicit manual overrides.
 
+When used with `issue-tracking`, retain links to the primary issues without mirroring their fields. Roadmap Done below describes spec-location progress; it does not authorize closing an external issue or prove its completion conditions. Tracker transitions remain with the authorized tracking owner.
+
 ## When this skill activates
 
 - **A. Explicit roadmap operations** — `/road <action>` or natural-language phrasing for create / edit / show / sync / branch / archive (archive = plain `mv`).

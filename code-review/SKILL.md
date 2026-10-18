@@ -176,6 +176,8 @@ A finding should include:
 
 If you cannot prove a problem but see a realistic production risk, raise it as an open question with the specific scenario that worries you.
 
+When tracking is requested or agreed and `issue-tracking` is available, hand it unresolved findings with the reviewed revision, code/reproduction evidence, impact, delivery-blocking disposition, and fix verification. It owns deduplication and follow-up recording within authorization; a read-only review remains read-only. Without it, retain findings in the review handoff rather than claiming they were filed.
+
 ## No-Issue Reviews
 
 If no findings are found, do not stop at "looks good." State what was checked and what residual risk remains.

@@ -54,6 +54,10 @@ Keep the agreed delivery quality bar fixed. Choose the lowest-total-cost verific
 - **Bound agent overhead.** Keep successful output concise while retaining streaming progress, commands, scope, and results; inspect failure details as needed. Share one evidence record across workers instead of repeating runs or copying full logs into each context.
 - **Stop when evidence is sufficient.** Once required behavior and material risks have current evidence and required checks pass, stop adding tests, full-suite runs, or reassurance reviews. A full-application run needs a project/user requirement or an unresolved cross-feature risk that narrower checks cannot cover. Cost limits never justify weakening assertions, lowering the agreed bar, or calling incomplete verification passed; report remaining gaps and reassess the plan.
 
+## QA Follow-ups
+
+When issue tracking is requested or agreed and `issue-tracking` is available, hand it unresolved QA findings with reproduction, expected/actual behavior, revision/environment, impact, and evidence; it handles deduplication and follow-up recording within authorization. Keep fixed-and-verified results in the existing test record. Without it, include unresolved findings in the handoff; running tests alone does not authorize tracker writes.
+
 ## Test Case Design
 
 - **One assertion per concept** — Each test verifies one specific behavior or invariant.
