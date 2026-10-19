@@ -254,7 +254,7 @@ Review the actual deliverable against its intended base, including relevant unco
 
 ### After review
 
-Note the spec tool's archive step (`openspec archive <name>` for openspec, archive move for superpowers, manual mv for generic) — surface to user in user mode, log as next-step in agent autonomous mode. Do not auto-archive. sdd's job ends here — archive + merge-spec belong to the spec tool.
+Note the spec tool's archive step (`openspec archive <name>` for openspec, archive move for superpowers, manual mv for generic) — surface to user in user mode, log as next-step in agent autonomous mode. Do not auto-archive. sdd's job ends here — archive + merge-spec belong to the spec tool. Findings from the user's smoke testing after closeout go to `punch-list`; a punch-list item that changes spec'd behavior returns to the applicable decision or implementation stage through the spec tool.
 
 Record findings, dispositions, reviewed inputs, and next action. Fixes invalidate affected test/review evidence; recheck that impact before setting `reviewed:<slug>`. Do not mark readiness complete with unresolved blocking findings or unmet independence requirements unless explicitly waived by an authorized decision-maker.
 
@@ -291,7 +291,7 @@ Severe action by mode: User mode → ask user. Agent with leader → ask leader 
 
 ## Decision log format (`.sdd/logs/<slug>.md`)
 
-One file per spec. Maintain a concise progress summary (current stage, completed/remaining deliverables, blockers, next action) referencing the project's task artifacts. Gate sections are `## Project layout`, `## HOOK 1 grill`, `## HOOK 2 test`, `## HOOK 3 review`; retain enough input/result and waiver evidence for handoffs. Update affected sections without discarding still-valid evidence from other checks.
+One file per spec. Maintain a concise progress summary (current stage, completed/remaining deliverables, blockers, next action) referencing the project's task artifacts. Gate sections are `## Project layout`, `## HOOK 1 grill`, `## HOOK 2 test`, `## HOOK 3 review`, plus `## Punch list` when `punch-list` is in use; retain enough input/result and waiver evidence for handoffs. Update affected sections without discarding still-valid evidence from other checks.
 
 Per-section fields (Status, Mode, Command, Attempts, Decisions, Findings, Escalations, …) — see `REFERENCE.md` for full template.
 
