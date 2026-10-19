@@ -40,7 +40,7 @@ review findings → leader adjudicates → dispatch fix → verify affected beha
 - Fix rounds reuse valid evidence and run affected checks, including transitive callers and shared behavior. Re-check fixes and their impact; expand testing/review when new changes or risks invalidate earlier evidence. Do not repeat a full gate solely because a round or worker changed.
 - **Review rounds are bounded.** One review per delivery phase, then one re-check limited to the blocker / major fixes. Minor fixes are verified by their own tests, not by another reviewer pass. New minor findings from a re-check are logged for the end, not dispatched as another round. A new blocker / major found in a re-check gets a fix and a re-check of that item only. After two re-check rounds on the same batch, stop and bring the remaining list to the user instead of opening a third.
 - **Loop guard**: the same FAIL survives 3 rounds, or the worker reports "fixed" twice while QA still reproduces it — stop. It is usually a spec conflict, a dirty environment, or a worker whose context has degraded. The leader reads the code and adjudicates; if needed stop → WIP commit → re-spawn. Do not re-dispatch the same task in place.
-- Pure bug fixes / small tasks: the bar can shrink to "affected tests green" and review may be skipped, but the leader declares this at kickoff, not midway.
+- Pure bug fixes / small tasks: the bar can shrink to "affected tests green" and review may be skipped, but the leader declares this at kickoff, not midway. Findings the user reports after trying delivered work follow `punch-list`; the leader hands that batch to one worker rather than running it.
 
 ## 1. Leader and worker configuration
 
