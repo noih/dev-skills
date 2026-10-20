@@ -6,284 +6,143 @@ user-invocable: false
 
 # Testing
 
-## Testing Mindset
-
-Coverage is a signal, not the goal. High-quality tests should increase confidence that the system can run safely in production under realistic, surprising, and failure-prone usage.
-
-Do not stop at happy paths and basic parameter validation. Test the behavior users, clients, jobs, integrations, and future code changes are likely to stress after the service is deployed.
-
-Good tests answer:
-
-- What must always be true in production?
-- What happens when this operation is repeated, retried, cancelled, or performed out of order?
-- What if valid data appears in an unusual state combination?
-- What if old data meets new code?
-- What if two actors perform related actions at the same time?
-- What if an external system is slow, stale, partial, duplicated, malformed, or unavailable?
-- What if the user has permission for one resource but not a related resource?
-- What side effects must happen exactly once?
-- What state must remain consistent after partial failure?
-
-## Scenario-Driven Business Tests
-
-For features and behavior changes, use `bdd` when available to discover or reuse agreed scenarios before designing business acceptance tests. Start from the current `.feature` contract in the deterministic workflow, then supplement it with material risks below. When the BDD reference is available, follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption) for requirement intent/history, legacy projects, direct/generated execution, and OpenSpec compatibility. Do not invent acceptance from implementation or treat legacy tests as proof of an unconnected deterministic path.
-
-Without `bdd` or its reference, use agreed existing spec scenarios in legacy projects. For new executable BDD acceptance and existing feature-driven projects, default to versioned feature/bindings consumed directly or through deterministic generation, without model scenario translation or binding supply. A missing path or required unexecuted cases remain gaps; do not auto-install the skill or silently downgrade required deterministic acceptance.
-
-Map each scenario's preconditions, action, and all required outcomes to binding/test setup and meaningful assertions, including prohibited side effects and unchanged state. Trace required scenario and Examples-row identities through existing runner/test metadata or the acceptance report. One scenario may require several tests, and one parameterized test may cover several examples; neither one-to-one mapping nor browser E2E is mandatory. Tests primarily prove the agreed behavior, while relevant security and implementation-risk tests fill additional gaps.
-
-Before claiming acceptance, inspect bindings/assertions and reconcile required scenario/Examples identities with actual runner results, not counts, suite status, or matching IDs alone. Apply `bdd`'s execution-gap rules, including skipped/pending/filtered/undefined/ambiguous required cases. Report missing coverage/integration, manual checks, deferred automation, and waivers explicitly. Newly discovered business scenarios feed back into feature, affected requirement/change records, and tests within authorized scope; unresolved policy goes to the user/leader. Pure implementation checks need not become business scenarios, and pure refactors reuse behavior-preservation evidence without a new discovery cycle.
-
-## Writing Tests First
-
-Write the test before the implementation when the expected behavior is already pinned down: a reproducible bug, a stated acceptance criterion, a protocol or schema you must match, or a refactor that must preserve current behavior. For new or changed behavior, observe failure for the expected missing behavior so the test demonstrates that it detects the gap. A refactor instead establishes a passing preservation baseline. Tests are executable checks of the agreed behavior; they do not override the requirement source.
-
-Write the implementation first when the behavior itself is still being discovered — spikes, exploratory work, an API shape you are still choosing. Add the tests once the shape settles, before the change is considered done.
-
-Run the focused test against the original behavior when needed to prove the regression or establish a refactor baseline; batch the broader suite at the planned checkpoint. Writing a test early does not require running every related suite early. If a separate test-first workflow is in play for this task, follow it; this section only decides the default when nothing else specifies an order.
+Coverage is a signal, not the goal. Choose evidence that establishes required production behavior and material risks, including unusual states, misuse, partial failure, and recovery. Keep the agreed quality bar fixed.
 
 ## Verification Cost And Risk
 
-Keep the agreed delivery quality bar fixed. Choose the lowest-total-cost verification that supplies sufficient evidence for required behavior and material risks. Test count, run count, and coverage percentage are not goals. Count authoring, setup, execution, agent tokens for reading output and diagnosis, maintenance, and likely rework from delayed feedback; do not invent precise token estimates without measurements.
+Before adding or running a test, name the behavior or evidence gap, inspect existing coverage and still-valid results, then choose the lowest-total-cost sufficient check. Count authoring, setup, execution, agent output/diagnosis, maintenance, and likely rework from delayed feedback; do not invent precise token estimates.
 
-- **Reduce failure opportunities first.** Reuse proven code, simplify branches and state, and use types and data constraints. Static checks and review can resolve appropriate questions, but cannot prove runtime behavior or replace required tests.
-- **Identify the evidence gap before adding or running a test.** Name the behavior or failure risk, check existing coverage and still-valid results, then choose the cheapest check that can actually prove it. Prioritize impact, likelihood, and uncertainty; a smaller count of tests is not a saving if important risks remain uncovered.
-- **Use the appropriate boundary.** Test pure calculations directly, persistence and transaction behavior against the relevant integration, and complete user journeys through E2E only where necessary. Duplicate assertions across layers need a distinct failure mechanism to justify their cost. Claims must stay within the production behavior actually exercised. External fakes faithful to the relevant behavior can support executed logic and caller-interaction assertions, but cannot prove the behavior of a replaced outcome-owning component. For example, a mocked save call does not prove durable state. Capturing an outgoing request proves the caller's request shape/intent, not transport or remote delivery. Separate tests against independent doubles do not establish seam compatibility. Shared types or fixtures cover only the contracts actually checked. Reuse valid contract/integration evidence sufficient for the relevant compatibility assumptions; otherwise choose the cheapest sufficient seam check or report the gap.
-- **Choose timing by the cost of late discovery.** Verify a risky assumption before dependent work compounds it, especially contracts, authorization, money, and data integrity. Otherwise defer execution while a coherent change is in progress, with a named trigger such as integration completion or phase acceptance. Deferred checks remain pending, with an owner in team work; deferral is not a waiver or a pass.
-- **Batch and reuse.** Share setup in one invocation, retain valid evidence, and rerun only invalidated scope. Do not remove existing regression coverage merely to make a run smaller. Use affected-test selection only when dependencies are understood; investigate uncertain impact and broaden where it remains unresolved.
-- **Bound agent overhead.** Keep successful output concise while retaining streaming progress, commands, scope, and results; inspect failure details as needed. Share one evidence record across workers instead of repeating runs or copying full logs into each context.
-- **Stop when evidence is sufficient.** Once required behavior and material risks have current evidence and required checks pass, stop adding tests, full-suite runs, or reassurance reviews. A full-application run needs a project/user requirement or an unresolved cross-feature risk that narrower checks cannot cover. Cost limits never justify weakening assertions, lowering the agreed bar, or calling incomplete verification passed; report remaining gaps and reassess the plan.
+- **Prevent failures first.** Reuse proven code, simplify branches/state, and use types and data constraints. Static checks and review answer appropriate questions, but cannot prove runtime behavior or replace required tests.
+- **Test the responsible boundary.** Test pure calculations directly, persistence/transactions at the relevant integration, and complete journeys through E2E only where needed. Duplicate assertions across layers need distinct failure mechanisms. Prefer public APIs, service boundaries, database constraints, queue handlers, and integration seams over private helpers.
+- **Limit claims to exercised behavior.** Faithful external fakes support executed logic and caller-interaction assertions, but cannot prove a replaced outcome-owning component's behavior. A mocked save does not prove durable state; a captured request proves shape/intent, not transport or remote delivery. Separate tests against independent doubles do not establish seam compatibility. Shared types/fixtures prove only contracts actually checked. Reuse sufficient valid contract/integration evidence, otherwise choose the cheapest sufficient seam check or report the gap.
+- **Choose timing by late-discovery cost.** Check risky contracts, authorization, money, and data integrity before dependent work compounds uncertainty. Otherwise defer to a named trigger such as integration completion or phase acceptance. Deferred checks remain pending, with an owner in team work; deferral is not a waiver or pass.
+- **Batch and reuse.** Share setup in one invocation and rerun only invalidated scope. Do not remove regression coverage to shrink a run. Select affected tests only when dependencies are understood; investigate uncertain impact and broaden where unresolved.
+- **Bound agent overhead.** Retain concise streaming progress, commands, scope, and results; inspect failure details as needed. Share one evidence record across workers rather than copying logs or duplicating runs.
+- **Stop with sufficient evidence.** Required behavior and material risks need current evidence and required checks must pass. Then stop adding tests, full-suite runs, or reassurance reviews. Whole-application verification needs a user/project requirement or unresolved cross-feature risk that narrower checks cannot cover. Cost limits never justify weaker assertions, a lower bar, or an incomplete check labelled passed; disclose gaps and reassess the plan.
 
-## QA Follow-ups
+## Scenario-Driven Business Tests
 
-When issue tracking is requested or agreed and `issue-tracking` is available, hand it unresolved QA findings with reproduction, expected/actual behavior, revision/environment, impact, and evidence; it handles deduplication and follow-up recording within authorization. Keep fixed-and-verified results in the existing test record. Without it, include unresolved findings in the handoff; running tests alone does not authorize tracker writes.
+For features and behavior changes, use `bdd` when available to discover or reuse agreed scenarios before designing business acceptance tests. The deterministic workflow starts from current `.feature` scenarios, supplemented by security and implementation risks. When available, follow [BDD contract/adoption boundaries](../bdd/REFERENCE.md#deterministic-contract-and-adoption), including legacy and OpenSpec compatibility limits. Do not derive acceptance from implementation or treat disconnected legacy tests as deterministic execution.
 
-## Test Case Design
+Without `bdd` or its reference, retain agreed spec scenarios in legacy projects. For new executable BDD acceptance and existing feature-driven projects, default to versioned features/bindings consumed directly or through deterministic generation. No model interprets/translates scenarios or supplies bindings during generation/execution; AI authoring reviewed source beforehand and model calls in the product under test are outside that restriction. Generated tests are derived output: fix source and regenerate, or verify committed output matches current inputs before execution. A missing path remains an integration gap; do not auto-install the skill or silently downgrade required deterministic acceptance.
 
-- **One assertion per concept** — Each test verifies one specific behavior or invariant.
-- **Descriptive names** — Test names read as behavior specs (e.g., "should not create duplicate invoices when retrying after timeout").
-- **Arrange-Act-Assert** — Follow AAA pattern consistently.
-- **Independent tests** — No dependency on execution order or shared mutable state.
-- **Clean up side effects** — Tests that create database records, temp files, queues, timers, or environment changes must restore original state.
-- **Realistic data** — Use production-shaped data with meaningful IDs, relationships, timestamps, permissions, and statuses.
-- **Parameterized tests** — Use table-driven / parameterized tests (`it.each`, `@pytest.mark.parametrize`) for multiple inputs testing the same rule.
-- **Production-like boundaries** — Prefer exercising public APIs, service boundaries, database constraints, queue handlers, and integration seams over private helper details.
+Map each required scenario and Examples row's preconditions, action, and every outcome to setup/actions and meaningful assertions, including unchanged state and prohibited side effects. Use existing runner/test metadata or the acceptance report. One scenario may need several tests; parameterized tests may cover several examples. Neither one-to-one mapping nor browser E2E is mandatory; reuse sufficient coverage.
 
-## Test Priority Order
+Before claiming acceptance, inspect assertions and reconcile required identities with actual results. Counts, matching IDs, a test's existence, or a green suite alone are insufficient. Required skipped, pending, filtered/excluded, undefined, ambiguous, or otherwise unexecuted cases remain gaps. Report integration/coverage gaps, manual checks, deferred automation, and explicit waivers separately; waivers are not passes. New business scenarios update feature, affected requirement/change records, and tests within authority; unresolved policy goes to the user/leader, never into expectations rewritten to fit code. Pure implementation checks need not become business scenarios; pure refactors reuse preservation evidence without a new discovery cycle.
 
-1. **Core production behavior** — The main behavior users, clients, or downstream systems rely on.
-2. **Business invariants** — Rules that must never be violated, even under unusual states or retries.
-3. **Misuse and unexpected usage** — Repeated calls, wrong order, stale state, mixed ownership, and unusual but valid combinations.
-4. **Failure and recovery paths** — External failures, partial writes, timeouts, retries, rollback, and idempotency.
-5. **Boundary cases** — Empty, minimum, maximum, just below/above thresholds, large payloads, and concurrency.
-6. **Basic validation** — Required fields and simple invalid input, when not already covered by higher-value behavior tests.
+## Writing Tests First
 
-## What to Test
+When behavior is pinned down by a reproducible bug, acceptance criterion, protocol/schema, or refactor contract, write the test before implementation. For new/changed behavior, observe an assertion failure for the expected missing behavior; broken fixtures, unavailable services, or missing/pending bindings do not establish regression detection. A refactor instead establishes a passing preservation baseline. Tests check agreed behavior, not override requirements.
 
-- Business logic and domain rules
-- API request validation and response format
-- Error handling paths and error types
-- Authentication and authorization boundaries
-- Data transformation and serialization
-- State transitions and side effects
-- Idempotency and duplicate request handling
-- Concurrency and race-sensitive flows
-- Partial failure and recovery behavior
-- Tenant, owner, role, and permission boundaries
-- Persistence behavior with existing, migrated, stale, or legacy data
-- Integration assumptions at external service, cache, queue, file, and network boundaries
+For spikes, exploratory work, or an unsettled API shape, implement first and add tests once behavior settles, before calling the change done. Run the focused original-behavior test when needed for regression proof or a preservation baseline; batch broader checks at the planned checkpoint. Early test authoring does not require every related suite early. Follow an explicit test-first workflow when one applies.
 
-## High-Value Production Scenarios
+## Test Design
 
-Prioritize surprising but plausible usage that can happen after launch:
+Prioritize core behavior and business invariants, then misuse/unusual states, failure/recovery, boundaries, and basic validation not already covered. Use the relevant risks below, not a mandatory matrix for every change:
 
-- **State transitions** — Invalid order, repeated operation, retry, cancellation, rollback, and status regression.
-- **Authorization boundaries** — Right role wrong owner, right owner wrong tenant, expired session, stale permission, and cross-resource access.
-- **Idempotency** — Duplicate requests, double-submit, retry after timeout, repeated webhook delivery, and job replay.
-- **Concurrency** — Two users update the same resource, a scheduled job overlaps with manual action, and parallel requests race on the same invariant.
-- **Partial failure** — Database succeeds but external API fails, email fails after transaction, cache write fails, queue publish fails, or downstream returns partial success.
-- **Data shape drift** — Old records, missing optional fields, unknown enum values, legacy formats, reordered results, duplicate items, and stale caches.
-- **Boundary rules** — Exactly at limits, just below/above thresholds, empty but valid collections, maximum payloads, and timezone/date boundaries.
-- **Invariant protection** — Totals never negative, ownership never crosses tenants, money is not rounded incorrectly, and status cannot regress illegally.
-- **Recovery behavior** — Retries do not duplicate side effects, failed operations leave consistent state, and compensating actions are safe to run more than once.
+| Risk | Production-shaped cases and outcomes |
+| --- | --- |
+| Rules and contracts | Business calculations, request validation, response/error types, transformations and serialization; exact thresholds, empty/min/max/large payloads, and timezone/date boundaries. |
+| State and idempotency | Wrong order, repeated calls, retries after timeout, cancellation, rollback, status regression, duplicate submit/webhook/job replay; exactly-once intended effects and no duplicate writes or refunds. |
+| Authorization | Right role/wrong owner, right owner/wrong tenant, related-resource permissions, expired session, stale permission; ownership never crosses tenants. |
+| Concurrency | Two actors updating one resource, scheduled/manual overlap, races on invariants, timing and ordering interactions. |
+| Partial failure and recovery | DB succeeds/external API fails; failed email, cache update or queue publish; slow, stale, partial, duplicated, malformed or unavailable dependencies. Assert consistent state and repeat-safe compensation. |
+| Data evolution | Existing/migrated/old records, unusual valid state combinations, missing optional fields, unknown enum values, legacy formats, reordered/duplicate results and stale caches. |
+| Integration seams | External service/cache/queue/file/network assumptions and real producer/consumer compatibility; distinguish caller intent from durable or delivered outcomes. |
 
-## What NOT to Test
+Assert observable outcomes: returns, durable state, emitted events, queued jobs, audit records, or prohibited effects. Protect domain invariants such as nonnegative totals, exact money, ownership, and legal state transitions.
 
-- Framework internals (router matching, middleware ordering)
-- Third-party library behavior
-- Trivial getters/setters with no logic
-- Private implementation details that may change
-- Exact error message wording (test error types instead)
-- Coverage-only cases that execute lines without proving useful behavior
-- Mock behavior so heavily that the test no longer exercises production-relevant boundaries
+- One concept/invariant per test; names describe behavior, such as rejecting a duplicate invoice after timeout. Use Arrange-Act-Assert and table-driven cases for variations of one rule.
+- Match project file naming, directories, assertions, and mock conventions. Tests should survive behavior-preserving refactors. Keep fast unit tests cheap; put slow integration/E2E setup behind explicit commands.
+- Keep tests independent of execution order and shared mutable state; restore DB records, files, queues, timers, and environment changes. Use deterministic production-shaped IDs, relationships, timestamps, permissions and statuses; avoid timing-dependent/flaky assertions.
+- Mock only real external boundaries or hard-to-control infrastructure, with fidelity to the relevant behavior. Do not mock away the behavior claimed as proven.
+- Group files by a coherent module, route, domain concept, or user-visible flow. Split unrelated `describe` groups; avoid catch-all service/API/fixture files. Keep small distinguishing data inline, noisy repeated defaults in builders, and large fixtures split by scenario. Prefer local readable setup over reuse that requires many unrelated files.
+- Use snapshots sparingly for stable serializable output, such as config or API responses, not large UI snapshots that reviewers cannot meaningfully assess.
 
-## Key Principles
-
-- **Follow existing conventions** — Match the project's test style exactly: file naming, directory structure, assertion library, mock patterns
-- **Test behavior, not implementation** — Tests should survive refactoring if behavior is preserved
-- **Production confidence over coverage** — Prefer fewer tests that prove meaningful production behavior over many shallow tests that only raise coverage numbers
-- **Minimal mocking** — Mock only true external boundaries or hard-to-control infrastructure; over-mocking hides integration bugs and makes tests brittle
-- **Fast feedback** — Unit tests should be fast; reserve slow tests for integration suite
-- **Deterministic** — No flaky tests; avoid timing-dependent assertions, use deterministic test data
-- **Readable** — Tests are documentation; someone reading a test should understand the expected behavior
-- **Observable outcomes** — Assert durable outcomes visible at the service boundary: returned data, persisted state, emitted events, queued jobs, audit records, or side effects
-- **Failure realism** — Simulate realistic production failures: timeouts, retries, duplicate delivery, stale data, partial responses, and permission drift
-- **Snapshot tests sparingly** — Only for stable, serializable output (e.g., config files, API responses). Avoid for large UI components — they break on every style change and reviewers stop reading diffs
-
-## Test Infrastructure Design
-
-Design the test suite so each layer earns its cost. Fast unit tests can be broad and numerous; expensive integration, browser, database, container, or external-service tests should be fewer, scenario-driven, and focused on behavior that unit tests cannot prove.
-
-- **Separate by feedback cost** — Keep cheap deterministic tests close to the code. Put expensive setup behind explicit integration/e2e commands so agents and developers choose them deliberately.
-- **Batch shared setup** — If several affected tests need the same compile, container, database, browser, emulator, migration, or fixture setup, run them in one invocation so the setup is paid once.
-- **Choose stable isolation boundaries** — Prefer isolation by file, flow, suite, worker, schema, database, temp directory, tenant, or namespace when per-test isolation is too expensive. The boundary should prevent cross-test pollution without rebuilding the world for every assertion.
-- **Cache only environment-independent work** — Cache compiled artifacts, migrated templates, static fixtures, downloaded dependencies, or generated assets. Do not cache runtime-owned clients, connections, event loops, request contexts, transactions, or mutable test state across incompatible runtimes or workers.
-- **Make reset explicit and deterministic** — Provide a documented reset switch for stale or suspicious state. Tie reusable test environments to a schema, migration, fixture, or code fingerprint so they rebuild when assumptions change.
-- **Prefer canonical project runners** — If a project has a test script that encodes batching, setup reuse, database isolation, service startup, or output defaults, use it instead of raw framework commands unless diagnosing the runner itself.
-- **Document the runner contract** — Future agents should know the normal fast command, how to pass test files/names, when to force reset, which suites are ignored/external/destructive, and when the full suite is expected.
-- **Optimize for long-term stability** — A slightly slower runner that isolates state predictably is better than a fragile fast path that leaks data, depends on order, or fails under parallel execution.
-
-## Writing Tests
-
-Optimize tests for focused reading and targeted execution. An agent should be able to inspect one test file and understand the behavior, setup, and assertions without loading unrelated scenarios or huge data blobs.
-
-- **Plan file boundaries before adding tests** — Each test file covers one module, service method group, route, domain concept, or user-visible behavior. If a file needs more than one `describe` block for unrelated behaviors, split it.
-- **Avoid catch-all files** — Do not create broad files such as `service.test.ts`, `api.test.ts`, `fixtures.ts`, or `test-data.ts` when they mix unrelated behaviors.
-- **Keep behavior-specific data inline** — Small input/output examples and meaningful data differences should stay close to the assertion.
-- **Hide noisy defaults in builders** — Use builders, factories, or fixtures for repeated setup fields that do not matter to the behavior under test.
-- **Split large fixtures by scenario** — Large payloads belong in small, scenario-specific fixture files, not one shared mega-fixture.
-- **Prefer local context over clever reuse** — Avoid shared setup that forces future readers or agents to open many files before understanding one test.
-
-## Preferred Frameworks
-
-Use the project's existing test framework. If none exists:
-
-- **Node.js / TypeScript** → Vitest (native ESM, fast HMR, built-in coverage)
-- **React** → Vitest + @testing-library/react (queries by role/text/label, user-perspective testing)
-- **Rust** → cargo test + nextest (parallel execution, better output)
-- **Python** → pytest (concise syntax, powerful fixtures)
-
-## Browser Tool Selection
-
-- **Playwright CLI is the default** for everyday UI verification, bug reproduction, form flows, responsive checks, console/network inspection, and request mocking. Use the `playwright-cli` skill when available. Invoke the CLI through PATH with a project-named session (`-s=<project>`); add a task suffix for concurrent work.
-- **Use agent-browser when its built-in `read`, `batch`, or `diff` commands materially simplify the task** — page content extraction, one-off browser workflows, or snapshot/screenshot/URL comparisons. Keep a flow in one tool where practical; a failed first attempt alone is not a reason to switch tools. Diagnose the failure first.
-- **Use Playwright Test for repeatable browser regression tests**, including assertions for critical flows and cross-browser coverage. Run existing tests through the project's runner. A successful CLI interaction verifies the current run; it does not replace a persistent regression test.
-- **Use Chrome DevTools for performance, CPU/heap analysis, or diagnostics missing from the current tool.** For a user-selected existing tab, use the tool that can access that tab.
-
-These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions, and debugging. Do not assume agent-browser is more token-efficient than Playwright CLI without measurements for the actual workflow.
-
-## Test Resource Lifecycle
-
-Apply this to solo work as well as delegated work, and to filesystem resources as well as processes. Cleanup belongs to each fixture/suite or completed experiment/review round, not only the final project closeout.
-
-- **The creator owns cleanup.** For resources you start, capture the owner, purpose, session name or process identity (PID, command, start time), working directory, and stop method at launch in the existing task notes. Keep browser sessions, test stubs, runners, and shared services separate; "preserve the environment" is not a blanket browser-retention instruction. Do not stop pre-existing or other agents' resources. If identity is missing, use a bounded current-state inspection and report uncertainty rather than mining unbounded historical logs.
-- **Cleanup is part of completion.** Reuse a compatible task-owned browser/server/build state through the active inspection or verification round instead of closing it after each step, failed assertion, compaction, or worker relay. A relay does not end the round: transfer only when the recipient accepts ownership and access is possible, using minimal access/health verification rather than rerunning acceptance; keep one stable owner for shared phase services, and note tool-local handles that must be closed or recreated. Close unused resources immediately and retained resources when the work or round actually ends, including failure or cancellation, at a safe boundary with no in-flight transaction. Save evidence, then retire an invalid browser before opening its replacement. A passing test with leftover unowned resources is not a completed task.
-- **Retention requires a handoff.** When continuation or user review needs a live resource, record the named next owner, reason, and cleanup deadline or event. The current owner remains responsible until the recipient accepts; under a leader, unresolved ownership returns to the leader. User-requested retention takes precedence and must be recorded. Do not retain resources merely for possible future debugging.
-- **Use runner-owned teardown for repeatable tests.** Prefer fixtures or `try/finally`; shell experiments need a trap installed before launch and a bounded timeout with descendant cleanup. A trap in one shell does not manage a session used across multiple tool calls. Capture child handles/PIDs at launch; keep each attempt's PID record separate until that attempt is verified gone. Never overwrite a failed attempt's record with a retry's.
-- **Verify exit, not just the stop command.** Check the owned process tree after graceful shutdown. Revalidate command and start time before signalling surviving PIDs; never kill by a broad name or assume a reused PID is yours. Escalate only for verified task-owned leftovers. Keep cleanup errors visible; permission-denied process inspection or `kill -0` failure is not proof of exit. If verification is blocked, report cleanup as unresolved with the exact resource and error, retaining its owner and record.
-- **Report disposition before handoff or completion:** `closed/removed (verified)` / `retained (owner, reason, expiry)` / `cleanup blocked (owner, resource, error)`. Include exact paths and sizes for substantial retained outputs. Thread stop, archive, deletion, and context replacement prove neither process exit nor disk reclamation.
-
-### Files, Fixtures, And Build Outputs
-
-- **Register cleanup during setup.** Use the existing fixture/runner teardown, `try/finally`, or scoped temporary-directory ownership, including partial setup failure. Closing a database connection does not remove its database, WAL, or temporary directory. Stop owned children and release file handles before removing their data; surface cleanup failures without hiding the original test failure.
-- **Contain disposable outputs.** Prefer a unique run-owned root for temporary databases, browser profiles, snapshots, and isolated build outputs; explicitly direct tools into it. Record paths created outside it too. Preserve only the logs, traces, or minimal reproduction needed for a finding; retain larger data only with an owner, reason, and expiry. A global temp directory is not an automatic cleanup policy.
-- **Handle abnormal exits.** Traps and destructors cannot guarantee cleanup after a crash or forced kill. Record the run root before launch and reconcile interrupted runs at the next safe checkpoint. Verify ownership and that no writer/consumer is using each path before removal; never sweep by prefix or age alone, or delete shared caches, user data, or another agent's work.
-- **Bound repeated runs.** Reuse compatible compilation and setup, keeping test-state isolation. Check fixture cleanup and disk growth on a short run before a long repetition loop. Preserve required repeat counts and concurrency coverage; scope repetitions to the relevant cases. Avoid overlapping heavy compilation and timing-sensitive suites when contention would invalidate results.
-- **Treat caches separately.** Disposable review/experiment build directories end with that round unless explicitly retained. Reusable project caches may survive, but need an owner and a size/expiry review point. Inspect their growth at phase boundaries and prune only while unused; do not run blanket clean commands after every test.
-- **Verify filesystem cleanup.** Check that disposable paths are gone, with inspection errors reported as unresolved; a successful teardown command or zero remaining processes is insufficient. When fixing a recurring fixture/runner leak, add one focused check that success and failure leave no owned data or children, including interruption if the runner handles it.
-
-## Browser Session Hygiene
-
-Automation browsers outlive the agent that started them unless they are closed explicitly. A leaked instance of the system Google Chrome can silently capture links the user clicks elsewhere, so the user's everyday browser appears broken.
-
-- **Do not automate the user's everyday Chrome app.** Any automation launched from `/Applications/Google Chrome.app` (Playwright's `chrome` channel, chrome-devtools MCP's default `stable` channel) registers with the OS as Chrome and can receive link-open events, even when headless. Prefer a separate binary:
-  - Playwright CLI / MCP: bundled Chromium via `PLAYWRIGHT_MCP_BROWSER=chromium`, or `"browser": { "browserName": "chromium" }` in `.playwright/cli.config.json`.
-  - chrome-devtools MCP: `--executablePath` pointing at Chrome for Testing / Chromium, or `--channel=canary`.
-  - If the config cannot be changed in the current task, say so to the user instead of silently falling back to the system Chrome.
-- **Close and verify your session.** Run `playwright-cli -s=<session> close` from its recorded workspace, then check both session inventory and the recorded daemon/browser process tree. Exit code 0 or an empty `playwright-cli list` alone is insufficient: a missing registry entry, different workspace scope, or unreachable socket can leave a live daemon undiscovered. A retained session must meet the lifecycle handoff rule above.
-- **Do not clean up other agents' browsers.** `playwright-cli close-all` and `kill-all` stop every session, including concurrent agents' work. Use them only when the user asks or when you have confirmed that no other session is in use.
-- **chrome-devtools MCP owns one long-lived browser.** It stays open for the lifetime of the MCP server, and its last page cannot be closed through the tools. Close only the pages you opened (`close_page`), and do not navigate or close pages the user selected. Use `--isolated` when a throwaway profile is enough.
-- **Diagnose leaks before killing.** Debugging flags help locate candidates; they do not prove ownership or that a browser is unused. PPID 1 is normal for a detached daemon, not proof that it can be killed.
-
-  ```bash
-  pgrep -fl 'remote-debugging-pipe|remote-debugging-port'  # candidates only
-  ps -o pid=,ppid=,lstart=,command= -p <pid>               # compare with recorded identity
-  ```
-
-  Stop the verified task-owned daemon (for example, a leftover `@playwright/cli` node daemon) together with its browser descendants. Otherwise, the daemon may relaunch the browser. Recheck survivors; never match on `Google Chrome` alone, because that also kills the user's browser.
+Do not test framework/library internals, trivial getters/setters, private implementation details, or coverage-only execution. Application route configuration and auth middleware ordering remain application behavior. Prefer error types/codes over incidental wording, except where exact text is an agreed API/UI/acceptance contract. Do not over-mock production-relevant boundaries.
 
 ## Running Tests
 
-For a multi-phase project, treat each coherent business delivery phase as the implementation-and-acceptance unit. Choose its checks using Verification Cost And Risk; not every phase needs every test layer. Batch scheduled acceptance after the coherent implementation is ready, while allowing focused earlier checks for risky assumptions, regression proof, failures, or explicit user/project requirements. Do not automatically run checks after each page, module, WI, commit, or worker handoff. Small bug fixes and review-only work keep proportionate affected checks rather than adopting this full schedule.
+Use the documented project runner, inspecting its setup, scope, isolation/reset rules, ignored/external/destructive suites, CI-only checks, and filters before execution. Use raw framework commands only when diagnosing that runner or explicitly requested. A stable isolated runner is worth more than a fragile fast path. Document the normal fast command, file/name filters, reset behavior, and full-suite expectations when maintaining it.
 
-Tests should provide feedback at planned checkpoints, not become a background reaction to every file save. Give one delivery phase one defined scope, owner, and time budget; use existing task notes rather than creating an evidence framework. The cost of reflexive runs grows with setup overhead: compiling test binaries, building containers, migrating databases, starting services, seeding fixtures, bundling assets, or provisioning emulators. Pay that cost on the complete phase, not after every page.
+For multi-phase work, one coherent business delivery phase owns one acceptance scope, owner, and budget in existing notes. Batch scheduled acceptance after implementation is ready; allow focused early checks for risky assumptions, regression proof, failures, or explicit requirements. A page, module, WI, commit, save, or worker relay does not automatically trigger checks. Small fixes and review-only tasks keep proportionate affected verification.
 
-When multiple affected tests share the same setup, pass them all to **one** runner invocation. Many ecosystems reuse work within a single invocation — compiled artifacts, database setup, browser startup, containers, caches, worker pools — but splitting equivalent tests across repeated shell commands repeats up-to-date checks and setup phases even when no code changed.
+Choose the scope matching the purpose: named test, affected file, package/module/crate, or whole application only when required or narrower checks cannot resolve cross-feature risk. These are choices, not an escalation ladder. Pass affected tests sharing compilation, containers, DB, browser, fixtures, or migrations to one invocation. Phase B verifies its scope plus named Phase A cases invalidated by shared APIs, auth, styles, dependencies, fixtures, or environment changes. A broad build/lint/mocked-and-real/screenshot campaign per page is not an affected-check exception. Failure fixes rerun affected checks until they pass; phase scheduling is not a once-only quota.
 
-Choose the one scope that matches the current purpose; this is a selection guide, not a mandatory escalation ladder:
+### Preferred Frameworks
 
-1. The specific test by name when changing one behavior.
-2. The affected test file.
-3. The package, module, or crate suite.
-4. The whole-application suite when required or when narrower checks cannot cover unresolved cross-feature risk; phase completion alone does not require it.
+Keep the existing framework. If none exists, prefer Node.js/TypeScript: Vitest; React: Vitest + @testing-library/react with role/text/label queries; Rust: cargo test + nextest; Python: pytest.
 
-Phase B verifies Phase B. Keep Phase A's passing evidence unless a specific shared API, authentication, style, dependency, fixture, or environment change invalidates named Phase A cases; rerun only those affected cases with Phase B. A broad build + lint + mocked/real variants + screenshots per page is not an "affected check" exception. Failure fixes rerun the affected tests until they pass; the planned phase run is a schedule, not a hard once-only quota.
+### Output And Exit Status
 
-Default to the concise reporter (table below). Only rerun with verbose output when a failure needs more context.
+Default to concise output; use verbose failure output only when more context is needed. Long runs must stream progress at file/binary/test boundaries and retain diagnostics, so slow and stalled runs can be distinguished. Do not hide progress behind `tail`, counting filters, discarded output, or background execution without an accessible log. Silence alone does not prove a stall or justify killing the run; inspect buffering, process activity, and timeout first.
 
-### Reuse Verification Evidence
+Capture the actual test exit status: successful launch, logs, and a successful output consumer do not prove test success. In Bash/Zsh pipelines, preserve `pipefail` status immediately so `tee` cannot mask failure; other shells need an equivalent supported method. Background work needs an owned process/tool session handle and collected final status; a later shell may not be able to `wait` for that child.
 
-Record the tested revision (including relevant uncommitted changes), command, scope, configuration/environment, and result in existing task notes. For deterministic BDD, include feature/binding content and runner/generator versions/configuration/filters under `bdd`'s evidence rules. Before reusing a result, compare its inputs with the current work. Relevant source, tool/dependency, configuration, fixture, or requirement changes invalidate affected evidence; a new thread or commit with unchanged relevant content does not. Choose reruns by named dependency impact and risk, while preserving the agreed phase schedule; the schedule does not forbid necessary failure reruns. Keep unaffected passing evidence and broaden only when a shared change or uncertain impact identifies a real risk. Distinguish existing unrelated failures and unavailable checks from regressions, without calling a failing gate passed.
+Before choosing reporter overrides, piped/background execution, or repetition calculations, read the relevant section of [execution recipes](references/execution.md). An ordinary direct foreground project runner needs no extra reference read. If required detail is missing/unreadable, disclose it and continue known-safe direct/foreground execution or independent work; hold only operations whose output, ownership, exit status, or other safeguards cannot be established. Never claim an unavailable reference was read.
 
-A skill mandate does not prove an enforced tool gate exists; CI configuration or workflow flags do not prove a check ran or passed. Report configured-but-unrun checks or missing valid execution evidence as gaps. Actual results remain reusable when their relevant inputs are unchanged under the rules above.
+## Test Resource Lifecycle
 
-### Repetition And Stress Runs
+These rules apply without sibling skills, to solo/delegated work, processes and filesystem data. Each fixture/suite or completed experiment/review round owns cleanup, including failures/cancellation; do not wait for final project closeout.
 
-Looping a suite to catch nondeterminism costs N × the suite. The default is one affected run, not a repetition loop. Use loops for an explicit requirement or a specific nondeterminism / stress risk; completing a delivery phase alone does not require one.
+- **Record at launch.** Capture owner, purpose, session/PID plus command and start time, cwd, exact data/build paths, and cleanup method/lifetime in existing notes. Separate browsers, stubs, runners, shared services, disposable state, and retained caches. Never stop pre-existing or others' resources. Missing identity calls for bounded current-state inspection and disclosed uncertainty, not unbounded historical-log mining.
+- **Register teardown during setup.** Use fixtures, `try/finally`, or scoped directory ownership, including partial setup failure. Shell experiments need a preinstalled trap, bounded timeout, and descendant cleanup; a trap in one shell does not own a cross-tool-call session. Capture every attempt's child handles/PIDs and keep its record until verified gone; retries must not overwrite them.
+- **Reuse during the active round.** Reuse compatible task-owned browser/server/build state through failed assertions, compaction, and worker relays. A relay alone does not end the work. Shared phase services keep one stable owner; transfer only needed compatible resources when the recipient accepts and can access them, checking health/access rather than repeating acceptance. Close unused/non-transferable handles; note tool-local handles needing recreation. Save evidence and retire an invalid browser before its replacement. A passing test with unowned leftovers is unfinished.
+- **Retain deliberately.** Continuation/user review needs a named next owner, reason, and expiry/deadline event. Honor and record explicit user retention. Until accepted, the creator remains responsible; in teams unresolved ownership returns to the leader. Do not retain merely for possible debugging or treat "preserve the environment" as blanket browser retention.
+- **Dispose and verify.** At the actual round/work end, failure or cancellation, choose a safe boundary without in-flight transactions. Save minimal evidence, stop owned writers/children, release handles, then remove disposable data. A closed DB connection does not remove its database/WAL/directory. Verify both process-tree exit and path removal; cleanup errors must not hide the original failure.
+- **Revalidate before signalling/deleting.** Compare PID command/start time before signalling survivors; never kill by broad name or assume reused PIDs are yours. Escalate only for verified owned leftovers. Confirm exact path ownership and no active writer/consumer; never sweep by prefix, age, or temp location, delete others' work, or globally wipe shared caches. Permission-denied inspection or `kill -0` failure is not proof of exit. Keep blocked verification assigned and report the resource/error.
+- **Reconcile abnormal exits.** Traps/destructors cannot guarantee cleanup after crashes/forced kills. Record the run root before launch and reconcile interrupted attempts at the next safe checkpoint before replacements.
+- **Report disposition.** Before handoff/completion report `closed/removed (verified)`, `retained (owner, reason, expiry)`, or `cleanup blocked (owner, resource, error)`; give exact paths/sizes for substantial retained outputs. Thread stop/archive/deletion or context replacement proves neither process exit nor disk reclamation.
 
-- **When** — Batch fixes first, then run the justified loop on the settled implementation. A focused diagnostic loop may run earlier. A fix round, review round, worker change, or handoff does not automatically restart it. In team work, the leader assigns one owner; workers report the need rather than independently launching duplicate loops.
-- **What** — Target the suspected failure mechanism: concurrency, timing, child processes, shared resources, or other identified nondeterminism. For order-dependent failures, preserve the reproducing sequence / interacting tests; looping the failing test alone may hide the cause. Avoid repeating unrelated deterministic tests or multiplying configurations without a coverage reason.
-- **How many** — No default count, including 100. Preserve explicit user / project requirements; distinguish them from a count invented by an earlier agent. Otherwise state the risk and rationale for the count. For independent runs at a constant assumed failure rate p, n runs detect at least one failure with probability 1 − (1 − p)^n; state assumptions and do not claim this confidence for correlated runs or an unknown rate.
-- **Bound the cost before launch** — Use a recorded iteration time, or measure the first necessary iteration and count it toward the total. Record scope, configuration, count, estimated total time, and a wall-clock budget in existing notes. Stop scheduling iterations at the count or budget limit, and normally at the first failure; a diagnostic run continuing after failures needs its own bounded reason. Allow safe teardown. A budget-limited run is incomplete evidence, not a pass; reassess before extending it.
-- **On a failure, fix the cause** — Diagnose the implementation, test, and environment without assuming the test is wrong. After the fix, repeat only the invalidated scope needed to exercise that cause, including interacting tests when relevant.
-- **Reuse** — Apply the evidence rule above, including changes to dependencies, configuration, fixtures, environment, and requirements. Preserve unaffected results; consolidate affected fixes before repeating costly checks unless earlier feedback is needed for diagnosis. A new worker or delivery phase does not by itself invalidate evidence.
+### Files, Fixtures, And Build Outputs
 
-### Progress visibility during runs
+Prefer a unique run-owned root for temporary DBs, profiles, snapshots, and isolated builds; direct tools into it and record outside paths too. Save selected evidence outside disposable data under the retention rules below; logs, traces and screenshots are not automatically permanent artifacts. A global temp directory is not a cleanup policy.
 
-Minimal output is not silent output. A long-running suite must emit streaming progress — file/binary boundaries, per-test pass/fail marks, final summary — so a stalled run is distinguishable from a slow one. Pick a reporter that streams (`dot`, `-q`, libtest's per-binary header), not one that buffers until the end.
+Share expensive setup at stable file/flow/suite/worker/schema/DB/tenant/namespace boundaries that prevent pollution without per-test rebuilding. Cache only environment-independent compilation, templates, static fixtures, dependencies, and generated assets, not runtime-owned clients, connections, event loops, request contexts, transactions, or mutable state across incompatible runtimes/workers. Provide deterministic reset and tie reuse to schema/migration/fixture/code fingerprints.
 
-Anti-patterns:
+Reuse compatible build caches without a new large copy per retry. Disposable review/experiment builds end with the round unless retained; reusable project caches need an owner and size/expiry review. Inspect free space, cache/output growth before large runs and at phase boundaries; prune only unused owned outputs. If space is insufficient, resolve owned leftovers or report the constraint before more heavy work. Avoid overlapping heavy compilation with timing-sensitive QA. For recurring fixture/runner leaks, fix the responsible owner in scope and add a focused success/failure cleanup check, including interruption when the runner handles it; manual cleanup alone is not prevention.
 
-- **`command | tail -N`** — `tail` does not flush until EOF; the run looks frozen until completion. Cannot tell progressing vs. hung vs. crashed.
-- **`command &> /dev/null`** — status-only runs leave no diagnostic trail; failures force a re-run to investigate.
-- **Background without a log file** — output goes nowhere reachable.
-- **Counting through `grep -c` or `wc -l`** — collapses progress to a final number; loses pass/fail names and timing distribution.
-- **Suppressing per-file boundaries** in multi-binary suites — losing "Running &lt;file&gt;" headers hides where time is being spent.
+## Browser Tool Selection
 
-Patterns:
+- **Playwright CLI defaults** to everyday UI checks, bug reproduction, forms, responsiveness, console/network inspection and mocking. Use `playwright-cli` when available, through PATH, with `-s=<project>` and a task suffix for concurrency.
+- **agent-browser** is useful when its `read`, `batch`, or `diff` materially simplifies extraction, one-off flows, or snapshot/screenshot/URL comparisons. Keep a flow in one tool; diagnose a failed first attempt before switching. Neither CLI is assumed more token-efficient without measurements.
+- **Playwright Test** supplies repeatable browser regressions, critical-flow assertions and cross-browser coverage through the project runner. A successful CLI interaction verifies that run, not a persistent regression test.
+- **Chrome DevTools** serves performance, CPU/heap, or diagnostics unavailable in the current tool. For a user-selected existing tab, use the tool that can access it.
 
-- **Stream + retain** (Bash/Zsh): `(set -o pipefail; command 2>&1 | tee "$run_log")` — choose a unique task-owned log path first. Preserve the pipeline status immediately; without `pipefail`, a successful `tee` can hide a failed test command. For other shells, use their supported mechanism to capture the test exit status.
-- **Background + log + wait**: use a runner/tool that retains a process handle and final exit status. In one owning shell: `command > "$run_log" 2>&1 & run_pid=$!`; inspect progress, then `if wait "$run_pid"; then run_status=0; else run_status=$?; fi`. Report/propagate `run_status`. A different tool-call shell cannot necessarily `wait` for that child; use the tool's session handle instead. Logs and successful launch alone do not prove test success.
-- **Per-binary header** for multi-binary runners (Rust integration scripts, e2e harnesses): surface the current binary/file as it starts, not only at the end.
+These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions and debugging.
 
-If a long run is silent, inspect the command, log buffering, process activity, and timeout before diagnosing a stall. Prefer streaming output when available; silence alone does not prove the invocation is wrong or justify killing it.
+### Browser Session Hygiene
 
-### Default reporter (concise progress)
+Before starting, taking over, reconfiguring, or diagnosing an automation browser, read the relevant [browser recipes](references/browser.md), including a mid-task transition to browser work. Routine non-browser tests do not need it. Missing/unreadable recipes must be disclosed; continue independent work or already-understood safe actions, holding only operations whose isolation, ownership, or cleanup cannot be established. Do not silently fall back to a personal browser or claim an unread reference was read.
 
-| Framework | Command |
-|-----------|---------|
-| Vitest | `vitest run --reporter=dot` |
-| pytest | `pytest -q --tb=short` |
-| cargo nextest | `cargo nextest run` |
-| cargo test | `cargo test -q` |
+- Do not automate the user's everyday Chrome app; use a separate automation binary. If required configuration cannot be changed, report that constraint rather than silently using system Chrome. Automation browsers can outlive the agent and affect the user's normal link handling.
+- Close only task-owned sessions/pages and verify session inventory **and** the recorded daemon/browser process tree; a successful close or empty registry alone is insufficient. Retained sessions need the accepted ownership contract above.
+- `close-all` / `kill-all` affect other sessions: use only on explicit user request or after confirming none other is in use. Do not navigate or close user-selected pages. With chrome-devtools MCP, close only pages you opened; its shared long-lived browser/last page is not disposed of by page cleanup.
+- Debug flags and PPID 1 locate candidates, not proof of ownership or disuse. Revalidate PID identities before stopping the owned daemon and browser descendants, recheck survivors, and never match `Google Chrome` alone. Stopping the browser without its owning daemon can allow relaunch.
 
-### Verbose output (investigating a failure)
+## Repetition And Stress Runs
 
-Run only the failing test by name with full output:
+Default to one affected run. A loop needs an explicit requirement or specific nondeterminism/stress risk, not phase completion.
 
-| Framework | Command |
-|-----------|---------|
-| Vitest | `vitest run --reporter=verbose -t "<test name>"` |
-| pytest | `pytest -v --tb=long -k "<test name>"` |
-| cargo nextest | `cargo nextest run --no-capture "<test name>"` |
-| cargo test | `cargo test "<test name>" -- --nocapture` |
+Before starting the loop, record its scope, configuration, count and rationale, estimated total time, and an explicit wall-clock budget in existing task notes. If no task note is available, state this short plan in the current response before execution; do not create a ledger or require a new file.
+
+- Settle affected implementation first unless a focused diagnostic loop is justified. In a team the leader assigns one owner; workers report the need instead of starting duplicate loops. A fix round, new worker, relay, or phase does not automatically restart one.
+- Name the mechanism and scope: concurrency, timing, children, shared resources, or other nondeterminism. Preserve reproducing order/interacting tests; looping only the failing test may hide an order bug. Avoid unrelated deterministic tests or extra configurations without a coverage reason.
+- Preserve explicit repeat counts and concurrency coverage; do not inherit an earlier agent's invented count. There is no default count, including 100. Otherwise state the risk and count rationale. Read execution recipes before using probability calculations; do not claim confidence for correlated runs or unknown failure rates.
+- Bound cost using recorded iteration time, or count the first necessary measured iteration toward the total. Check cleanup/disk growth on a short run before a long loop; reuse compatible compilation/setup without sacrificing state isolation.
+- Stop scheduling at the count or budget limit and normally at the first failure. Continuing a diagnostic run after failures needs a separate bounded reason; allow safe teardown. A budget-limited run is incomplete, not passed; reassess before extension.
+- Diagnose implementation, test, and environment without assuming the test is wrong. After a fix, rerun only invalidated scope, including interacting tests when relevant. Consolidate fixes before costly repeats unless diagnosis needs earlier feedback, and preserve unaffected evidence.
+
+## Reuse Verification Evidence
+
+Record tested revision including relevant dirty/untracked content, command/scope, configuration/environment, fixtures, result, and evidence location in existing notes. Deterministic BDD also includes feature/binding content, requirements, runner/generator versions, config and filters. Compare those inputs before reuse: relevant source, requirement, tool/dependency, configuration, fixture, or environment changes invalidate affected evidence; an unchanged-input commit or new thread does not. Inspect named dependencies and broaden if impact remains uncertain. Retain unaffected passing results.
+
+Keep the durable record proportional: a passing check normally needs only a short result with its command/scope and relevant inputs; record shared setup once and link existing runner/CI evidence instead of copying it per test or round. Keep failure excerpts, reproduction details or traces only when needed to explain an unresolved finding or substantiate a material result. Live diagnostic output need not all be saved permanently; remove task-owned duplicate and intermediate artifacts once useful evidence is retained, preserving required project/user records and regression baselines.
+
+Screenshots are optional evidence for visual findings or key UI states, not a record of every click, page or successful assertion. Keep the smallest set that establishes the relevant distinction; text or runner results suffice for nonvisual outcomes. Store readable, proportionally reduced images when adequate; use the browser reference's sizing guidance without changing the tested viewport.
+
+Distinguish regressions, unrelated baseline failures, and unavailable checks; a failing/unrun gate is not passed. Skill mandates do not prove tool enforcement, and configured CI/flags do not prove execution or success. Actual execution evidence remains reusable under the rules above.
+
+## QA Follow-ups
+
+When tracking is requested/agreed and `issue-tracking` is available, hand unresolved QA findings to it with reproduction, expected/actual behavior, revision/environment, impact, and evidence for authorized deduplication/follow-up. Running tests alone never authorizes tracker writes. Keep fixed-and-verified results in the existing test record; without the skill, retain unresolved findings in the handoff rather than claiming they were filed.

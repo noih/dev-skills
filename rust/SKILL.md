@@ -98,7 +98,7 @@ Follow the standard library conventions:
 
 - **Don't block the runtime**: Never call blocking I/O or CPU-heavy code in an async context. Use `spawn_blocking` for these
 - **Shared state**: Use `Arc<Mutex<T>>` or `Arc<RwLock<T>>` judiciously; prefer message passing (`mpsc`, `oneshot` channels) when data flows in one direction
-- **Cancellation safety**: Futures can be dropped at any `.await` point. Don't hold locks across `.await` — acquire, use, and release within a synchronous block
+- **Lock scope and cancellation**: Prefer short critical sections, releasing synchronous lock guards before `.await`. When exclusive access genuinely must span awaited work, use an async mutex such as `tokio::sync::Mutex`, whose guard supports it; assess contention and keep state valid if the future is cancelled. Do not introduce an async mutex merely because the caller is async. See [Tokio mutex guidance](https://docs.rs/tokio/latest/tokio/sync/struct.Mutex.html#which-kind-of-mutex-should-you-use).
 - **`Send` + `Sync`**: Understand the bounds. Async tasks spawned with `tokio::spawn` require `Send`. If a type isn't `Send`, restructure or use `spawn_local`
 
 ## Testing
@@ -157,5 +157,5 @@ Follow the standard library conventions:
 
 - Leverage zero-cost abstractions — iterators, generics, and traits compile to the same code as hand-written loops
 - Avoid unnecessary heap allocations: prefer `&str` over `String`, `&[T]` over `Vec<T>` when ownership isn't needed
-- Use `serde` efficiently: `#[serde(skip)]` for derived fields, `#[serde(rename_all = "camelCase")]` instead of per-field renames
+- Use `serde` efficiently: `#[serde(skip)]` for derived fields and `#[serde(rename_all = "...")]` for a contract's consistent naming convention instead of repeated per-field renames. For example, use `camelCase` only when the established contract requires it; preserve existing field names and follow `api-design` defaults for new contracts.
 - Profile before optimizing: use `cargo bench`, `criterion`, or `flamegraph`. Don't guess where the bottleneck is
