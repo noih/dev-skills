@@ -1,6 +1,6 @@
 # SDD Reference
 
-Auxiliary material for the `sdd` skill. SKILL.md links here for the full template + examples; loading this file is only needed when the skill needs the verbatim layout.
+Auxiliary material for the `sdd` skill: layout examples, test-framework markers, and the log template. SKILL.md keeps every decision rule (layout ambiguity, runner precedence, missing runner, skips/waivers); read the matching section here before classifying an unfamiliar layout, locating a runner the project docs do not name, or creating/substantially updating a log. If this file is unavailable, follow SKILL.md alone and record the fields it names.
 
 ## Project layout examples
 
@@ -15,6 +15,17 @@ multi-project-root/              workspace-root/
 ```
 
 Existing-convention rows (rows 1-2 in the heuristics table) come first — if specs already live somewhere for this project, keep using that location.
+
+## Test framework markers
+
+Markers only locate likely tooling; an explicit user statement and project operating docs/custom runners take precedence, and SKILL.md's ambiguity and no-framework rules still apply.
+
+- `package.json` with `scripts.test` → the package manager's test script
+- `Cargo.toml` → cargo test
+- `pyproject.toml` / `pytest.ini` / `setup.cfg [tool:pytest]` → pytest
+- `go.mod` → go test
+- `Makefile` with a `test` target → make test
+- `justfile` with a `test` recipe → just test
 
 ## Decision log full template (`.sdd/logs/<slug>.md`)
 
@@ -51,6 +62,7 @@ overwrite an input reference and make an old result appear current.
 **Status:** passed | blocked | skipped-by-user | skipped-no-grill-me | halted-severe
 **Mode:** user-mode | agent-autonomous | agent-with-leader
 **Spec examined:** <input reference>
+**Companion:** <actual invocation method and outcome, or missing/unavailable/incompatible reason; skipped-no-grill-me records a skipped companion pass, not proof it ran>
 **Project context inspected:** <specs / plans / docs / files / modules / tests checked before questions>
 **Scenario readiness (behavior work):** <requirement/change and current feature references, agreed vs proposed outcomes, unresolved policy/integration gaps; link existing artifacts>
 ### Context-derived answers

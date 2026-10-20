@@ -9,7 +9,7 @@ user-invocable: false
 ## Module System
 
 - Prefer ESM (`import`/`export`) — set `"type": "module"` in `package.json`
-- Use `import.meta.url` and `import.meta.dirname` (Node 21.2+) instead of `__dirname` / `__filename`
+- In ESM, use `import.meta.url` for the module URL. For local directory paths, `import.meta.dirname` is available on `file:` modules since Node v20.11.0 / v21.2.0; on older supported versions, derive the path with `fileURLToPath(import.meta.url)` and `path.dirname()`. The dirname version requirement does not apply to `import.meta.url`. See [Node ESM documentation](https://nodejs.org/api/esm.html#importmetadirname).
 - For CJS interop, use `createRequire(import.meta.url)` when importing CJS-only packages
 - Follow project convention — if the project uses CJS, stay consistent
 

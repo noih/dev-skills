@@ -8,7 +8,7 @@ Personal directory of agent skills.
 npx skills@latest add noih/dev-skills
 ```
 
-Interactive prompts will guide you through skill and agent selection.
+Interactive prompts will guide you through skill and agent selection. Keep each selected skill's supporting files together with its `SKILL.md`; references inside that directory belong to the skill, not a required sibling installation.
 
 ```bash
 npx skills@latest update
@@ -20,9 +20,9 @@ npx skills@latest remove -g    # global
 
 These skills record my personal defaults, not universal requirements. Explicit task constraints and existing project conventions take precedence. Preserve package and style preferences when a choice is needed; do not add dependencies, layers, or unrelated cleanup merely to satisfy a default.
 
-The `comments` policy prohibits comments in application and test source code; an existing comment style alone does not override it. JSDoc consumed by the project's OpenAPI generator is the only exception. Deployment files, operational scripts, configuration, and standalone documentation are outside the prohibition. If an explicit project requirement mandates prohibited comments, report the conflict for user resolution rather than silently choosing either rule. Most code needs no explanation; only exceptionally important constraints or decisions worth preserving long-term belong in the existing spec.
+The `comments` policy prohibits new comments in application and test source code; an existing comment style alone does not override it. JSDoc consumed by the project's OpenAPI generator is the only exception. Deployment files, operational scripts, configuration, and standalone documentation are outside the prohibition. Resolve conflicting project or skill requirements using the instruction hierarchy and applicable explicit user decisions; ask only when a concrete conflict remains unresolved. Most code needs no explanation; only exceptionally important constraints or decisions worth preserving long-term belong in the existing spec.
 
-Projects with lint tooling require a lint rule that rejects prohibited comments as errors and narrowly permits the OpenAPI annotations; add or configure it if missing. Policy adoption includes removing all existing prohibited source comments, without a legacy baseline. The `comments` skill defines safe removal, conflict handling, enforcement, and verification requirements.
+Project-wide adoption requires explicit user authorization or project instructions enabling it; loading a skill or fixing a bug alone is not adoption. Authorized adoption removes all existing prohibited source comments without a legacy baseline and, in projects with lint tooling, adds or configures lint enforcement with the narrow OpenAPI exception. Maintain already-adopted requirements without repeated approval or weaker gates. Read-only reviews report gaps without edits; unadopted projects do not acquire a lint gate from skill loading. The `comments` skill defines scope, safe removal, conflict handling, enforcement, and verification.
 
 `bdd` discovers business rules through concrete examples and makes agreed scenarios the backbone of test design and acceptance. OpenSpec main specs hold current requirement intent, active changes hold deltas and decisions, and archives retain history; `.feature` holds the current branch/commit's acceptance scenarios in the deterministic BDD workflow. `sdd` manages development progress and stage readiness for solo or team work. `lead` manages team assignments, coordination, and handoffs. `punch-list` handles findings the user reports after trying delivered work: bounded fixes with checkpointed verification, escalated back to the development workflow per its six rules, never lowering the `testing` / `code-review` bar. They can be used independently or together, sharing progress and verification evidence. `testing` selects verification by risk and total cost, including agent tokens, while preserving the agreed quality bar; it owns execution and evidence rules. `code-review` provides the review method; `project-context` provides repository context and basic resource ownership. Workflow skills apply those rules without creating competing completion criteria.
 
@@ -40,35 +40,39 @@ Common-format validation, platform-extension checks, and actual platform loading
 
 ## Skills
 
-> **Optional `sdd` companion:** install `grill-me` for its spec-questioning workflow; `sdd` documents fallback behavior when unavailable:
+> **Optional `sdd` companion:** `grill-me` can supply spec questioning when its installed version and downstream targets are callable through the current harness and invocation policy. Installation alone does not guarantee availability; `sdd` documents fallback behavior for missing, unavailable, or incompatible companions:
 >
 > ```bash
 > npx skills@latest add mattpocock/skills
 > ```
 
-| Skill | Activation | Description |
+Choose the entrypoint for the task below; this is not a mandatory pipeline. Scenario discovery, stage tracking, team orchestration, verification and post-delivery fixes are separate jobs. Skills can work independently or share existing decisions and evidence when combined.
+
+| Skill | Activation | Use when you need to… |
 | --- | --- | --- |
-| `api-design` | Auto | REST API naming, response shapes, pagination, errors, and versioning conventions. |
-| `backend-principles` | Auto | Personal layering preferences and criteria for adopting DDD. |
-| `bdd` | Explicit / natural language | Business scenario discovery and specification, scenario-driven tests, and traceable acceptance; also used by the main development workflow. |
-| `code-quality` | Auto | General code quality conventions. |
-| `code-review` | Auto | Review lens for correctness, security, architecture, maintainability, simplicity, and performance findings. |
-| `comments` | Auto | Prohibit source comments, with an exception for JSDoc consumed by an OpenAPI generator. |
-| `commit-conventions` | Auto | Commit message conventions and git commit workflow rules. |
-| `daily-work-report` | Explicit / natural language | Daily progress and plans for project managers, based on activity across work sessions. |
-| `issue-tracking` | Natural language / auto | Progress, blockers, handoffs, and QA/review follow-ups in the project's chosen tracker or local task record. |
-| `nodejs` | Auto | Node.js module, async, error handling, filesystem, process, and config conventions. |
-| `project-context` | Auto | Pre-work workflow for reading repository instructions, testing docs, and local conventions before acting. |
-| `punch-list` | Explicit / natural language | Fixes for findings reported after trying delivered work: log first, fix solo, verify at checkpoints, escalate per its six rules back to the development workflow. |
-| `react` | Auto | React component, hook, state, styling, and performance conventions. |
-| `road` | Explicit / natural language | Tool-neutral roadmap management with Work Item status sync from spec tool locations. |
-| `rust` | Auto | Rust naming, ownership, error handling, modules, async, testing, and tooling conventions. |
-| `sdd` | Explicit / natural language | Development progress and stage readiness for solo/team spec workflows, with grill, test, and review gates. |
-| `lead` | Explicit / natural language | Leader mode for orchestrating dev, test, and review agents (bb threads first, native subagents as fallback); the leader dispatches and adjudicates but never writes code. |
-| `security` | Auto | Security principles and vulnerability patterns. |
-| `sql-conventions` | Auto | SQL schema, migration, query, indexing, and transaction conventions. |
-| `testing` | Auto | Test strategy, case design, framework recommendations, and browser automation hygiene. |
-| `typescript` | Auto | TypeScript typing, narrowing, imports, nullability, and money-handling conventions. |
+| `project-context` | Auto | Find relevant repository/package instructions, commands and versions before work; own resources and handoffs even outside testing. |
+| `bdd` | Explicit / natural language | Discover or specify business rules with examples, then connect agreed scenarios to deterministic acceptance. Pure refactors reuse behavior evidence. |
+| `sdd` | Explicit / natural language | Track an active spec's progress and test/review readiness in solo or team work; it does not author/archive the spec or manage Git. |
+| `lead` | Explicit / natural language | Delegate and adjudicate a team goal with bb threads first (native agents as fallback), exact model routing and owned handoffs; the leader never writes code. |
+| `testing` | Auto | Choose sufficient evidence, design tests, run the right scope safely, and reuse valid results without false passes or unnecessary reruns. |
+| `code-review` | Auto | Review a concrete change for production risks and evidence gaps; a review request alone does not authorize fixes or new gates. |
+| `punch-list` | Explicit / natural language | Repair user-reported deviations after trying delivered work, with intake, bounded fixes and checkpointed verification; new scope returns to development. |
+| `issue-tracking` | Natural language / auto | Record meaningful progress, blockers and follow-ups in the chosen tracker/local record under existing authority; no automatic mirror or extra gate. |
+| `road` | Explicit / natural language | Manage ordered Work Items pointing to specs and synchronize their location-based status; this is distinct from implementation or issue completion. |
+| `daily-work-report` | Explicit / natural language | Draft a PM-facing daily update from work evidence or supplied notes; not implementation, code review or time tracking. |
+| `commit-conventions` | Auto | Stage/split coherent commits or write English Conventional Commit messages without AI-attribution trailers, preserving WIP/handoff semantics. |
+| `comments` | Auto | Apply the source-comment prohibition and consumed-OpenAPI-JSDoc exception; distinguish daily work, authorized adoption and established enforcement. |
+| `code-quality` | Auto | Assess naming, simplicity, abstractions, errors and maintainability without unrelated cleanup. |
+| `backend-principles` | Auto | Choose backend responsibility/layer boundaries or domain modeling when justified; preserve existing architecture. |
+| `api-design` | Auto | Design/review REST contracts: resources, response shapes, pagination, errors, idempotency and versioning. |
+| `nodejs` | Auto | Work on Node.js modules, async errors, processes, filesystem operations and runtime configuration. |
+| `react` | Auto | Work on React UI, hooks/state, forms and styling, including exact parity when that is the agreed task. |
+| `rust` | Auto | Work on Rust ownership/errors, async code, Cargo and runtime-aware tests. |
+| `sql-conventions` | Auto | Choose schema, migration, query, index, transaction and connection conventions without needless existing-data migrations. |
+| `typescript` | Auto | Work on TypeScript contracts, narrowing, imports, nullability and precise money representations. |
+| `security` | Auto | Inspect input, identity, ownership, secrets, payments/PII, callbacks and other trust boundaries in context. |
+
+Conditional references are read before their relevant action, including a mid-task change of activity. For example, testing's browser recipes apply before browser work; execution recipes apply before reporter overrides, piped/background execution or repetition calculations. Ordinary direct foreground tests do not require reading both. If needed material is unavailable, disclose the gap and hold only operations whose required safeguards cannot be established; continue known-safe alternatives and independent work without claiming unread content was read.
 
 Activation means how a skill is normally triggered:
 

@@ -46,7 +46,7 @@ Optional, in parentheses after type. Describes the affected area: `auth`, `api`,
 - Imperative, present tense ("add" not "added" or "adds")
 - Start with lowercase letter
 - No period at the end
-- 50-72 characters
+- Aim for 50 characters or fewer, with a 72-character maximum for the full subject; do not pad a clear shorter subject
 
 ### Body
 
