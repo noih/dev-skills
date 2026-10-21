@@ -1,6 +1,6 @@
 ---
 name: issue-tracking
-description: Track development progress, blockers, handoffs, and QA/review follow-ups in the project's chosen issue tracker or local task record. Use for explicit tracking requests and to assess whether linked issues need updates at implementation, verification, handoff, or closeout checkpoints; not for unrelated coding or read-only review alone.
+description: Resolve the project's existing tracker before creating or updating issues; track progress, blockers, handoffs, and QA/review follow-ups there or in its local task record. Use for explicit tracking requests and linked-issue checkpoints; not for unrelated coding or read-only review alone.
 ---
 
 # Issue Tracking
@@ -9,10 +9,13 @@ Keep work resumable: what changed, what remains, who acts next, and what evidenc
 
 ## Resolve the destination
 
-- Use the user's explicit issue/destination, then the project's recorded mapping. Resolve ambiguous or conflicting mappings before writes. A connected MCP alone does not select a tracker.
+- Choose in this order: the user's explicit destination for this work, the project's existing tracker/local record, then an explicitly configured personal or environment default only when no project destination exists. This skill supplies no provider default.
+- Before falling back, check applicable project instructions, workflow docs, referenced private configuration, and the current task's primary record for an existing destination. Reuse context already loaded. If the mapping is incomplete, use relevant connected tools for targeted read-only discovery of the project/record; resolve ambiguous or conflicting mappings before writes, not by falling back. Incidental issue links are not a destination override.
+- A GitHub remote, PR workflow, available `gh`, or connected MCP does not select the issue tracker. GitHub Issues is eligible only through the same explicit choice, project convention, or configured fallback as any other provider. For example, a project managed in AI Desktop or Tenqo keeps its issues there even when its code and PRs live on GitHub.
+- An unavailable connector, missing permission, or failed lookup does not mean the project has no tracker. Preserve the destination and pending update, report it as **not synced**, and continue independent work; do not create a replacement issue in the default tracker.
 - Reuse exact issue keys and known project IDs. Discover only missing identifiers and legal field values. For multiple repositories, subprojects, or trackers, identify the destination per work item and its primary record; do not mirror automatically.
 - Keep provider, workspace/project, completion rules, and any local record location in existing project instructions or private configuration. No new config format is required. Keep private mappings and credentials out of this shared skill; preserve company/personal boundaries.
-- With no mapping, ask once for the destination when needed; continue independent work. Reuse an agreed local task file when no external tracker is wanted. Preserve its format and stable item references rather than creating a second backlog.
+- If neither a project destination nor an applicable configured default can be established, ask once when tracking is needed; continue independent work. Reuse an agreed local task file when no external tracker is wanted. Preserve its format and stable item references rather than creating a second backlog.
 
 ## Use the platform's model
 

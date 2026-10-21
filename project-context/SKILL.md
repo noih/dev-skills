@@ -34,6 +34,7 @@ When working in a monorepo, read the closest relevant package instructions, not 
 - Follow documented setup, environment, database, fixture, and reset rules.
 - Respect local agent instructions for review, implementation, and handoff.
 - Preserve project-specific naming, API, data, and architecture conventions.
+- Before creating or updating tracking records, identify the project's existing tracker/local record from its instructions and workflow context; use `issue-tracking` when available. Project destinations take precedence over personal/environment defaults. Repository hosting and available tools do not select the tracker, and unavailable access does not justify switching it.
 - If instructions conflict, prefer the most local and task-specific file, then ask only if the conflict blocks safe progress.
 
 ## UI Reference Scope
