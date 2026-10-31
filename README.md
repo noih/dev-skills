@@ -30,6 +30,8 @@ For new executable BDD acceptance and existing feature-driven projects, determin
 
 `issue-tracking` records progress, blockers, handoffs, and QA/review follow-ups in the project's chosen tracker or existing local task record. Resolve the destination in order: explicit user choice → existing project tracker/local record → configured personal/environment default only when no project destination exists; GitHub hosting or unavailable tracker access does not justify choosing GitHub Issues. It is optional alongside `sdd`, `testing`, `code-review`, `lead`, `punch-list`, and `road`; keep project mappings private or in project instructions. Use the selected connector's current tool descriptions and usage guides for platform mechanics. These are workflow instructions, not a background sync service or verified live integrations.
 
+`ui-parity` compares a reference and an implementation, repairs confirmed UI/UX deviations, and produces a report whose current screenshot pairs the leader has visually reviewed. It owns comparison criteria, state matching and evidence freshness; `lead` can supply orchestration and `testing` verification without duplicate gates. Its specialized browser/repair model profiles are resolved per host. Related cases share context where useful, with independent groups parallelized and bounded handoffs. The package is self-contained; it provides workflow instructions and a report outline, not a browser runner or automatic visual acceptance engine.
+
 ## Compatibility
 
 Skill names, descriptions, and Markdown bodies use the shared Agent Skills format. Preserve existing `user-invocable` fields: in Claude Code, this extension controls direct user invocation, and `false` hides or disables slash-command invocation while still allowing model selection. Codex does not document this field as an invocation control, so this repository makes no claim about its runtime treatment.
@@ -57,6 +59,7 @@ Choose the entrypoint for the task below; this is not a mandatory pipeline. Scen
 | `testing` | Auto | Choose sufficient evidence, design tests, run the right scope safely, and reuse valid results without false passes or unnecessary reruns. |
 | `code-review` | Auto | Review a concrete change for production risks and evidence gaps; a review request alone does not authorize fixes or new gates. |
 | `punch-list` | Explicit / natural language | Repair user-reported deviations after trying delivered work, with intake, bounded fixes and checkpointed verification; new scope returns to development. |
+| `ui-parity` | Explicit / natural language | Compare implementation UI/UX with a reference, fix confirmed differences, and deliver current matched screenshots with leader-reviewed decisions. |
 | `issue-tracking` | Natural language / auto | Record meaningful progress, blockers and follow-ups in the chosen tracker/local record under existing authority; no automatic mirror or extra gate. |
 | `road` | Explicit / natural language | Manage ordered Work Items pointing to specs and synchronize their location-based status; this is distinct from implementation or issue completion. |
 | `daily-work-report` | Explicit / natural language | Draft a PM-facing daily update from work evidence or supplied notes; not implementation, code review or time tracking. |
