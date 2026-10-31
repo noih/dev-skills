@@ -40,16 +40,20 @@ Choose the column by the top-level leader's model family. Each cell specifies **
 
 | work | Claude | GPT / Codex |
 |---|---|---|
-| Leader: scope, dispatch, evidence assessment, adjudication | `claude-fable-5-1` / `high` | `gpt-6-astra` / `high` |
+| Leader: scope, dispatch, evidence assessment, adjudication | `claude-opus-5-5[1m]` / `high` | `gpt-6-astra` / `high` |
 | Dev | `claude-opus-5-5[1m]` / `medium` | `gpt-6.1-sol` / `medium` |
-| QA: execute existing tests / explicit browser cases, report failures | `claude-sonnet-5-5[1m]` / `medium` | `gpt-6-luna` / `medium` |
+| QA / Browser Worker: execute existing tests / explicit browser cases, report failures | `claude-sonnet-5-5[1m]` / `medium` | `gpt-6.1-terra` / `high` |
+| Complex Browser Worker: multi-tab coordination / difficult interactive controls | `claude-sonnet-5-5[1m]` / `high` | `gpt-6.1-terra` / `max` |
 | QA: design tests, explore business-logic / authorization / state-transition / concurrency holes | `claude-opus-5-5[1m]` / `medium` | `gpt-6.1-sol` / `medium` |
-| Reviewer: cross-file correctness, architecture, security, spec consistency | `claude-opus-5-5[1m]` / `medium` | `gpt-6.1-sol` / `high` |
+| Reviewer: cross-file correctness, architecture, security, spec consistency | `claude-opus-5-5[1m]` / `high` | `gpt-6.1-sol` / `high` |
 | Escalation: a difficult, clearly bounded investigation or finding | `claude-fable-5-1` / `medium` | `gpt-6-astra` / `medium` |
 | Escalation: deep security, concurrency, or cross-system spec conflicts | `claude-fable-5-1` / `high` | `gpt-6-astra` / `high` |
 
 - **User overrides first.** Explicit user configuration for the current task takes precedence over this table.
-- **QA routing**: Sonnet / Luna execute defined cases; Opus / Sol design coverage and hunt holes. If one assignment includes execution and exploration, use Opus / Sol for the whole assignment; do not split merely to save model cost. A reviewer does not replace exploratory QA.
+- **Keep one provider per team.** Unless the user explicitly requests a mixed team, keep the leader, workers, nested delegation and escalations within the selected Claude or GPT / Codex family. Subscriptions and remaining usage are independent; do not assume both providers are available. If the required model is unavailable or its quota is exhausted, report the limitation and hold affected work rather than automatically substituting another provider. Continue unaffected work within existing authority.
+- **Browser Worker (QA)**: use the ordinary or complex Browser Worker row according to browser-operation complexity. Browser-operation complexity alone does not make an assignment exploratory QA; designing coverage or investigating business rules follows QA routing below.
+- **QA routing**: Sonnet / Terra execute defined cases; Opus / Sol design coverage and hunt holes. If one assignment includes execution and exploration, use Opus / Sol for the whole assignment; do not split merely to save model cost. A reviewer does not replace exploratory QA.
+- **Claude Fable scope**: reserve `claude-fable-5-1` for the two escalation roles above: difficult bounded investigations and deep security, concurrency, or cross-system spec conflicts. It is not the default leader, developer, QA or reviewer.
 - **Escalation belongs to the leader**: choose it when the work warrants deeper analysis or the default worker's evidence is insufficient. Dispatch only the difficult item, with the available evidence and a clear completion condition; routine work keeps its default configuration. Model escalation does not reset the loop guard, reopen passed gates, or expand scope. For a bounded escalation, Fable / Astra at `medium` is a starting point; genuinely difficult work uses `high`. Do not assume Fable / medium beats Opus / high or Astra / medium beats Sol / high. Keep the lightest configuration that meets the task's quality bar based on actual results.
 - Claude worker spawns use `--provider claude-code`; GPT worker spawns use `--provider codex`. Pass the table's `--model` and `--reasoning-level` explicitly, plus `--permission-mode auto`; never rely on project defaults. Quote model IDs containing `[1m]` in shell commands. The native-subagent fallback follows the same model and reasoning rules.
 - Nested delegation follows the top-level leader's **model family and task routing**, not the parent's model or `high` effort for every task. When nested delegation is authorized, pass the concrete model/reasoning per allowed role after user overrides, plus escalation boundaries.
@@ -112,6 +116,8 @@ High quality and efficient. When dispatching QA / dev to write or run tests, spe
 ### Review briefs
 
 The reviewer reports **differences and findings** only; it does not decide. The leader adjudicates (section 5). Beyond test results, review covers code and architecture:
+
+When a review stage is required, use a separate reviewer thread even when leader and reviewer share the same model/reasoning. Give the reviewer the original goal, applicable requirements/decisions, current diff, relevant call paths and test evidence, without the full coordination history. Return concise findings with location, trigger, impact, evidence and the affected requirement. Keep detailed investigation and repair verification in worker threads. The leader retains delivery scope, decisions, progress and risks; adjudicates from findings; and reads targeted source for disputed or insufficient evidence and the source checks required by section 5. Do not repeat the full review in the leader's context; retain conclusions, rationale and evidence links.
 
 - Design: SOLID, KISS, YAGNI; unnecessary abstractions, re-implementing an existing helper.
 - Efficiency: N+1, needless full scans, blocking sync calls, repeated computation.
