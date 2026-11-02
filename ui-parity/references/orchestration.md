@@ -38,7 +38,7 @@ Goal/group: case/step/state IDs; deliverable; repair/read-only scope
 Authority: criteria/deviations; standing decisions; unresolved dependency
 Role/effective profile: leader/browser/repair, model + effort
 Locations: cwd, branch/build, reference, implementation, report/index
-Setup: role/org/entity, fixture, prerequisites/reset, relevant source entrypoints
+Setup: role/permissions, org/entity, entry path (see Evidence capture setup), fixture, prerequisites/reset, relevant source entrypoints
 Behavior probes: bounded actions and expected outcomes derived from this group's controls/risks; relevant overflow, horizontal scroll and below-fold dialog contents
 Ownership: files, data, sessions/services; forbidden shared mutations
 Evidence: current/stale IDs and sides, unknown impact, pending capture checkpoint; exact next action

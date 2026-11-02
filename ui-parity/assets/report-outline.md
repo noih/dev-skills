@@ -17,7 +17,7 @@ Evidence/review: <index link; generation/presentation identity, reviewer/time an
 | --- | --- | --- |
 | 已確認 | <IDs/count> | <current evidence/review> |
 | 待處理 | <IDs/count> | <reason, owner, next action; distinguish pending review> |
-| 範圍外 | <IDs/count> | <scope authority; outside required count, never passed> |
+| 範圍外 | <IDs/count> | <scope authority/removal reason in both image slots; no current captures or open work; old images/steps historical; outside required count, never passed> |
 
 <Accepted differences: IDs/decision links, a subset of accepted work, not an extra pass count.>
 <Only necessary repair/limit summary; detail and provenance in the index.>
