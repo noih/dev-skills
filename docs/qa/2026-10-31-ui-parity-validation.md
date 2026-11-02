@@ -56,3 +56,15 @@ Expected: no parity workflow, screenshots campaign, model team dispatch or repai
 Fresh-thread baseline/candidate evaluations were not executed. The earlier author's native single-slot observation did not establish that BB threads were unavailable; user-requested BB peer reviews subsequently ran as described above. Those design discussions and this author walkthrough are not baseline/candidate runtime experiments. The prompts above remain prepared evaluation cases, not passing runtime results.
 
 No actual GPT/Claude end-to-end parity run, skill installation/discovery test, browser execution, or generated-report visual review was performed. The deliverable supplies instructions, an evidence contract and a report outline, not an executable validator/report engine. The next real project run should assess these operational limits using the existing browser/report tools; static validation cannot establish model compliance.
+
+## 2026-11-03 policy update
+
+RWA-130 lessons prompted generic amendments to authority/evidence strength, copy and same-pattern decisions, capture/data impact, durable fixture states, role/entry-path equivalence, affected acceptance checks, retired evidence and short table elements. No new roles, gates, frameworks or fixed full reruns were added.
+
+Static policy probes and expected outcomes:
+
+- Inherited accepted exception without a cited source → re-trace its authority; absent support after investigation, `fix` toward the reference. Prior acceptance is insufficient.
+- Supporting pair or evidence link still bound to a superseded image → validation fails until rebound to valid evidence or marked historical and removed from current acceptance support.
+- Reference cannot reach a needed state → record the template comparison and reason, make no behavior-parity claim, and keep the gap visible.
+
+Local resource links, fence balance, expected frontmatter fields and project-neutral package wording were checked; `git diff --check` passed. The external skill validator (`quick_validate.py`) could not run: `ModuleNotFoundError: No module named 'yaml'`. These probes check static policy coverage, not runtime behavioral evaluation. No application/browser tests or live parity run were performed.
