@@ -31,14 +31,14 @@ These files travel with the skill; no sibling installation is required. When ava
 Discover existing project instructions and task records. Reuse them; record only missing information:
 
 - Reference and implementation URLs/paths and immutable revisions; relevant dirty changes, build identity and environment. Record unavailable inputs honestly.
-- In-scope cases, roles, organizations, entities, required UI states, normal and narrower supported viewport(s), and explicit exclusions. Keep existing case IDs. Derive a concise checklist if none exists; don't inherit a fixed case count from another project.
+- In-scope cases, roles, organizations, entities, required UI states, normal and narrower supported viewport(s), and explicit exclusions. Keep existing case IDs. Title cases by the behavior under test, not by one side's observed outcome. Derive a concise checklist if none exists; don't inherit a fixed case count from another project.
 - Requirements and accepted deviations, including reference defects, mock boundaries, and controls intentionally retained.
 - Runtime/browser/data ownership, isolation/reset method, report location, and current evidence index.
 - A proportionate verification plan and provisional time/context budget. One coherent delivery phase owns acceptance; a worker change or fix round does not create a new full test campaign.
 
 Calibrate on a few representative states: a dense table, form/detail dialog, and important transition when present. The leader applies the ordered decision standard in Judgment criteria, inspects actual reference and implementation evidence, and records concrete decisions before mass capture. Include a narrower-width check for dense layouts. Inspect relevant reference source when available to resolve meaning; distinguish observed behavior from inferred intent.
 
-Audit shared primitives early: status wording, buttons, badges, tables, dialogs, messages, signatures, empty values, and exports. Inventory testing shortcuts in the implementation. These are **examples, not an exhaustive checklist**: inspect the whole relevant UI and workflow for other inconsistencies. Remove only confirmed out-of-scope controls; preserve accepted exceptions and legitimate actions. Resolve common causes before capturing the same defect dozens of times.
+Audit shared primitives early: status wording, buttons, badges, tables, dialogs, messages, signatures, empty values, and exports. Inventory testing shortcuts in the implementation and prototype-only behavior in the reference, such as role switchers, missing route guards or hints that rely on them; classify each before comparing. These are **examples, not an exhaustive checklist**: inspect the whole relevant UI and workflow for other inconsistencies. Remove only confirmed out-of-scope controls; preserve accepted exceptions and legitimate actions. Resolve common causes before capturing the same defect dozens of times.
 
 ## 2. Assign coherent groups
 
@@ -67,7 +67,7 @@ After a shared change, reopen all affected pairs, not only the reported case. Wh
 ## Completion
 
 - Complete delivery requires current matched evidence and valid leader review for every required state. No required stale/needs-update, missing or unverified images may remain under a completed status. Any unresolved item keeps the report partial; exclusions require existing authority and cannot silently shrink scope. Observed mocked UI can satisfy its declared UI scope, never an unverified backend claim.
-- Confirmed in-scope differences are fixed and reverified with newly captured affected-side evidence; unchanged reference baselines and unaffected current-valid images may be reused with true capture versions and impact rationale. Current-valid does not mean newly captured; an explicit all-new requirement overrides reuse. Accepted differences cite the decision and rationale.
+- Confirmed in-scope differences are fixed and reverified with newly captured affected-side evidence; unchanged reference baselines and unaffected current-valid images may be reused with true capture versions and impact rationale. Current-valid does not mean newly captured; an explicit all-new requirement overrides reuse. Accepted differences cite the decision and rationale; every conditional decision has had its condition re-checked against the final revision of its source, and an unchecked condition keeps the comparison open.
 - Text, screenshots, source links, case anchors, and version labels agree. Long-dialog sections and final transient outcomes are evidenced when required.
 - The final integrated build is identified; applicable checks pass or limitations are stated. Mocked UI evidence does not establish backend readiness.
 - Owned temporary reference edits/fixtures are restored and verified. Sessions/processes are closed with ownership checks or explicitly transferred with owner and expiry. Preserve evidence, user state, and unrelated services.
