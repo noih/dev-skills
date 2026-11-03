@@ -22,7 +22,7 @@ Evidence/review: <index link; generation/presentation identity, reviewer/time an
 <Accepted differences: IDs/decision links, a subset of accepted work, not an extra pass count.>
 <Only necessary repair/limit summary; detail and provenance in the index.>
 
-## <CASE-ID>: <Name>
+## <CASE-ID>: <Name: the behavior under test, not one side's outcome>
 
 Scenario: <who/role, initial condition/state, and what they intend to accomplish; relevant entity/data/preconditions.>
 
@@ -47,10 +47,14 @@ Evidence/verification: <index link to assertions, complete per-side provenance, 
 
 <Optional collapsed history/diagnostics with original versions. Common setup appears once; retain full reproduction/reset and metadata in the index.>
 
+## Revisions
+
+<Only after delivery changes: per revision, derived from the index — trigger, changed decisions and IDs, replaced or reused evidence with rationale, verification. Current sections stay authoritative; superseded text moves to history.>
+
 ## Remaining decisions and limitations
 
 <Short unresolved matters/material limits, linked to affected steps. Don't hide blockers or move repairs here to declare completion. State backend behavior unverified by mocks.>
 
 ## Resources and reproduction
 
-<Link index details: fixture/mock/reset recipe, paths, restored changes and cleanup/accepted retention owner/expiry. No secrets. Keep full audit data accessible without repeating it at every step.>
+<Link index details: durable generator/capture script/case definitions and reproduction command, fixture/mock/reset recipe, paths, restored changes and cleanup/accepted retention owner/expiry. No secrets. Keep full audit data accessible without repeating it at every step.>
