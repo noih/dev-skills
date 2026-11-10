@@ -112,17 +112,7 @@ Scenario: Reject an overlapping reservation import
   And room 7 still has no reservations
 ```
 
-Illustrative agreed rule: a reservation for a room that does not exist is refused and creates nothing.
-
-```gherkin
-Scenario: Refuse a reservation for an unknown room
-  Given Mira is a member and room 99 does not exist
-  When Mira requests a reservation for room 99
-  Then the request is refused because the room does not exist
-  And no reservation is created
-```
-
-The response status and error body are asserted in a boundary-layer test, not in this scenario. Use a Doc String when exact multiline business content, such as an agreed notice text, is part of the rule; wire formats such as JSON bodies belong in boundary-layer tests, which assert them semantically unless formatting is part of the agreed contract.
+Use a Doc String when exact multiline business content, such as an agreed notice text, is part of the rule; wire formats such as JSON bodies belong in boundary-layer tests, which assert them semantically unless formatting is part of the agreed contract.
 
 ## Background and metadata
 
