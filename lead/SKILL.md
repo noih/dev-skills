@@ -8,6 +8,15 @@ user-invocable: true
 
 In Claude Code, use `/lead <goal>`; in Codex, use `$lead <goal>`. Act as leader to complete the user-provided goal. The leader **only dispatches, decides, adjudicates, and writes roadmap / spec / adjudication docs. It never writes code** (not even one line; dispatch it instead).
 
+## Why these rules exist
+
+The rules below exist to prevent these failures:
+
+- Three parties waiting on each other (full suite after every edit → DB wipe → other threads idle) multiplies time.
+- Treating every batch and fix round as its own phase repeats the full gate, a 20–40 minute stress loop, and a review dozens of times for little added evidence.
+- Accepting every reviewer suggestion lets workers rewrite the spec.
+- A leader who writes code blows its own context.
+
 ## Delivery contract: outcomes before orchestration
 
 - **Delegate a complete repair cycle.** Within the user's authorized scope, give one owner the outcome, acceptance criteria, relevant constraints, resource limits and escalation boundary. This normally includes reproduction, diagnosis, related implementation/fixture fixes, sufficient failure capture, scoped verification and cleanup. A routine failed check does not consume this authority. Do not require separate permission for each edit, static check, rerun or handoff artifact. A leader-created once-only restriction is exceptional: name the concrete risk and its expiry. Explicit user restrictions, including read-only or once-only execution, remain binding.
@@ -49,7 +58,7 @@ Choose the column by the top-level leader's model family. Each cell specifies **
 | Escalation: a difficult, clearly bounded investigation or finding | `claude-fable-5-2` / `medium` | `gpt-6-astra` / `medium` |
 | Escalation: deep security, concurrency, or cross-system spec conflicts | `claude-fable-5-2` / `high` | `gpt-6-astra` / `high` |
 
-- **User overrides first.** Explicit user configuration for the current task takes precedence over this table.
+- **User overrides first.** Explicit user configuration for the current task takes precedence over this table. The model and reasoning level the user selected for the leader's own session count as that configuration: keep them and do not report them as a mismatch with the leader row. This changes the leader only; workers still follow the table for that family, and other mismatches or unavailable models are still reported.
 - **Keep one provider per team.** Unless the user explicitly requests a mixed team, keep the leader, workers, nested delegation and escalations within the selected Claude or GPT / Codex family. Subscriptions and remaining usage are independent; do not assume both providers are available. If the required model is unavailable or its quota is exhausted, report the limitation and hold affected work rather than automatically substituting another provider. Continue unaffected work within existing authority.
 - **Browser Worker (QA)**: use the ordinary or complex Browser Worker row according to browser-operation complexity. Browser-operation complexity alone does not make an assignment exploratory QA; designing coverage or investigating business rules follows QA routing below.
 - **QA routing**: Sonnet / Terra execute defined cases; Opus / Sol design coverage and hunt holes. If one assignment includes execution and exploration, use Opus / Sol for the whole assignment; do not split merely to save model cost. A reviewer does not replace exploratory QA.
@@ -176,5 +185,3 @@ These steps close a delivered phase or task, not a worker relay. For relay or un
 4. Reconcile owned live resources and disposable outputs under section 4; retain useful evidence and explicitly transferred resources. Keep unresolved cleanup visible and assigned. An empty thread list alone is not proof of resource cleanup; no second historical census is needed when current cleanup evidence is sufficient. Preserve other owners' work and resources.
 5. List this task's worker threads and confirm none is running. Delete only workers whose resources are closed/removed or accepted as retained; leave any worker with unresolved cleanup in place as its owner. Run `bb thread delete <id> --yes` for eligible workers; do not archive unless the user requests it. Thread removal does not replace process or filesystem cleanup.
 6. Save coherent changes with a local commit when needed; report the branch for the user to push. Do not manufacture another commit when the work is already saved. Never push or work around that restriction.
-
-**Why:** three parties waiting on each other (full suite after every edit → DB wipe → other threads idle) multiplies time; treating every batch and fix round as its own phase repeats the full gate, a 20–40 minute stress loop, and a review dozens of times for little added evidence; accepting every reviewer suggestion lets workers rewrite the spec; a leader who writes code blows its own context.
