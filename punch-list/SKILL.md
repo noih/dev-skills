@@ -82,7 +82,7 @@ Before a completion claim, every item is `verified`, `user-checked`, `not-needed
 
 ## Hand off
 
-- **`sdd`**: starts after closeout and does not re-fire its hooks. A fix that changes spec'd behavior returns to the applicable decision or implementation stage through the spec tool; the spec is not edited first to justify the fix. Affected `tests-green` evidence is invalidated under `testing`'s reuse rules and refreshed at the checkpoint.
+- **`sdd`**: starts after closeout and does not re-run its stages. A fix that changes spec'd behavior returns to the applicable decision or implementation stage through the spec tool; the spec is not edited first to justify the fix. Affected `tests-green` evidence is invalidated under `testing`'s reuse rules and refreshed at the checkpoint.
 - **`lead`**: not used for dispatch. A leader hands the batch to one worker; an escalated item may later become a `/lead` goal.
 - **`issue-tracking`**: fixed items stay on the delivered feature's issue as checkpoint summaries; escalations become follow-ups under its triage and authorization rules. On a closed issue, comment; reopen or open a new issue only per project policy and the user's choice.
 - **`commit-conventions`**, **`testing`**, **`code-review`**: unchanged authority.

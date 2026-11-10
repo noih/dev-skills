@@ -19,16 +19,16 @@ Manage development progress for individuals and teams: track the active spec, cu
 ## Stages
 
 ```
-spec-tool: design / proposal / plan  →  layout check  →  HOOK 1  grill
-spec-tool: implement / apply         →  HOOK 2  test   (blocking)
-spec-tool: archive / merge-spec      →  HOOK 3  review
+spec-tool: design / proposal / plan  →  layout check  →  grill
+spec-tool: implement / apply         →  test   (blocking)
+spec-tool: archive / merge-spec      →  review
 ```
 
-- **Layout check** is not a HOOK: a one-shot classification of the target project directory before a new spec file is created, so the file lands in the right place (sub-project vs monorepo root).
-- **HOOK 1 (grill)** checks the spec before implementation. **HOOK 2 (test)** verifies readiness after the whole agreed acceptance scope is implemented. **HOOK 3 (review)** checks that deliverable before closeout.
+- **Layout check** is not one of the three stages: a one-shot classification of the target project directory before a new spec file is created, so the file lands in the right place (sub-project vs monorepo root).
+- **Grill** checks the spec before implementation. **Test** verifies readiness after the whole agreed acceptance scope is implemented. **Review** checks that deliverable before closeout.
 - Within an active spec workflow, start the relevant stage without an upfront confirmation. In a multi-phase project, the acceptance scope is the current coherent business delivery phase, not a page, module, WI, commit, worker checkpoint, or handoff. Partial progress updates the completed/remaining record but does not trigger test or review. A scope-complete "done implementing" can chain test → review using current evidence.
-- Do not mark test readiness passed on failing, skipped, or unavailable checks; explicit waivers remain visible. Honor stop/skip instructions under "Skips, stops, and waivers". These are agent workflow instructions, not installed runtime hooks.
-- **Communication style.** Do not expose HOOK mechanics to the user. Never say "firing HOOK 1", "we should grill now", "HOOK 2 gate", or similar. Just do the work — the user sees activity (questions asked, tests running, review starting), not gate names. Internal session flags (`grilled:<slug>` etc.) are implementation detail; do not surface them.
+- Do not mark test readiness passed on failing, skipped, or unavailable checks; explicit waivers remain visible. Honor stop/skip instructions under "Skips, stops, and waivers". These are agent workflow instructions; nothing enforces them at runtime.
+- **Communication style.** Stage names, flags and slugs are internal bookkeeping. Do not announce, narrate or give position updates about them ("starting the grill stage", "test gate passed", "now at stage 2"); the user is unlikely to know what they mean. Report in plain terms what was checked, what was found, what blocks progress and what is needed next. The user sees the work itself: questions asked, tests run, review findings.
 
 ## Commands
 
@@ -36,9 +36,9 @@ Manual triggers alongside automatic activation. `<action>` ∈ {`grill`, `test`,
 
 | Command | Effect |
 |---------|--------|
-| `/sdd grill [spec-path]` | Run HOOK 1 on the resolved spec; `[spec-path]` overrides resolution |
+| `/sdd grill [spec-path]` | Run the grill stage on the resolved spec; `[spec-path]` overrides resolution |
 | `/sdd test` | Check coverage/evidence, run needed project checks, and track fixes or blockers; set `tests-green:<slug>` on a verified pass |
-| `/sdd review` | Check current test evidence (HOOK 2 if needed), then use the available review path |
+| `/sdd review` | Check current test evidence (the test stage if needed), then use the available review path |
 
 ## Automatic triggers
 
@@ -75,7 +75,7 @@ Every "ask", "verify", or "decide" step in this skill follows this section; indi
 
 - **Minor** — obvious from spec or mechanical fix; decide + record.
 - **Moderate** — needs judgment within explicit authority and does not change what the spec delivers; decide + record reason, proceed.
-- **Severe** — would change spec deliverables, contradict the goal, or reveal the goal unachievable; escalate. User mode → ask the user. Agent with leader → ask the leader within its authority, otherwise route to the user. Agent autonomous → hold the affected dependency; write `Status: halted-severe` in the relevant HOOK section with the problem, affected scope, and next decision needed. Continue independent work while the decision is pending in every mode.
+- **Severe** — would change spec deliverables, contradict the goal, or reveal the goal unachievable; escalate. User mode → ask the user. Agent with leader → ask the leader within its authority, otherwise route to the user. Agent autonomous → hold the affected dependency; write `Status: halted-severe` in the relevant stage section with the problem, affected scope, and next decision needed. Continue independent work while the decision is pending in every mode.
 
 | Stage | Minor | Moderate | Severe |
 |------|-------|----------|--------|
@@ -92,13 +92,13 @@ All companions are optional; the skill degrades gracefully.
 | Companion | Purpose | Source | If missing / unavailable / incompatible |
 |-------|---------|--------|------------|
 | bdd | Business scenario discovery, formulation, and deterministic acceptance | `noih/dev-skills` | Use the inline fallback under Ownership and check scenario outcomes against assertions/execution; do not auto-install the skill |
-| grill-me | HOOK 1 adversarial questioning | `mattpocock/skills/grill-me` — user must install + vet manually; sdd never auto-installs, fetches, or executes remote code | User mode: resolve compatible setup, permitted manual invocation, or skip using existing authority. Agent autonomous: skip only the companion pass, perform scenario readiness, record `Status: skipped-no-grill-me` plus the concrete reason in `.sdd/logs/<slug>.md`, continue |
-| superpowers:requesting-code-review | HOOK 3 preferred review path | Part of superpowers plugin | Use an available harness review capability or the `code-review` skill; see HOOK 3 |
+| grill-me | Adversarial questioning in the grill stage | `mattpocock/skills/grill-me` — user must install + vet manually; sdd never auto-installs, fetches, or executes remote code | User mode: resolve compatible setup, permitted manual invocation, or skip using existing authority. Agent autonomous: skip only the companion pass, perform scenario readiness, record `Status: skipped-no-grill-me` plus the concrete reason in `.sdd/logs/<slug>.md`, continue |
+| superpowers:requesting-code-review | Preferred path for the review stage | Part of superpowers plugin | Use an available harness review capability or the `code-review` skill; see Review stage |
 
 - Check actual callability through the current harness, not just skill-file presence. Inspect a companion's invocation policy and any wrapper's downstream skill/tool targets; unresolved targets or incompatible invocation mechanisms make that path unavailable.
 - Respect manual-only policies such as `disable-model-invocation: true`: do not auto-invoke or reproduce the companion through another path to bypass the restriction. An explicitly authorized manual invocation still requires resolvable targets and supported tools. See [Claude Code invocation controls](https://code.claude.com/docs/en/skills#control-who-invokes-a-skill); other harnesses use their own supported controls.
 - When a companion is unavailable, follow its fallback, record the reason, continue scenario readiness, and never claim the companion ran when it did not. Reuse settled setup/skip decisions without repeated approval.
-- A built-in `/review` is not guaranteed. Do not invent commands or claim independent review when only self-review was possible. No test framework → follow HOOK 2's runner handling.
+- A built-in `/review` is not guaranteed. Do not invent commands or claim independent review when only self-review was possible. No test framework → follow the test stage's runner handling.
 
 ## Input handling (trust boundaries)
 
@@ -143,7 +143,7 @@ The slug identifies the spec in `.sdd/logs/<slug>.md` and session flags. Resolve
 - `[spec-path]` arguments override resolution. Cache the resolved slug for the session; later commands reuse it until the user explicitly switches or provides a different path.
 - One spec is assumed in flight. If several are, use the current discussion only when it uniquely identifies the intended spec; otherwise resolve the ambiguity under "Decisions and authority" before changing progress records.
 
-## HOOK 1 grill
+## Grill stage
 
 Goal: clarify known policy, boundaries, and exceptions up front and catch design / scope problems before implementation, not certify that all unknowns are exhausted. Decision reuse, authority, and provisional-prototype boundaries apply.
 
@@ -163,7 +163,7 @@ sdd classifies only the target _project directory_ — the parent under which th
 
 1. **Deterministic match** (rows 1, 2, 3, 4, 6): use the target dir silently. Existing conventions come first: if specs already live somewhere for this project, keep using that location.
 2. **Uncertain match** (rows 5, 7): resolve from the task and project ownership evidence, not modification time or alphabetical order. If unresolved, ask the user/leader; in autonomous work, report the ambiguity as blocked rather than write to a guessed project. For an explicitly cross-project spec, record both target locations.
-3. Hand the target dir back to the spec tool; set `layout-checked:<slug>`; record `## Project layout` in `.sdd/logs/<slug>.md`. HOOK 1 grill starts once the spec file exists.
+3. Hand the target dir back to the spec tool; set `layout-checked:<slug>`; record `## Project layout` in `.sdd/logs/<slug>.md`. The grill stage starts once the spec file exists.
 
 ### Project-context pre-check (before any grilling question)
 
@@ -173,7 +173,7 @@ Before asking the user, leader, or self-Q&A any requirement / design question, i
 - Prefer concrete repository evidence over speculation. If existing context answers a question, record the answer and do not ask it.
 - Ask only for decisions that remain unclear after inspection, or where the current spec, prior records, and implementation conflict.
 - In agent autonomous mode, base self-Q&A on the spec plus inspected project context, not on the spec alone.
-- Record inspected areas and context-derived answers in `.sdd/logs/<slug>.md` under `## HOOK 1 grill`.
+- Record inspected areas and context-derived answers in `.sdd/logs/<slug>.md` under `## Grill`.
 
 ### Scenario readiness
 
@@ -190,9 +190,9 @@ Start the grill stage on a spec-written / apply signal without an upfront confir
 2. **Goal summary** — one-to-two sentences on what the change delivers. Use the spec tool's "delivers" / "goal" field if present; otherwise derive from title + first paragraph. No confirmation step — if wrong, grilling surfaces it fast.
 3. **Project context** — concise notes from inspected specs / docs / code / tests, including recorded agreed decisions to reuse, answers already resolved from the repository, and new evidence/conflicts that warrant reopening affected decisions.
 
-User mode asks unresolved questions; autonomous mode self-Q&As against the spec and inspected context. Log decisions, open questions, resolutions, and escalations in `## HOOK 1 grill`. Record the examined inputs, actual companion invocation/outcome or unavailability reason, and any explicit skip; honor stop requests without treating an interrupted stage as passed. Scenario readiness without the companion is not evidence that its pass ran.
+User mode asks unresolved questions; autonomous mode self-Q&As against the spec and inspected context. Log decisions, open questions, resolutions, and escalations in `## Grill`. Record the examined inputs, actual companion invocation/outcome or unavailability reason, and any explicit skip; honor stop requests without treating an interrupted stage as passed. Scenario readiness without the companion is not evidence that its pass ran.
 
-## HOOK 2 test
+## Test stage
 
 Goal: establish appropriate verification for the completed acceptance scope and track remaining gaps before review. Use `testing`, when available, for cost/risk-based selection and timing, result validity, and resource cleanup; do not start a second testing policy or repeat unchanged evidence. Closeout requires sufficient current evidence, not a fresh full-application run by default.
 
@@ -209,11 +209,11 @@ Goal: establish appropriate verification for the completed acceptance scope and 
 - Precedence: (1) an explicit user statement ("tests run via `pnpm test`") wins and is remembered for the session; (2) project operating docs and custom runners; (3) common manifest markers, which only locate tooling — read [REFERENCE.md#test-framework-markers](REFERENCE.md#test-framework-markers) when docs do not name a runner.
 - **Ambiguity**: ask once (user mode) or pick the most likely runner for the project type and record the reasoning (agent autonomous). Remember the choice for the session either way.
 - **Deterministic BDD acceptance**: when requested, verify that the feature/binding execution path exists; an ordinary test framework does not establish this connection. Missing integration remains a gap: perform already-authorized scoped setup or route the unresolved choice, without silently falling back or asking for repeated approval.
-- **No test framework detected**: perform already-authorized setup and re-detect. Otherwise resolve the needed setup/waiver decision under "Decisions and authority"; do not silently waive requested deterministic acceptance. An explicit skip records `Status: skipped-no-framework`, and HOOK 3 runs with that disclosed. A halt records `Status: halted-severe`. In agent autonomous mode, when the spec implies test coverage (security, data correctness, behavior contracts), hold this gate as `halted-severe`, record the next decision needed, and continue independent work; otherwise the documented skip remains visible.
+- **No test framework detected**: perform already-authorized setup and re-detect. Otherwise resolve the needed setup/waiver decision under "Decisions and authority"; do not silently waive requested deterministic acceptance. An explicit skip records `Status: skipped-no-framework`, and the review stage runs with that disclosed. A halt records `Status: halted-severe`. In agent autonomous mode, when the spec implies test coverage (security, data correctness, behavior contracts), hold this gate as `halted-severe`, record the next decision needed, and continue independent work; otherwise the documented skip remains visible.
 
 ### Gate
 
-HOOK 2 writes to `.sdd/logs/<slug>.md` and session flags. It starts automatically only when the agreed acceptance scope is done, without an upfront ask; a worker relay or partial implementation checkpoint records remaining work and waits for scope completion.
+The test stage writes to `.sdd/logs/<slug>.md` and session flags. It starts automatically only when the agreed acceptance scope is done, without an upfront ask; a worker relay or partial implementation checkpoint records remaining work and waits for scope completion.
 
 1. **Coverage audit.** Map requirement deliverables and current scenario/Examples outcomes to bindings/tests and valid execution results. Record material gaps; add focused coverage when authorized, route through the leader in team work, or report gaps in a read-only assignment. Feed newly discovered business scenarios into feature, affected requirement/change records, and tests within authorized scope; escalate unresolved policy instead of changing expected behavior to match implementation.
 2. **Run needed checks.** Reuse evidence matching current inputs; execute missing/invalidated checks with the project runner. If execution is unavailable or requires permission, report the exact missing verification and obtain the needed input.
@@ -223,17 +223,17 @@ HOOK 2 writes to `.sdd/logs/<slug>.md` and session flags. It starts automaticall
    - Record each iteration in `.sdd/logs/<slug>.md` `### Attempts`.
    - Minor / Moderate issues are handled in-loop within authority; unresolved policy at any level and Severe issues follow "Decisions and authority".
 4. **Tests green** — set `tests-green:<slug>` only with current evidence; record `Status: passed`, inputs, scope, result, and tests added. Update completed/remaining deliverables and next action.
-5. **Override** — the user (or an agent with explicit authority) may explicitly waive ("skip tests, I know they fail" or equivalent). Record `Status: failed-overridden`, reason, authority, and scope/conditions. HOOK 3 may proceed with this waiver disclosed; do not set a passed `tests-green:<slug>` result.
+5. **Override** — the user (or an agent with explicit authority) may explicitly waive ("skip tests, I know they fail" or equivalent). Record `Status: failed-overridden`, reason, authority, and scope/conditions. The review stage may proceed with this waiver disclosed; do not set a passed `tests-green:<slug>` result.
 
-For normal closeout, HOOK 3 requires current test evidence or a recorded waiver/approved no-framework skip; skipped/overridden checks remain visible. A user may explicitly request diagnostic review of failing code without claiming test readiness or completion.
+For normal closeout, the review stage requires current test evidence or a recorded waiver/approved no-framework skip; skipped/overridden checks remain visible. A user may explicitly request diagnostic review of failing code without claiming test readiness or completion.
 
-## HOOK 3 review
+## Review stage
 
 Goal: review the deliverable against its spec and track findings to resolution before closeout. Use independent review when the project requires it or an authorized reviewer is available; label self-review honestly.
 
 ### Review path
 
-- Precondition for normal closeout: current test evidence, or a recorded waiver/approved no-framework skip. Check input validity, not just flag presence; otherwise return to HOOK 2. Diagnostic review explicitly requested on failing code may proceed with the failures disclosed and closeout still blocked.
+- Precondition for normal closeout: current test evidence, or a recorded waiver/approved no-framework skip. Check input validity, not just flag presence; otherwise return to the test stage. Diagnostic review explicitly requested on failing code may proceed with the failures disclosed and closeout still blocked.
 - Start on an in-scope archive / ship signal when current review evidence is missing. Honor explicit skips and stop requests; an interrupted review is not a passed review.
 - With a leader, request review assignment through that leader and consume the resulting evidence; do not spawn a competing reviewer.
 - Otherwise use `superpowers:requesting-code-review` or a harness review capability only if available and within the authorized collaboration mode.
@@ -248,14 +248,14 @@ Goal: review the deliverable against its spec and track findings to resolution b
 
 ## Skips, stops, and waivers
 
-- **HOOK 1 / HOOK 3** — honor an explicit skip before or during the stage; record `Status: skipped-by-user` with its scope so it is not immediately re-triggered.
-- **HOOK 2** — no silent skip. An explicit override phrase is required ("skip tests, I know they fail" or equivalent) → `Status: failed-overridden`.
+- **Grill / review** — honor an explicit skip before or during the stage; record `Status: skipped-by-user` with its scope so it is not immediately re-triggered.
+- **Test** — no silent skip. An explicit override phrase is required ("skip tests, I know they fail" or equivalent) → `Status: failed-overridden`.
 - **Stop is not skip.** A request to stop pauses work; it does not imply permission to skip checks and continue to closeout. An interrupted stage is not passed.
 - **Across sessions**, preserve a recorded skip/waiver within its explicit scope and conditions; re-evaluate only when those inputs change. Never silently convert skipped work to a passed gate.
 
 ## Progress log
 
-`.sdd/logs/<slug>.md`, one file per spec. Maintain a concise progress summary (current stage, completed/remaining deliverables, blockers, next action) referencing the project's task artifacts. Gate sections are `## Project layout`, `## HOOK 1 grill`, `## HOOK 2 test`, `## HOOK 3 review`, plus `## Punch list` when `punch-list` is in use; retain enough input/result and waiver evidence for handoffs. Update affected sections without discarding still-valid evidence from other checks. When creating or substantially updating a log, use the field template in [REFERENCE.md#decision-log-full-template-sddlogsslugmd](REFERENCE.md#decision-log-full-template-sddlogsslugmd) when available; otherwise record the fields named in this skill.
+`.sdd/logs/<slug>.md`, one file per spec. Maintain a concise progress summary (current stage, completed/remaining deliverables, blockers, next action) referencing the project's task artifacts. Gate sections are `## Project layout`, `## Grill`, `## Test`, `## Review`, plus `## Punch list` when `punch-list` is in use; retain enough input/result and waiver evidence for handoffs. Logs written under the earlier naming use `## HOOK 1 grill`, `## HOOK 2 test` and `## HOOK 3 review`; read them as the same sections and keep their existing headings. Update affected sections without discarding still-valid evidence from other checks. When creating or substantially updating a log, use the field template in [REFERENCE.md#decision-log-full-template-sddlogsslugmd](REFERENCE.md#decision-log-full-template-sddlogsslugmd) when available; otherwise record the fields named in this skill.
 
 - **Storage**: default location `.sdd/logs/<slug>.md` at the project root. These are working progress/evidence records, not a second spec. When handing off, give the successor an accessible record or copy the concise evidence into the existing handoff; a local ignored file alone is not a team handoff.
 - Follow the project's existing policy for tracking or ignoring these records. Do not modify `.gitignore` merely to run a gate; use an agreed private log location when repository writes are inappropriate. If a tracking-policy change is part of the task, keep it scoped and preserve existing entries.

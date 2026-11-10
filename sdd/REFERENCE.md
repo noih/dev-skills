@@ -58,7 +58,7 @@ overwrite an input reference and make an old result appear current.
 **Spec artifact path(s):** `<final path(s) spec tool wrote>`
 **Reason:** <heuristic that matched>
 
-## HOOK 1 grill
+## Grill
 **Status:** passed | blocked | skipped-by-user | skipped-no-grill-me | halted-severe
 **Mode:** user-mode | agent-autonomous | agent-with-leader
 **Spec examined:** <input reference>
@@ -77,7 +77,7 @@ overwrite an input reference and make an old result appear current.
 ### Escalations
 - <issue>. Path: <asked user | asked leader | affected dependency held>. Outcome: <...>.
 
-## HOOK 2 test
+## Test
 **Status:** passed | failed | blocked | failed-overridden | skipped-no-framework | halted-severe
 **Inputs / scope:** <tested input reference and covered deliverables/checks>
 **Command:** `<test command>`
@@ -91,7 +91,7 @@ N. <final state>
 ### Overrides
 - Reason: <why>. Authority: <who waived>. Scope/conditions: <what the waiver covers>.
 
-## HOOK 3 review
+## Review
 **Status:** passed | findings-open | blocked | skipped-by-user | halted-severe
 **Reviewed inputs / base:** <input reference and intended comparison base>
 **Reviewer / method:** <actual reviewer or clearly labelled self-review; independence requirement/result>
