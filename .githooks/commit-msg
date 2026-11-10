@@ -1,0 +1,32 @@
+#!/bin/sh
+# Public repository guard: reject a commit whose staged tree or message contains a private term.
+# Enable once per clone:  git config core.hooksPath .githooks
+# Terms live outside version control:
+#   .git/info/private-terms  one term per line (client, organization, project, person names)
+#   .git/info/private-dirs   one directory per line; every entry name inside it is a term
+set -u
+info=$(git rev-parse --git-path info)
+terms=$(mktemp)
+trap 'rm -f "$terms"' EXIT
+if [ -f "$info/private-terms" ]; then
+  grep -v '^[[:space:]]*$' "$info/private-terms" >>"$terms"
+fi
+if [ -f "$info/private-dirs" ]; then
+  while IFS= read -r dir; do
+    if [ -d "$dir" ]; then ls "$dir" >>"$terms"; fi
+  done <"$info/private-dirs"
+fi
+if [ ! -s "$terms" ]; then
+  echo "commit-msg: no private terms configured in $info/private-terms; refusing to commit to a public repository" >&2
+  exit 1
+fi
+status=0
+if git grep --cached -nIiwF -f "$terms" -- .; then
+  echo "commit-msg: staged files contain a private term (listed above); reword them" >&2
+  status=1
+fi
+if grep -v '^#' "$1" | grep -niwF -f "$terms"; then
+  echo "commit-msg: the commit message contains a private term (listed above); reword it" >&2
+  status=1
+fi
+exit $status
