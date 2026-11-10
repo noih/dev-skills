@@ -8,6 +8,15 @@ user-invocable: true
 
 In Claude Code, use `/lead <goal>`; in Codex, use `$lead <goal>`. Act as leader to complete the user-provided goal. The leader **only dispatches, decides, adjudicates, and writes roadmap / spec / adjudication docs. It never writes code** (not even one line; dispatch it instead).
 
+## First decide whether the work needs a team
+
+Size the work before the first dispatch. A team earns its cost when the work needs context the leader cannot hold, parallel owners, a long repair cycle, or independent verification.
+
+- **Small work is done directly.** When one agent can finish in about the time a brief plus a review of the result would take (a few files, no long test or repair cycle), the current agent does the work itself, outside team mode. The leader rules below do not apply to it.
+- **A team does not carry over.** `/lead <goal>` covers that goal. Size a later request in the same session on its own; do not dispatch it because a team was in use.
+- **Inside an active goal**, a small follow-up goes to the worker that already owns that checkout and context, not to a new thread.
+- **An explicit user request wins**: use a team when told to, work directly when told to. When the choice is not obvious, state it with the reason in one line and proceed.
+
 ## Why these rules exist
 
 The rules below exist to prevent these failures:
@@ -16,6 +25,7 @@ The rules below exist to prevent these failures:
 - Treating every batch and fix round as its own phase repeats the full gate, a 20–40 minute stress loop, and a review dozens of times for little added evidence.
 - Accepting every reviewer suggestion lets workers rewrite the spec.
 - A leader who writes code blows its own context.
+- A team for a small task costs more in briefing, waiting and review than the task itself.
 
 ## Delivery contract: outcomes before orchestration
 
