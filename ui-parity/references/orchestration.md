@@ -6,7 +6,7 @@ Choose the column from the top-level leader's family, not a worker's family. The
 
 | Responsibility | GPT family | Claude family |
 | --- | --- | --- |
-| Leader: standard, correctness, differences, decisions, final review | GPT 6 Astra / high | Fable 5.1 / high |
+| Leader: standard, correctness, differences, decisions, final review | GPT 6 Astra / high | Fable 5.2 / high |
 | Browser: operate, reproduce, assert state, capture, collect evidence | GPT 6.1 Terra / max | Sonnet 5.5 / medium |
 | Repair: implement and verify confirmed fixes | GPT 6.1 Sol / high | Opus 5.5 / medium |
 
