@@ -58,7 +58,8 @@ Optional, in parentheses after type. Describes the affected area: `auth`, `api`,
 
 - One blank line after body
 - Git trailer format: `Token: value` or `Token #value`
-- Common footers: `BREAKING CHANGE: ...`, `Closes #123`, `Fixes #123`, `Refs #456`
+- Common footers: `BREAKING CHANGE: ...` and an issue reference such as `Refs: PROJ-123`
+- Write issue references in the key format of the project's own tracker; the code host's issue numbering is not the default. Closing keywords such as `Closes #123` or `Fixes #123` make some hosts close the issue on merge; use them only when the project tracks its issues on that host and wants that automatic transition
 
 ### Breaking Changes
 
@@ -92,7 +93,7 @@ the `extends` key. The extended config will be merged with the base
 config using a deep merge strategy.
 
 BREAKING CHANGE: `extends` key in config file is now used for extending other config files
-Closes #123
+Refs: PROJ-123
 ```
 
 ## Commit Quality Rules
