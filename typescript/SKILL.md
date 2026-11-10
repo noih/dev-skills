@@ -31,7 +31,7 @@ user-invocable: false
 
 - Avoid `as` — prefer type guards or discriminated unions to let the compiler narrow automatically
 - Use `satisfies` to check a value against a contract while preserving inference; it does not validate or narrow unknown external data
-- For a justified assertion, use a single `as Xxx` and explain the invariant when it is not obvious. Double assertions bypass compatibility checks; reserve them for a verified interop mismatch at a narrow boundary, never as the default assertion syntax
+- For a justified assertion, use a single `as Xxx`. Double assertions bypass compatibility checks; reserve them for a verified interop mismatch at a narrow boundary, never as the default assertion syntax
 
 ## Type Narrowing
 
