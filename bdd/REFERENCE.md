@@ -1,6 +1,6 @@
 # BDD Examples
 
-Read for deterministic contract/adoption boundaries or scenario wording, boundary examples, structured inputs, and shared context/metadata. Business policies and values below are illustrative, not default requirements; tags, tables, and Background are optional. Gherkin snippets illustrate wording and may need a Feature wrapper to form a complete `.feature` file.
+Read for deterministic contract/adoption boundaries or scenario wording, error and boundary examples, structured inputs, and shared context/metadata. Business policies and values below are illustrative, not default requirements; tags, tables, and Background are optional. Gherkin snippets illustrate wording and may need a Feature wrapper to form a complete `.feature` file.
 
 ## Deterministic contract and adoption
 
@@ -15,11 +15,13 @@ Read for deterministic contract/adoption boundaries or scenario wording, boundar
 
 Link requirements and features using existing conventions; no mandatory one-to-one names or new registry. A direct Gherkin runner needs no generated test file. Either path must consume versioned feature/binding source without a model interpreting/translating scenarios or supplying bindings during generation/execution. This governs scenario-to-test plumbing; model calls in an AI product under test remain allowed. AI authoring before source review is allowed; AI-written standalone tests without this connection do not establish deterministic feature execution. Before running generated tests, regenerate from current inputs or verify that committed output matches them; read-only stale output is not current evidence.
 
+**Evidence follows the requirement's nature.** The feature/binding connection applies to requirements whose evidence is a scenario: flows and cross-role business rules. An endpoint contract, validation, error, or boundary requirement is evidenced by a named lower-layer test, and performance or scale by an external check recorded as outside the default run; neither is a downgrade of deterministic acceptance. Do not write a boundary case as a scenario merely to have evidence.
+
 For example, a feature branch changes the maximum reservation duration from 120 to 180 minutes. Record the delta/decision, update the branch's feature boundaries and affected bindings/product together, and retain the archive's 120-minute history. Before sync, main intent plus the agreed active delta explains the branch's intended behavior. After a merge or rollback, reconcile these artifacts; do not select the globally newest timestamp or overwrite history to resolve disagreement.
 
 **OpenSpec integration is a compatibility boundary.** Preserve the installed version's required Markdown structure. A scenario containing only a feature link, or a custom artifact schema, does not by itself prove native validator, sync/merge, or archive compatibility. Check those operations against the installed version before adopting such a representation. Record unresolved integration honestly; this skill does not supply a converter or claim working support. Existing historical snapshots may remain; new scenario snapshots must be mechanical, tied to the source revision, and labelled historical rather than maintained as current copies. Sync/archive occurs only within the task's authorization; report pending lifecycle work without claiming completion.
 
-**Adoption is scoped.** Deterministic execution is the default for new executable BDD acceptance and existing feature-driven projects; the task need not repeat the word deterministic. Legacy projects may keep their existing spec/test conventions until migration is in scope. When deterministic acceptance is requested but no feature runner/binding path exists, ordinary passing tests and Markdown scenarios remain useful evidence but do not satisfy that gate. During authorized adoption, draft `.feature` source and continue independent discovery while reporting the missing connection. Retain spec-required legacy Markdown during explicitly incomplete migration as transitional content, not a second current scenario authority; compatibility/integration gaps prevent migration completion. Reuse compatible project tooling and tests; do not demand wholesale migration, install tools for discussion/editorial work, or ask again for already-authorized setup. Unresolved material choices follow the existing authority rules.
+**Adoption is scoped.** Deterministic execution is the default for new executable BDD acceptance and existing feature-driven projects; the task need not repeat the word deterministic. Legacy projects may keep their existing spec/test conventions until migration is in scope. When deterministic acceptance is requested but no feature runner/binding path exists, ordinary passing tests and Markdown scenarios remain useful evidence but do not satisfy that gate for scenario-evidenced requirements. During authorized adoption, draft `.feature` source and continue independent discovery while reporting the missing connection. Retain spec-required legacy Markdown during explicitly incomplete migration as transitional content, not a second current scenario authority; compatibility/integration gaps prevent migration completion. Reuse compatible project tooling and tests; do not demand wholesale migration, install tools for discussion/editorial work, or ask again for already-authorized setup. Unresolved material choices follow the existing authority rules.
 
 **Acceptance checks identities and assertions.** Enumerate the required scenarios and each Scenario Outline's Examples rows from current source, then reconcile them with actual runner results and binding assertions. Existing runner identities or feature path/scenario/row references are sufficient; do not invent an ID service. Counts alone can conceal omitted cases replaced by unrelated ones. Inspect every required outcome, including unchanged state and prohibited side effects. Required skipped, pending, filtered/excluded, undefined, ambiguous, or otherwise unexecuted cases are gaps; a successful exit or unrelated green suite cannot pass them. Preserve retry/failure evidence and explicit waivers under existing testing rules. Keep additional security and implementation-risk tests.
 
@@ -46,6 +48,34 @@ Scenario: A member reserves an available room
 
 Selectors and navigation belong in test implementation unless the UI interaction is itself the specified contract. A journey may include several meaningful events when their sequence is what needs proof; do not split it into order-dependent scenarios merely to keep one When.
 
+## Business rule versus error enumeration
+
+For an illustrative rule that only members may reserve a room:
+
+```gherkin
+# Poor: an error-code catalogue; each row is a boundary-layer test case.
+Scenario Outline: Reject invalid reservation requests
+  When a reservation request is sent with <input>
+  Then the response status is <status>
+  And the error code is "<code>"
+
+  Examples:
+    | input            | status | code                |
+    | no session token | 401    | AUTH_REQUIRED       |
+    | room ID "abc"    | 400    | INVALID_ROOM_ID     |
+    | start after end  | 400    | INVALID_INTERVAL    |
+    | a guest account  | 403    | MEMBERSHIP_REQUIRED |
+
+# Better: one example states the business rule.
+Scenario: A guest cannot reserve a room
+  Given Sol is a guest and room 7 is available for 15:00–16:00
+  When Sol tries to reserve room 7 for 15:00–16:00
+  Then the reservation is refused
+  And room 7 remains available for 15:00–16:00
+```
+
+Each error's status, code, and field belong in a boundary-layer test that sends a real request through the application's entry point; similar errors share one table-driven test.
+
 ## Boundary Scenario Outline
 
 Illustrative agreed rule: reservations last at least 30 and at most 120 whole minutes, inclusive. Boundary rows distinguish inclusion from an off-by-one error; they are not a required number of examples.
@@ -65,7 +95,7 @@ Scenario Outline: Enforce reservation duration limits
     | 121     | rejected | 0       |
 ```
 
-Each row has fresh initial context. Do not let an accepted row consume availability for a later row.
+Each row has fresh initial context. Do not let an accepted row consume availability for a later row. Beyond a handful of rows, or when the values are technical, write a table-driven lower-layer test instead.
 
 ## Structured inputs
 
@@ -82,21 +112,17 @@ Scenario: Reject an overlapping reservation import
   And room 7 still has no reservations
 ```
 
-Use a Doc String when exact multiline content is relevant. Technical detail is appropriate when the technical contract itself is being specified. Illustrative agreed API contract: an unknown room returns HTTP 404 with this JSON body and creates no reservation.
+Illustrative agreed rule: a reservation for a room that does not exist is refused and creates nothing.
 
 ```gherkin
-Scenario: Report an unknown room
-  Given an authenticated member and no room with ID 99
-  When the member submits a valid reservation request for room 99
-  Then the response status is 404
-  And the JSON response body is
-    """json
-    {"code": "ROOM_NOT_FOUND", "roomId": 99}
-    """
+Scenario: Refuse a reservation for an unknown room
+  Given Mira is a member and room 99 does not exist
+  When Mira requests a reservation for room 99
+  Then the request is refused because the room does not exist
   And no reservation is created
 ```
 
-Assert JSON content semantically unless formatting is also part of the agreed contract.
+The response status and error body are asserted in a boundary-layer test, not in this scenario. Use a Doc String when exact multiline business content, such as an agreed notice text, is part of the rule; wire formats such as JSON bodies belong in boundary-layer tests, which assert them semantically unless formatting is part of the agreed contract.
 
 ## Background and metadata
 

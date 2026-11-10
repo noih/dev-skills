@@ -53,6 +53,7 @@ Before running tests, check project docs for:
 
 - preferred fast local command
 - integration vs unit test split
+- test-layer guide: which layer holds which tests, the example-row limit, and the evidence index format
 - database or fixture isolation strategy
 - commands for running multiple affected test files in one invocation
 - ignored, external, sandbox, or destructive test suites
