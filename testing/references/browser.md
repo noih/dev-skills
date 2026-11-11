@@ -10,11 +10,17 @@ Test at the required viewport, then downscale the saved evidence proportionally 
 
 ## Separate Automation Binary
 
-Do not automate the user's everyday Chrome app. Automation launched from `/Applications/Google Chrome.app` (Playwright's `chrome` channel, chrome-devtools MCP's default `stable` channel) can receive OS link-open events even when headless. Prefer a separate binary:
+Do not automate the user's everyday Chrome app. Automation launched from `/Applications/Google Chrome.app` (Playwright's `chrome` channel, which Playwright CLI uses when nothing is selected, and chrome-devtools MCP's default `stable` channel) can receive OS link-open events even when headless. Prefer a separate binary:
 
-- Playwright CLI / MCP: bundled Chromium via `PLAYWRIGHT_MCP_BROWSER=chromium`, or `"browser": { "browserName": "chromium" }` in `.playwright/cli.config.json`.
-- chrome-devtools MCP: `--executablePath` pointing at Chrome for Testing / Chromium, or `--channel=canary`.
-- If configuration cannot be changed within the task, disclose the constraint instead of silently falling back to system Chrome.
+- Playwright CLI / MCP: bundled Chromium via `--browser=chromium` on `open`, `PLAYWRIGHT_MCP_BROWSER=chromium`, or `"browser": { "browserName": "chromium" }` in `.playwright/cli.config.json`. The flag is accepted although `--help` lists only channels, and it needs no configuration change, so a missing config file is not a reason to use system Chrome.
+- Bundled browsers are not installed with the CLI, and their revision is tied to the CLI version. A "not installed" error names the fix (`playwright-cli install-browser chromium`): install it, and expect to repeat that after a CLI upgrade. Do not drop the selection to make the error go away.
+- Choose the engine by who uses the surface: `--browser=webkit` with `--device` for pages reached mainly from mobile Safari, bundled Chromium otherwise. WebKit is a separate binary too. Device emulation approximates layout and engine behavior; it is not a real-device check.
+- chrome-devtools MCP: `--executablePath` pointing at Chrome for Testing / Chromium, or `--channel=canary`, set in the server configuration.
+- If no separate binary can be installed or selected within the task, disclose the constraint instead of silently falling back to system Chrome.
+
+## Shared Browser Cache
+
+Playwright keeps browser builds in one per-user cache shared by the CLI and every project's own Playwright install. A build the current tool no longer uses may still be the pinned build of another project. Before removing builds, list which installations reference them with `playwright-cli install-browser --list`, and remove only builds no installation references.
 
 ## Close The Owned Session
 
@@ -22,7 +28,11 @@ Run `playwright-cli -s=<session> close` from its recorded workspace, then check 
 
 `playwright-cli close-all` and `kill-all` stop every session, including concurrent work. Use them only on explicit user request or after confirming no other session is in use.
 
-chrome-devtools MCP owns a browser for the MCP server's lifetime; its last page cannot be closed through the tools. Close only pages you opened with `close_page`; do not navigate or close user-selected pages. Use `--isolated` when a throwaway profile is enough.
+chrome-devtools MCP launches a browser on its first tool call and keeps it for the MCP server's lifetime, which is the whole agent session. No tool closes it, its last page cannot be closed, and there is no idle timeout, so one call leaves a browser running until the session ends. Close only pages you opened with `close_page`; do not navigate or close user-selected pages.
+
+When the DevTools work is done, stop the browser the server launched for this session: the process carrying `--remote-debugging-pipe` whose parent chain leads to the MCP server started by the current agent process, not another session's server. Verify that ancestry as below, stop that one process, and confirm it is gone. The server stays up and launches a fresh browser on the next call. Never stop a browser the server attached to (`--browserUrl`, `--wsEndpoint`, `--autoConnect`); that one is the user's.
+
+In the server configuration, `--isolated` gives each session a throwaway profile, so concurrent sessions do not contend for one profile directory, and `--headless` keeps a browser that outlives its use from holding a window open.
 
 ## Diagnose Before Signalling
 
@@ -32,5 +42,7 @@ Debugging flags locate candidates; they do not prove ownership or that a browser
 pgrep -fl 'remote-debugging-pipe|remote-debugging-port'  # candidates only
 ps -o pid=,ppid=,lstart=,command= -p <pid>               # compare with recorded identity
 ```
+
+A browser launched by an MCP server has no PID recorded at launch. Establish ownership by ancestry instead: repeat the `ps` call on each `ppid`, from the candidate up to the MCP server and on to the current agent process. A candidate whose chain reaches a different agent process belongs to another session.
 
 Stop only the verified task-owned daemon (for example, a leftover `@playwright/cli` node daemon) together with its browser descendants. Otherwise the daemon may relaunch the browser. Recheck survivors; never match `Google Chrome` alone, which also kills the user's browser. Inspection/cleanup errors remain unresolved rather than proof of exit. Also verify removal of disposable profiles/data under the task's resource contract.

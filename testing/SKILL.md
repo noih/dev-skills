@@ -1,6 +1,6 @@
 ---
 name: testing
-description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, running browser QA or temporary test processes, managing test data and artifacts, verifying their cleanup, or balancing fast feedback with confidence."
+description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, driving a browser for QA or to preview or screenshot a UI change, running temporary test processes, managing test data and artifacts, verifying their cleanup, or balancing fast feedback with confidence."
 user-invocable: false
 ---
 
@@ -120,20 +120,20 @@ Reuse compatible build caches without a new large copy per retry. Disposable rev
 
 ## Browser Tool Selection
 
-- **Playwright CLI defaults** to everyday UI checks, bug reproduction, forms, responsiveness, console/network inspection and mocking. Use `playwright-cli` when available, through PATH, with `-s=<project>` and a task suffix for concurrency.
+- **Playwright CLI defaults** to everyday UI checks, bug reproduction, forms, responsiveness (`resize`, `--device`), console/network inspection and mocking. Use `playwright-cli` when available, through PATH, with `-s=<project>` and a task suffix for concurrency. When it is missing or broken, report that with its repair path before substituting another tool; a substitute follows the same session hygiene.
 - **agent-browser** is useful when its `read`, `batch`, or `diff` materially simplifies extraction, one-off flows, or snapshot/screenshot/URL comparisons. Keep a flow in one tool; diagnose a failed first attempt before switching. Neither CLI is assumed more token-efficient without measurements.
 - **Playwright Test** supplies repeatable browser regressions, critical-flow assertions and cross-browser coverage through the project runner. A successful CLI interaction verifies that run, not a persistent regression test.
-- **Chrome DevTools** serves performance, CPU/heap, or diagnostics unavailable in the current tool. For a user-selected existing tab, use the tool that can access it.
+- **Chrome DevTools** serves performance, CPU/heap, or diagnostics unavailable in the current tool. A convenience one CLI lacks, such as viewport or device emulation, is not such a diagnostic. For a user-selected existing tab, use the tool that can access it.
 
 These are workflow preferences, not exclusive capabilities: both CLIs support snapshots, element refs, sessions and debugging.
 
 ### Browser Session Hygiene
 
-Before starting, taking over, reconfiguring, or diagnosing an automation browser, read the relevant [browser recipes](references/browser.md), including a mid-task transition to browser work. Routine non-browser tests do not need it. Missing/unreadable recipes must be disclosed; continue independent work or already-understood safe actions, holding only operations whose isolation, ownership, or cleanup cannot be established. Do not silently fall back to a personal browser or claim an unread reference was read.
+Before starting, taking over, reconfiguring, or diagnosing an automation browser, read the relevant [browser recipes](references/browser.md), including a mid-task transition to browser work and a quick preview or screenshot of a change. Routine non-browser tests do not need it. Missing/unreadable recipes must be disclosed; continue independent work or already-understood safe actions, holding only operations whose isolation, ownership, or cleanup cannot be established. Do not silently fall back to a personal browser or claim an unread reference was read.
 
-- Do not automate the user's everyday Chrome app; use a separate automation binary. If required configuration cannot be changed, report that constraint rather than silently using system Chrome. Automation browsers can outlive the agent and affect the user's normal link handling.
+- Do not automate the user's everyday Chrome app; use a separate automation binary, selected per command when no project configuration exists. If none can be installed or selected, report that constraint rather than silently using system Chrome. Automation browsers can outlive the agent and affect the user's normal link handling.
 - Close only task-owned sessions/pages and verify session inventory **and** the recorded daemon/browser process tree; a successful close or empty registry alone is insufficient. Retained sessions need the accepted ownership contract above.
-- `close-all` / `kill-all` affect other sessions: use only on explicit user request or after confirming none other is in use. Do not navigate or close user-selected pages. With chrome-devtools MCP, close only pages you opened; its shared long-lived browser/last page is not disposed of by page cleanup.
+- `close-all` / `kill-all` affect other sessions: use only on explicit user request or after confirming none other is in use. Do not navigate or close user-selected pages. With chrome-devtools MCP, close only pages you opened; its long-lived browser/last page is not disposed of by page cleanup, so stop the browser it launched for this session when the DevTools work ends.
 - Debug flags and PPID 1 locate candidates, not proof of ownership or disuse. Revalidate PID identities before stopping the owned daemon and browser descendants, recheck survivors, and never match `Google Chrome` alone. Stopping the browser without its owning daemon can allow relaunch.
 
 ## Repetition And Stress Runs
