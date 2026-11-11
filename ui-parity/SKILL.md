@@ -11,7 +11,7 @@ Compare a reference and an implementation, fix confirmed in-scope UI/UX differen
 
 - Start with the user's scope, accepted exceptions, reference, implementation, and permission to repair. A request to compare **only** remains read-only. This skill does not authorize publication, external messages, production mutations, new tracking systems, or unrelated work.
 - The reference is the default UI standard, not an infallible business specification. Current explicit decisions and applicable requirements take precedence. Consult backend contracts/implementation when they clarify meaning; unfinished backend code is evidence, not automatic authority. Do not introduce API functional testing unless requested or necessary for an authorized change.
-- The leader owns the common quality standard, correctness judgments, ambiguous decisions, and final acceptance. Browser workers collect facts; repair workers implement confirmed changes. Routine repetitions can follow a leader's recorded standing decision. Do not send every color mismatch to the user.
+- The leader is the agent that holds the task. It owns the common quality standard, correctness judgments, ambiguous decisions and final acceptance, and repairs confirmed differences itself. Browser workers collect facts. A repair worker is used only for an independent repair with disjoint file ownership; "the repairer" below means whichever of the two made the change. Routine repetitions can follow a leader's recorded standing decision. Do not send every color mismatch to the user.
 - The leader investigates conflicts and decides within delegated authority. Missing grounds first trigger a question-directed evidence request to an existing appropriate operator; ask the user only for a remaining product decision that evidence and authority cannot settle. Hold that dependency and continue independent work; never bury it as a pass.
 - For an unavailable backend capability, implement the achievable UI with an isolated contract-shaped mock when authorized. Label the evidence as mocked; do not add mock labels, autofill buttons, or fake-success paths to the product merely for testing convenience. Preserve actual security and business constraints.
 
@@ -20,11 +20,11 @@ Compare a reference and an implementation, fix confirmed in-scope UI/UX differen
 | When | Read |
 | --- | --- |
 | Leader: kickoff, grouping, dispatch, relay | [Orchestration](references/orchestration.md) |
-| Leader: calibration and decisions; repair worker: assigned criteria | [Judgment criteria and examples](references/criteria.md) |
-| Browser worker: before capture; repair worker: invalidation; report owner and leader: status, freshness and review | [Evidence and report contract](references/evidence.md) |
+| Leader: calibration and decisions; repairer: assigned criteria | [Judgment criteria and examples](references/criteria.md) |
+| Browser worker: before capture; repairer: invalidation; report owner and leader: status, freshness and review | [Evidence and report contract](references/evidence.md) |
 | Report owner: start the report | [Report outline](assets/report-outline.md) |
 
-These files travel with the skill; no sibling installation is required. When available, `lead` supplies harness coordination and resource ownership, `testing` supplies proportionate execution rules, and `punch-list` handles later user findings. Share decisions and evidence rather than creating duplicate gates. The task-specific model profile in Orchestration applies to this workflow; explicit user overrides always win. Preserve applicable host safety and ownership rules.
+These files travel with the skill; no sibling installation is required. When available, `delegate` supplies the rules for handing work to another agent, `testing` supplies proportionate execution rules, and `punch-list` handles later user findings. Share decisions and evidence rather than creating duplicate gates. The task-specific model profile in Orchestration applies to this workflow; explicit user overrides always win. Preserve applicable host safety and ownership rules.
 
 ## 1. Establish one acceptance contract
 
@@ -50,7 +50,7 @@ Use independent browser sessions and data ownership for parallel groups. Tabs al
 
 1. Browser worker reproduces the same semantic state on both sides and asserts it before capturing. Record suspected differences and facts, not unearned PASS labels.
 2. Leader independently compares each pair and supporting behavior/source using the ordered decision standard, even without worker findings. Use the Evidence contract's canonical dispositions; insufficient facts require narrow evidence collection before guessing or escalating product policy. Unsupported taste or “minor/cosmetic” is not grounds for accepting a deviation. Reuse standing decisions for repeated, unambiguous defects.
-3. Repair worker fixes the responsible layer within assigned ownership and performs focused functional checks. Preserve user work. Return changed components/styles/fixtures, revision, validation and **all affected comparison IDs and sides**, including dependent cases and visible background content. Leader checks impact completeness.
+3. The repairer fixes the responsible layer within its ownership and performs focused functional checks. Preserve user work. Record or return changed components/styles/fixtures, revision, validation and **all affected comparison IDs and sides**, including dependent cases and visible background content. Leader checks impact completeness.
 4. On each known change, immediately persist affected-side invalidation, invalidate related review and union/deduplicate pending IDs in the existing index; surface **已過時 / 需要更新** in the draft report immediately. Follow the Evidence contract's bounded capture checkpoints: collect diagnostic evidence when needed, but formally recapture affected states once related repairs are stable, not after every small edit or only at project end.
 5. Leader reviews replacement pairs in the actual report and closes findings only when current evidence meets the standard. Keep unaffected valid evidence with true capture versions. Repeated invalidation or failures require investigation of fixtures/state/spec/ownership or context degradation before another capture attempt; never loop blindly or weaken acceptance.
 

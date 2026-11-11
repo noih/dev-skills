@@ -63,15 +63,21 @@ If the project provides a custom runner, use it unless you are explicitly diagno
 
 ## Resource Ownership (Including Solo Work)
 
-These rules apply to ordinary development, debugging, builds, and review without a leader or subagents.
+These rules apply to ordinary development, debugging, builds, and review without subagents.
 
 - Before creating temporary resources, identify the project's teardown commands and record ownership in existing task notes: process/session identity, exact paths, purpose, cleanup method, and lifetime. Include test data, browser profiles, snapshots/worktrees, isolated build outputs, and containers/volumes. Distinguish disposable resources from retained project caches and shared services.
 - Reuse the project's runner and compatible build cache. For an isolated experiment or review, prefer one task-owned temporary root containing its disposable source copy, build output, and test data. Keep deliverables and small reproduction evidence outside the disposable root before removal. Do not create another large cache per retry by default.
-- Reuse compatible task-owned state while the same work continues; compaction or worker relay alone does not end it. Shared phase services keep one stable owner. Transfer needed resources only when the successor (or leader) accepts ownership and can access them; record reason and expiry, checking access/health rather than repeating acceptance. Close unused or non-transferable handles without rebuilding the rest. Until acceptance the current owner remains responsible; with no recipient, the current task still owns cleanup.
+- Reuse compatible task-owned state while the same work continues; compaction or a handoff alone does not end it. Shared phase services keep one stable owner. Transfer needed resources only when the successor (or delegating agent) accepts ownership and can access them; record reason and expiry, checking access/health rather than repeating acceptance. Close unused or non-transferable handles without rebuilding the rest. Until acceptance the current owner remains responsible; with no recipient, the current task still owns cleanup.
 - At the actual experiment/review/phase end, including failure or cancellation, save minimal evidence, stop owned writers, release handles, remove disposable data, and verify both process exit and path removal. Confirm exact ownership and no active consumer before deletion; names, age, or a temp location are insufficient. Revalidate PID identities before signalling leftovers. Preserve shared resources, unrelated work and uncommitted changes; report blocked inspection/cleanup with its owner and error instead of assuming success. After an interrupted run, reconcile recorded resources before replacements. Thread archival, deletion or context handoff proves neither exit nor disk reclamation.
 - For large builds or repeated suites, check free space and relevant output sizes before starting and at phase boundaries. Keep reusable project caches deliberately, with an owner and a size/expiry review point; prune only when no build or consumer uses them. If space is insufficient, resolve owned leftovers or report the constraint before launching more heavy work. Do not globally wipe caches to make room.
 
 When running tests or browser QA, also apply the `testing` skill's fixture and process teardown rules when available. Fix recurring leaks in the responsible fixture/runner when in scope; manual cleanup alone does not prevent the next run from leaking.
+
+## Long-Running Work
+
+- Give a rough elapsed estimate that includes diagnosis, coordination and likely rework, and name the next usable capability and the evidence still blocking it. Mark uncertainty rather than inventing precision.
+- When the estimate is exceeded, the user questions the delay, or two consecutive checkpoints close no acceptance gap and resolve no causal uncertainty, change the plan before continuing: simplify the harness, consolidate the work, or choose a narrower coherent slice while keeping the remaining requirements explicit. Do not answer with a larger proof pack or a lower bar.
+- Keep a short current-state note in the existing task record while context is healthy: goal and authority, decisions and rejected hypotheses, next action, valid and invalidated evidence, dirty files and live resources. A successor resumes from that note and its links, without resetting failure history, budget or valid evidence.
 
 ## Subagents
 

@@ -12,7 +12,7 @@ This skill arranges timing, scope, and records. `testing` decides what evidence 
 
 ## Entry
 
-Start after the feature's development workflow has closed out, or when the user is testing delivered work and reporting what they see. Do not use it to bypass an unfinished `sdd` gate. If the current agent is a leader under `lead`, it does not run this skill itself: it hands the batch to one worker and keeps ownership and adjudication. If another leader is managing the work, report findings to it.
+Start after the feature's development workflow has closed out, or when the user is testing delivered work and reporting what they see. Do not use it to bypass an unfinished `sdd` gate. A delegated agent does not start this skill on its own: it reports the findings to the agent that briefed it.
 
 Inherit the delivered feature's requirements, agreed scenarios, valid evidence, known gaps, and linked issue. Do not re-grill, re-plan, or re-verify delivered work by default. If a fix reveals that the delivered feature never actually worked, mark the affected delivery evidence invalid in the primary record, report it at the next checkpoint, and let the user decide whether the item stays here or returns to the development workflow as unfinished scope.
 
@@ -53,7 +53,7 @@ Escalation parks only that item and anything depending on it; the rest continue.
 
 ## Fix
 
-One finding, one fix. Anything else noticed along the way becomes a new log entry, never an edit made in passing. Work solo: the current agent writes the code; do not dispatch subagents or `lead`.
+One finding, one fix. Anything else noticed along the way becomes a new log entry, never an edit made in passing. Work solo: the current agent writes the code; do not dispatch subagents to make the fixes.
 
 Do not run scheduled batch verification or review after individual fixes; the checkpoint does that. Focused checks under `testing` remain allowed at any time: a red-then-green run of a regression test written first, a small `playwright-cli` reproduction or confirmation, a diagnostic run for a failure, a check the user asks for, or a check before a later fix builds on this one. For each item, answer `testing`'s evidence-gap question once and record the result; items sharing one logical change may be answered together. Shared styles, reordering that changes keyboard or accessibility behavior, and copy with legal meaning need their own answer.
 
@@ -83,13 +83,13 @@ Before a completion claim, every item is `verified`, `user-checked`, `not-needed
 ## Hand off
 
 - **`sdd`**: starts after closeout and does not re-run its stages. A fix that changes spec'd behavior returns to the applicable decision or implementation stage through the spec tool; the spec is not edited first to justify the fix. Affected `tests-green` evidence is invalidated under `testing`'s reuse rules and refreshed at the checkpoint.
-- **`lead`**: not used for dispatch. A leader hands the batch to one worker; an escalated item may later become a `/lead` goal.
+- **`delegate`**: not used to split the batch, which stays with the current agent. A required independent review still follows it. An escalated item returns to the development workflow.
 - **`issue-tracking`**: fixed items stay on the delivered feature's issue as checkpoint summaries; escalations become follow-ups under its triage and authorization rules. On a closed issue, comment; reopen or open a new issue only per project policy and the user's choice.
 - **`commit-conventions`**, **`testing`**, **`code-review`**: unchanged authority.
 
 ## Out of scope
 
 - New behavior, feature development, architecture changes.
-- Team dispatch, worker scheduling, model selection.
+- Delegating work to other agents and model selection.
 - A second completion standard, evidence policy, or tracking system.
 - Standalone smoke-test execution or full browser suites.

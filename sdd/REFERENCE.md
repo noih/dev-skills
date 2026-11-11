@@ -60,7 +60,7 @@ overwrite an input reference and make an old result appear current.
 
 ## Grill
 **Status:** passed | blocked | skipped-by-user | skipped-no-grill-me | halted-severe
-**Mode:** user-mode | agent-autonomous | agent-with-leader
+**Mode:** user-mode | agent-autonomous | delegated-agent
 **Spec examined:** <input reference>
 **Companion:** <actual invocation method and outcome, or missing/unavailable/incompatible reason; skipped-no-grill-me records a skipped companion pass, not proof it ran>
 **Project context inspected:** <specs / plans / docs / files / modules / tests checked before questions>
@@ -75,7 +75,7 @@ overwrite an input reference and make an old result appear current.
 ### Open questions resolved
 - <question>. Resolution: <how>. Reason: <why>.
 ### Escalations
-- <issue>. Path: <asked user | asked leader | affected dependency held>. Outcome: <...>.
+- <issue>. Path: <asked user | asked delegating agent | affected dependency held>. Outcome: <...>.
 
 ## Test
 **Status:** passed | failed | blocked | failed-overridden | skipped-no-framework | halted-severe

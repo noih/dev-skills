@@ -1,20 +1,22 @@
 # Orchestration
 
+"Leader" here is the agent that holds the task and its context. It judges, repairs and accepts; it is not a dispatcher.
+
 ## Roles and model profiles
 
 Choose the column from the top-level leader's family, not a worker's family. These are requested model labels and reasoning levels; resolve actual provider identifiers through the host's inventory before dispatch.
 
 | Responsibility | GPT family | Claude family |
 | --- | --- | --- |
-| Leader: standard, correctness, differences, decisions, final review | GPT 6 Astra / high | Fable 5.2 / high |
-| Browser: operate, reproduce, assert state, capture, collect evidence | GPT 6.1 Terra / max | Sonnet 5.5 / medium |
-| Repair: implement and verify confirmed fixes | GPT 6.1 Sol / high | Opus 5.5 / medium |
+| Leader: standard, correctness, differences, decisions, repair, final review | The session's model and reasoning, as the user selected | The session's model and reasoning, as the user selected |
+| Browser worker, when used: operate, reproduce, assert state, capture, collect evidence | GPT 6.1 Terra / max | Sonnet 5.5 / medium |
+| Repair worker, only for an independent parallel repair: implement and verify confirmed fixes | GPT 6.1 Sol / high | Opus 5.5 / medium |
 
-Explicit user configuration overrides this profile. If a general orchestration skill supplies different defaults, use this workflow's specialized profile for these three roles and include it in briefs. Don't modify global model preferences. Record requested and effective models/efforts; a requested name does not prove active configuration. If unavailable, disclose the exact mismatch and obtain a task-level replacement decision before dependent dispatch. Continue independent work. Never silently reduce effort, cross families, or invent an identifier.
+Explicit user configuration overrides this profile. If a general orchestration skill supplies different defaults, use this workflow's specialized profile for the browser and repair worker roles and include it in briefs. Don't modify global model preferences. Record requested and effective models/efforts; a requested name does not prove active configuration. If unavailable, disclose the exact mismatch and obtain a task-level replacement decision before dependent dispatch. Continue independent work. Never silently reduce effort, cross families, or invent an identifier.
 
-Use the host's native thread/agent controls; the workflow must not depend on BB. In BB, follow its current orchestration guide/`lead` skill when available: inspect `bb status --json`, provider inventory and spawn help; set explicit provider/model/reasoning and `--permission-mode auto`. Otherwise use supported equivalents. Verify results. If parallelism is unavailable, run coherent groups sequentially without pretending multiple agents ran. If the required separate roles cannot run, disclose the limitation and settle a reduced-role plan rather than silently having the leader do everything.
+Use the host's native thread/agent controls; the workflow must not depend on BB. In BB, follow its current orchestration guide and the `delegate` skill when available: inspect `bb status --json`, provider inventory and spawn help; set explicit provider/model/reasoning and `--permission-mode auto`. Otherwise use supported equivalents. Verify results. If parallelism is unavailable, run coherent groups sequentially without pretending multiple agents ran. The leader captures itself when the volume fits its context alongside the judging and repair work. Use browser workers when captures would crowd that context or independent groups can run in parallel; if they are warranted but cannot run, disclose the limitation and settle a reduced plan. A leader that made a repair does not describe its review of that recapture as independent.
 
-The leader reads source and reviews evidence to adjudicate; it does not implement repairs or perform every capture. Browser workers can flag suspected differences, investigate state mismatches, and prepare report entries; they don't decide business correctness or final acceptance. Repair workers resolve implementation details under approved decisions; changed business meaning returns to the leader.
+The leader reads source, reviews evidence, adjudicates and implements repairs; it does not perform every capture. Only the leader spawns workers. Browser workers can flag suspected differences, investigate state mismatches, and prepare report entries; they don't decide business correctness or final acceptance. A repair worker is used only for an independent repair with disjoint file ownership or an isolated change; it resolves implementation details under approved decisions, and changed business meaning returns to the leader.
 
 ## Grouping to minimize total cost
 
@@ -23,7 +25,7 @@ Optimize context reuse, handoffs, repeated setup, waiting, and accumulated conte
 - Keep cases together when they share roles, entities, setup, transitions, UI primitives or source entrypoints. A related create → review → history sequence benefits from continuity.
 - Separate independent workflows when setup/concepts differ enough that explaining them to the existing worker costs as much as briefing a new one.
 - Prefer the same browser worker for recapture while its context/resources remain useful. Don't keep it responsible indefinitely or assign it every case.
-- Give a shared primitive one repair owner and distribute its impact list through the leader. Independent repair workers need disjoint file ownership or isolated changes with an integration owner. No permanent shared-component role by default.
+- A shared primitive has one repair owner, normally the leader, who records its impact list. Independent repair workers need disjoint file ownership or isolated changes with an integration owner. No permanent shared-component role by default.
 - Report assembly belongs to an existing suitable worker; no mandatory fourth agent. The leader still reviews the assembled artifact.
 - Parallel captures require independent authentication/storage **and** non-conflicting backend/fixture state. Separate tabs suffice only when independence is demonstrated. Serialize shared-record mutations, service restarts, and capture against changing builds.
 
@@ -46,18 +48,18 @@ Escalation: facts + evidence + question to leader; no product decision
 Cleanup: resource identities, retention/transfer owner and expiry
 ```
 
-Browser workers read the evidence contract and assigned criteria; repair workers read its invalidation rules, confirmed findings, relevant criteria and source context. Don't make everyone reread the entire report/transcript. Return a compact delta: completed IDs, evidence paths, factual findings, changed files/impact, unresolved questions and cleanup/resources. Keep one shared decision/evidence index, not competing checklists.
+Browser workers read the evidence contract and assigned criteria; a repair worker reads its invalidation rules, confirmed findings, relevant criteria and source context. Don't make everyone reread the entire report/transcript. Return a compact delta: completed IDs, evidence paths, factual findings, changed files/impact, unresolved questions and cleanup/resources. Keep one shared decision/evidence index, not competing checklists.
 
 ## Communication and context
 
-Batch ordinary findings at coherent checkpoints. Escalate early when a decision blocks dependent work or a shared defect would invalidate many captures. The leader can approve a standing rule such as “return-confirmation buttons in this component use the reference primary style”; the repair worker applies it consistently and reports scope. Avoid a round trip per instance without transferring acceptance authority.
+Batch ordinary findings at coherent checkpoints. Escalate early when a decision blocks dependent work or a shared defect would invalidate many captures. The leader can approve a standing rule such as “return-confirmation buttons in this component use the reference primary style”; the repairer applies it consistently and records its scope. Avoid a round trip per instance without transferring acceptance authority.
 
 For `evidence-needed`, the leader asks an existing appropriate browser/operator worker: **unknown question; exact role/data/context and action/state sequence; facts/screenshots needed; decision the answer enables**. Collect obtainable facts before guessing or escalating a product question. Return observations or the specific collection limit; refine requests when new information warrants it, not through unchanged repeated requests. No full rerun or additional permanent role is implied.
 
-The leader schedules capture checkpoints by related workflow or shared-component repair batch using the Evidence contract. Repair workers supply impact; browser workers capture related groups. Focused functional verification continues during repairs; deduplicated report capture waits for that batch's stability, not the whole project. Diagnostic captures remain available for decisions.
+The leader schedules capture checkpoints by related workflow or shared-component repair batch using the Evidence contract. The repairer supplies impact; browser workers capture related groups. Focused functional verification continues during repairs; deduplicated report capture waits for that batch's stability, not the whole project. Diagnostic captures remain available for decisions.
 
-Assess context at meaningful checkpoints. Around 50–60% usage is a cue to plan remaining work and handoff reserve; near 80%, avoid starting a broad unrelated group. These are planning cues, not reasons to interrupt transactions or force replacement. Repeated compaction, lost state, or excessive rereading favors a new worker. A coherent small remaining task may favor finishing with the current one.
+Assess context at meaningful checkpoints. Around 50–60% usage is a cue to plan remaining work and handoff reserve; near 80%, avoid starting a broad unrelated group. These are planning cues, not reasons to interrupt transactions or force replacement. A worker with repeated compaction, lost state, or excessive rereading returns what it has, and the leader briefs a new one from the index. A coherent small remaining task may favor finishing with the current one.
 
-Maintain a short current-state handoff: decisions, locations/revisions and dirty ownership, done/pending IDs, exact next action, valid/stale evidence, and active resources/access. Transfer ownership explicitly; tool-local handles may not transfer. Relays don't reset acceptance scope, require full recapture, or justify rebuilding. Apply the same discipline to the leader; its successor inherits review coverage and unresolved decisions, not thousands of images loaded again.
+Maintain a short current-state handoff: decisions, locations/revisions and dirty ownership, done/pending IDs, exact next action, valid/stale evidence, and active resources/access. Transfer ownership explicitly; tool-local handles may not transfer. Relays don't reset acceptance scope, require full recapture, or justify rebuilding. The leader hands over only when it can no longer reconcile its own record with the evidence; its successor inherits review coverage and unresolved decisions, not thousands of images loaded again.
 
 Reconcile worker status and resource ownership at closeout. Close only owned sessions and verify owned browser/daemon processes, not just an empty tool registry. Retained services need an accepted owner, reason and expiry. No global browser cleanup or reference reset commands.
