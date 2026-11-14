@@ -4,7 +4,7 @@ Read the relevant section before selecting reporter overrides, piped/background 
 
 ## Concise Streaming Output
 
-Keep file/binary boundaries, per-test progress and final summaries visible during long runs. Avoid:
+Keep file/binary boundaries, per-test progress and final summaries visible during long runs, in the terminal or in a log whose path the runner prints before it starts. Avoid:
 
 - `command | tail -N`: output is buffered until EOF, hiding progress versus a hang/crash.
 - `command &> /dev/null`: no diagnostic trail; failure forces another run.
@@ -35,6 +35,23 @@ Only rerun with verbose output when the failure needs more context. Target the f
 | pytest | `pytest -v --tb=long -k "<test name>"` |
 | cargo nextest | `cargo nextest run --no-capture "<test name>"` |
 | cargo test | `cargo test "<test name>" -- --nocapture` |
+
+## Summary Runner And Failure Record
+
+A project runner built for an agent to read prints the log path first, then only the outcome:
+
+```text
+log <run-root>/<scope>.log
+tests 412, pass 410, fail 2
+FAIL test/orders.test.ts:88 rejects a duplicate invoice after timeout
+  Expected status 409, received 500
+FAIL test/refunds.test.ts:31 refunds once when the webhook is replayed
+  Expected 1 refund, found 2
+hidden causes: 1 in <run-root>/<scope>.hidden.log
+```
+
+- `<run-root>` is a directory the runner creates and owns under the resource lifecycle rules. The complete output, including per-file progress, goes to the log there. A verbose switch restores it to the terminal; a runner started inside another runner uses it, so the outer run keeps one log.
+- A failed browser scenario writes one bounded, redacted text file and prints its path: the error, a text snapshot of the page, each failed request of the scenario (no response, an error status, or an error the application reports in a success response) with method, URL and the start of its body, the browser's console errors, and the service log entries for that scenario or a link to them. Mark truncation and any diagnostic that could not be captured.
 
 ## Retain Output And Capture The Real Result
 
