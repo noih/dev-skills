@@ -67,6 +67,7 @@ Choose the entrypoint for the task below; this is not a mandatory pipeline. Scen
 | `issue-tracking` | Natural language / auto | Record meaningful progress, blockers and follow-ups in the chosen tracker/local record under existing authority; no automatic mirror or extra gate. |
 | `road` | Explicit / natural language | Manage ordered Work Items pointing to specs and synchronize their location-based status; this is distinct from implementation or issue completion. |
 | `daily-work-report` | Explicit / natural language | Draft a PM-facing daily update from work evidence or supplied notes; not implementation, code review or time tracking. |
+| `video-notes` | Explicit / natural language | Turn accessible video files into connected notes using speech, on-screen text, and visual evidence; save to the user's chosen knowledge system. Acquisition is separate. |
 | `commit-conventions` | Auto | Stage/split coherent commits or write English Conventional Commit messages without AI-attribution trailers, preserving WIP/handoff semantics. |
 | `comments` | Auto | Apply the source-comment prohibition and consumed-OpenAPI-JSDoc exception; distinguish daily work, authorized adoption and established enforcement. |
 | `code-quality` | Auto | Assess naming, simplicity, abstractions, errors and maintainability without unrelated cleanup. |
