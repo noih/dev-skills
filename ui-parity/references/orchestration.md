@@ -9,8 +9,8 @@ Choose the column from the top-level leader's family, not a worker's family. The
 | Responsibility | GPT family | Claude family |
 | --- | --- | --- |
 | Leader: standard, correctness, differences, decisions, repair, final review | The session's model and reasoning, as the user selected | The session's model and reasoning, as the user selected |
-| Browser worker, when used: operate, reproduce, assert state, capture, collect evidence | GPT 6.1 Terra / max | Sonnet 5.5 / medium |
-| Repair worker, only for an independent parallel repair: implement and verify confirmed fixes | GPT 6.1 Sol / high | Opus 5.5 / medium |
+| Browser worker, when used: operate, reproduce, assert state, capture, collect evidence | GPT 6.1 Terra / high | Sonnet 5.5 / high |
+| Repair worker, only for an independent parallel repair: implement and verify confirmed fixes | GPT 6.2 Sol / high | Opus 5.5 / medium |
 
 Explicit user configuration overrides this profile. If a general orchestration skill supplies different defaults, use this workflow's specialized profile for the browser and repair worker roles and include it in briefs. Don't modify global model preferences. Record requested and effective models/efforts; a requested name does not prove active configuration. If unavailable, disclose the exact mismatch and obtain a task-level replacement decision before dependent dispatch. Continue independent work. Never silently reduce effort, cross families, or invent an identifier.
 
