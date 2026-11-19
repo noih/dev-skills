@@ -1,32 +1,27 @@
 ---
 name: delegate
-description: "Use when: about to spawn a subagent, thread or worker; deciding whether to hand work to another agent; the user asks to dispatch, parallelize, or use a reviewer / QA / browser agent; choosing a delegated agent's model; or acting on a delegated agent's report. The agent that holds the context plans, decides and verifies, and delegates only what a separate context or a lighter model does better."
+description: "Use when planning or starting a bounded implementation from a spec, a multi-step browser or release check, or a regression run that needs baseline comparison. Also use for independent review, parallel work, a second opinion, an explicit delegation request, or acting on an agent's report."
 user-invocable: false
 ---
 
 # Delegate
 
-The agent that holds the goal and its context is the **driver**. It plans, decides and verifies, and it writes the code itself unless the implementation is fully specified. Another agent is a tool for one bounded job. There is no leader that only dispatches and no team to staff.
-
-## Why
-
-- A brief drops detail on the way down and a report drops it on the way back. Neither side can see what the other missed.
-- A delegated agent rebuilds context the driver already has, and the driver often has to check the result against the source anyway.
-- Briefing, waiting, relays and proof packs can cost more elapsed time than the work they organize.
-
-Keeping everything on the driver has its own cost. A long implementation loop pays for the driver's whole context on every turn, at the driver's model price. Handing that loop to a lighter model pays off only when what the agent needs is already written down, so the handoff loses little.
+The agent that holds the goal is the **driver**. It discusses requirements, writes the plan, implements work that needs that context, reviews diffs and owns acceptance.
 
 ## When to delegate
 
-Delegate only for one of these reasons. Otherwise do the work yourself.
+When planning, and again when the next phase becomes clear, look for a whole job another agent can finish from existing inputs. For example, once the release contents are settled, one agent can build the package, run the documented installation checks and return the artifact identity and any failures.
+
+If the agent can start from the spec, scripts or agreed cases, and the driver can judge the result from a diff or focused evidence, compare the cost of doing the work locally with briefing, execution and verification together. **Delegate the whole job when it saves driver context and the handoff pays for itself**, even when the driver must wait. Choose the model for the job after making that decision. Keep a quick command with short output local.
 
 | Reason | Example |
 | --- | --- |
 | Independent verification | A review or exploratory QA that must not be anchored on your reasoning. |
+| Bounded execution | Run the browser cases or compare a failing suite with its baseline. Give one agent the environment for the whole run and ask for reproducible failures. |
 | Noise isolation | Browser capture, long logs, broad searches: you need the conclusion, not the output. |
 | Disjoint parallel work | Separate repositories or files with no shared state, where wall-clock time matters. |
 | A bounded hard problem | A security, concurrency or cross-system conflict that needs a stronger model or a second opinion. It returns analysis. The fix and the judgment stay with the driver, unless the driver is below the strongest model and they cannot be separated from the analysis. |
-| Specified implementation | A whole deliverable whose behaviour, boundaries and acceptance checks are already recorded, handed down to a lighter model. See [Specified implementation](#specified-implementation). |
+| Specified implementation | A whole deliverable whose behaviour, boundaries and acceptance checks are already recorded. See [Specified implementation](#specified-implementation). |
 
 Do not delegate:
 
@@ -40,13 +35,10 @@ Work larger than one context stays with the driver: keep a short current-state n
 
 ### Specified implementation
 
-A driver above the Strong tier of the [model table](#model-and-reasoning) plans, decides and verifies. It hands a whole deliverable to one agent on the Strong tier when all of these hold:
+Hand a specified deliverable to one implementation-capable agent when the cost comparison above favors delegation and these conditions hold:
 
-- **Nothing is left to decide.** The project's spec or the existing task record states the expected behaviour, the boundaries and the acceptance checks the agent can run. Record a missing decision there before dispatch; that record is the brief, not a second document.
-- **The record is enough.** If the agent could only start after you retell the discussion, write the code yourself.
-- **It is more than one sitting.** If you could finish it, test runs included, in about the turns a brief and an acceptance pass would take, do it yourself. A fresh agent pays its whole setup before it reads a file.
-- **It is not high-risk.** A change to behaviour at a security, money, concurrency, data-integrity or cross-system contract boundary stays with the driver even when specified. The rest of the deliverable may still go down when its write scope separates.
-- **The write scope is the agent's alone.**
+- The spec or task record settles the expected behavior, boundaries and acceptance checks. The agent can start by reading it. Keep implementation with the driver if it depends on unrecorded discussion.
+- The agent can own its write scope. Changes to behavior at a security, money, concurrency, data-integrity or cross-system contract boundary stay with the driver. A separable lower-risk part can still be assigned.
 
 The agent owns the deliverable through diagnosis, change and repair until its acceptance checks pass. It stops and returns its state instead of guessing when the record is ambiguous or contradicts the code, the work needs a file outside its scope, a decision appears, or the same gap has failed two repairs.
 
@@ -60,7 +52,7 @@ Only a decision that is the user's waits for the user, and only the dependent wo
 
 Accept against the original requirement, not the report: read the diff, read the evidence for each acceptance item, and rerun the check that decides. After parallel deliverables merge, rerun the checks whose call paths they share.
 
-A driver on the Strong tier or a lighter one implements itself. When it meets a decision beyond it, it asks the strongest model for a ruling; when the ruling and the fix cannot be separated, the strongest model takes that item to acceptance.
+When a decision exceeds the driver’s capability, it asks the strongest model for a ruling; when the ruling and the fix cannot be separated, the strongest model takes that item to acceptance.
 
 ## Rules
 
@@ -72,16 +64,7 @@ A driver on the Strong tier or a lighter one implements itself. When it meets a 
 
 ## Brief
 
-Hand over a complete outcome, not a sequence of steps awaiting approval. Link what the project's spec or task record already states; the brief carries only what that record does not hold. Design you are about to write into a brief belongs in the spec: record it there first.
-
-- Outcome and acceptance criteria; scope and protected boundaries.
-- What is already known: existing evidence, agreed decisions and scenarios, hypotheses ruled out, code locations you already found. Link stable project rules instead of restating them; the agent can load `testing`, `code-review` and `comments` itself.
-- For an implementation, the one boundary most likely to be built wrong, with the check that tells the two readings apart.
-- Authorized edits and checks, budget and stop condition. Routine edits, reruns and static checks inside that scope need no further permission.
-- What to return: a concise result, evidence locations, remaining blockers, changed files, and live resources with their cleanup state.
-- What to return instead of deciding: business policy, changed acceptance, new external or destructive effects, an exceeded budget.
-- Model and reasoning level.
-- That it is a delegated agent: it does not spawn agents, and it reports a need for one, or for a decision, in its result while continuing independent work.
+Point to the existing spec, script or cases. Give the agent its outcome, scope, acceptance check and what evidence to return. Add only the context it cannot get there, such as a ruled-out diagnosis, a sensitive boundary, a budget or a live resource it must clean up. Pass on the user's limits and tell the agent to return unresolved decisions to the driver. It owns routine execution and repair within scope.
 
 A reviewer gets the original goal, the applicable requirements and decisions, the current diff, relevant call paths and test evidence. It does not get your reasoning about why the change is right.
 
