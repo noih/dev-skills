@@ -1,44 +1,48 @@
 ---
 name: delegate
-description: "Use when planning or starting a bounded implementation from a spec, a multi-step browser or release check, or a regression run that needs baseline comparison. Also use for independent review, parallel work, a second opinion, an explicit delegation request, or acting on an agent's report."
+description: "Use when an agreed plan moves into implementation, and when a multi-step test, browser or release check is about to start. Also use for independent review, parallel work, a second opinion, an explicit delegation request, or acting on an agent's report."
 user-invocable: false
 ---
 
 # Delegate
 
-The agent that holds the goal is the **driver**. It discusses requirements, writes the plan, implements work that needs that context, reviews diffs and owns acceptance.
+The agent that holds the goal is the **driver**. It discusses requirements, writes the plan, decides and owns acceptance.
 
 ## When to delegate
 
-When planning, and again when the next phase becomes clear, look for a whole job another agent can finish from existing inputs. For example, once the release contents are settled, one agent can build the package, run the documented installation checks and return the artifact identity and any failures.
+Every request the driver makes re-reads its whole context at its own model's price, so size a job by the requests it will take through repair and acceptance, not by its difficulty.
 
-If the agent can start from the spec, scripts or agreed cases, and the driver can judge the result from a diff or focused evidence, compare the cost of doing the work locally with briefing, execution and verification together. **Delegate the whole job when it saves driver context and the handoff pays for itself**, even when the driver must wait. Choose the model for the job after making that decision. Keep a quick command with short output local.
+When an agreed plan moves into execution, a driver above the Strong tier of the [model table](#model-and-reasoning) hands each independently checkable deliverable to one Strong agent. When verification starts, a driver on any tier hands a multi-step run with agreed cases to the lightest tier the table allows. First record in the spec or task record any decision the agent would need; missing context is a reason to record it, not to keep the work.
+
+Keep a deliverable only for one of these, stated in one line:
+
+- It takes about the requests of a brief plus an acceptance pass.
+- It is the diagnosis of a failure whose cause is unknown. Diagnosis, the fix and judging whether it worked stay with one owner; collecting evidence for that judgment, such as a capture or a test run, can still go.
+- It changes a [high-risk guarantee](#specified-implementation) that is not settled or cannot be written as a check before the work starts.
+- Accepting it would mean redoing it.
+- The user said to keep it.
+
+A driver on the Strong tier or a lighter one implements itself. Any driver also delegates for these reasons:
 
 | Reason | Example |
 | --- | --- |
 | Independent verification | A review or exploratory QA that must not be anchored on your reasoning. |
-| Bounded execution | Run the browser cases or compare a failing suite with its baseline. Give one agent the environment for the whole run and ask for reproducible failures. |
 | Noise isolation | Browser capture, long logs, broad searches: you need the conclusion, not the output. |
 | Disjoint parallel work | Separate repositories or files with no shared state, where wall-clock time matters. |
 | A bounded hard problem | A security, concurrency or cross-system conflict that needs a stronger model or a second opinion. It returns analysis. The fix and the judgment stay with the driver, unless the driver is below the strongest model and they cannot be separated from the analysis. |
-| Specified implementation | A whole deliverable whose behaviour, boundaries and acceptance checks are already recorded. See [Specified implementation](#specified-implementation). |
 
-Do not delegate:
+An explicit user request wins, both on whether to delegate and on how many agents to use; the write-ownership rule below still holds. An earlier task that used agents is not a reason: size each request on its own. When the host needs the user's consent and none stands, propose the handoff in one line and continue with work that does not depend on it.
 
-- A step inside a causal chain you are working. Diagnosis, the fix and judging whether it worked stay with one owner. Collecting evidence for that judgment, such as a capture or a test run, can be delegated.
-- Work whose details you need afterwards and could only get from a report. A diff you read carries them; a summary does not.
-- Because an earlier task used agents. Size each request on its own.
-
-An explicit user request wins, both on whether to delegate and on how many agents to use; the write-ownership rule below still holds. When the choice is not obvious, state it with the reason in one line and proceed.
-
-Work larger than one context stays with the driver: keep a short current-state note in the existing task record (goal, decisions, rejected hypotheses, next action, valid evidence) and continue across compaction. Delegate a part of it only for a reason above. If the driver can no longer reconcile that note with the source (forgotten decisions, repeated rejected hypotheses, contradictory readings) and a targeted reread does not restore it, it stops starting new work, reaches a safe boundary and hands the goal to one successor session, telling the user. The successor is the new driver: it confirms the old writes have stopped and inherits the goal, authority, failure history, budget and valid evidence without restarting them.
+Work larger than one context stays with the driver: keep a short current-state note in the existing task record (goal, decisions, rejected hypotheses, next action, valid evidence) and continue across compaction. Delegate a part of it only under the rules above. If the driver can no longer reconcile that note with the source (forgotten decisions, repeated rejected hypotheses, contradictory readings) and a targeted reread does not restore it, it stops starting new work, reaches a safe boundary and hands the goal to one successor session, telling the user. The successor is the new driver: it confirms the old writes have stopped and inherits the goal, authority, failure history, budget and valid evidence without restarting them.
 
 ### Specified implementation
 
-Hand a specified deliverable to one implementation-capable agent when the cost comparison above favors delegation and these conditions hold:
+A deliverable is ready to hand down when:
 
-- The spec or task record settles the expected behavior, boundaries and acceptance checks. The agent can start by reading it. Keep implementation with the driver if it depends on unrecorded discussion.
-- The agent can own its write scope. Changes to behavior at a security, money, concurrency, data-integrity or cross-system contract boundary stay with the driver. A separable lower-risk part can still be assigned.
+- The spec or task record settles the expected behavior, boundaries and acceptance checks, so the agent can start by reading it.
+- The agent can own its write scope.
+
+A change to behavior at a security, money, concurrency, data-integrity or cross-system contract boundary goes down only after the driver has settled the guarantee and written it as a check that fails on a wrong implementation. At acceptance the driver reads that diff at `high` and reruns those checks itself. A guarantee that cannot be written as a check stays with the driver; the separable rest still goes.
 
 The agent owns the deliverable through diagnosis, change and repair until its acceptance checks pass. It stops and returns its state instead of guessing when the record is ambiguous or contradicts the code, the work needs a file outside its scope, a decision appears, or the same gap has failed two repairs.
 
