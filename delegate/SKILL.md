@@ -68,7 +68,7 @@ When a decision exceeds the driver’s capability, it asks the strongest model f
 
 ## Brief
 
-Point to the existing spec, script or cases. Give the agent its outcome, scope, acceptance check and what evidence to return. Add only the context it cannot get there, such as a ruled-out diagnosis, a sensitive boundary, a budget or a live resource it must clean up. Pass on the user's limits and tell the agent to return unresolved decisions to the driver. It owns routine execution and repair within scope.
+Point to the existing spec, script or cases. Give the agent its outcome, scope, acceptance check and what evidence to return. Add only the context it cannot get there, such as a ruled-out diagnosis, a sensitive boundary, a budget or a live resource it must clean up. Pass on the user's limits and tell the agent to return unresolved decisions to the driver. It owns routine execution and repair within scope. A verification brief names the scope to run and whether it ends with the full suite.
 
 A reviewer gets the original goal, the applicable requirements and decisions, the current diff, relevant call paths and test evidence. It does not get your reasoning about why the change is right.
 

@@ -1,6 +1,6 @@
 ---
 name: testing
-description: "Use when: writing tests, designing test strategy, choosing test scope, reviewing test quality, debugging test failures, driving a browser for QA or to preview or screenshot a UI change, running temporary test processes, managing test data and artifacts, verifying their cleanup, or balancing fast feedback with confidence."
+description: "Use when: writing tests, designing test strategy, choosing test scope, running tests or checks during implementation, reviewing test quality, debugging test failures, driving a browser for QA or to preview or screenshot a UI change, running temporary test processes, managing test data and artifacts, verifying their cleanup, or balancing fast feedback with confidence."
 user-invocable: false
 ---
 
@@ -12,13 +12,14 @@ Coverage is a signal, not the goal. Choose evidence that establishes required pr
 
 Before adding or running a test, name the behavior or evidence gap, inspect existing coverage and still-valid results, then choose the lowest-total-cost sufficient check. Count authoring, setup, execution, agent output/diagnosis, maintenance, and likely rework from delayed feedback; do not invent precise token estimates.
 
+- **Scope runs to the change.** While working, run the tests and static checks for what the change touches, in one invocation; a change too small to break behavior may need none. After a failure, rerun the failing cases and the tests that interact with the fix, not the suite. Do not start a full-suite run on your own. Report which scope ran, or that none did; a delegated agent stops there. When scoped runs were made, the agent reporting to the user closes by asking once, in one line, whether to run the full suite, and recommends it when a change's reach cannot be named (shared contract, schema, global default). Run it when the user asks or when the project or spec makes it a gate. Never rerun it on an unchanged tree.
 - **Prevent failures first.** Reuse proven code, simplify branches/state, and use types and data constraints. Static checks and review answer appropriate questions, but cannot prove runtime behavior or replace required tests.
 - **Limit claims to exercised behavior.** Faithful external fakes support executed logic and caller-interaction assertions, but cannot prove a replaced outcome-owning component's behavior. A mocked save does not prove durable state; a captured request proves shape/intent, not transport or remote delivery. Separate tests against independent doubles do not establish seam compatibility. Shared types/fixtures prove only contracts actually checked. Reuse sufficient valid contract/integration evidence, otherwise choose the cheapest sufficient seam check or report the gap.
 - **Choose timing by late-discovery cost.** Check risky contracts, authorization, money, and data integrity before dependent work compounds uncertainty. Otherwise defer to a named trigger such as integration completion or phase acceptance. Deferred checks remain pending, with a named owner when work is delegated; deferral is not a waiver or pass.
-- **Batch and reuse.** Share setup in one invocation and rerun only invalidated scope. Do not remove regression coverage to shrink a run. Select affected tests only when dependencies are understood; investigate uncertain impact and broaden where unresolved.
+- **Keep coverage.** Do not remove regression coverage to shrink a run. Select affected tests only when dependencies are understood; investigate uncertain impact and broaden where unresolved.
 - **Bound agent overhead.** Retain concise streaming progress, commands, scope, and results; inspect failure details as needed. Share one evidence record across workers rather than copying logs or duplicating runs.
 - **Automate repeated checks.** Before running the same manual check a second time, add it to the project's automated tests when its outcome can be asserted stably, extending an existing test or journey before adding one; reuse coverage that already proves it. Skipping that needs a stated cost or judgment reason; a check that needs human judgment stays manual. Run deterministic steps as one batch and read the reported outcome instead of driving each step.
-- **Stop with sufficient evidence.** Required behavior and material risks need current evidence and required checks must pass. Then stop adding tests, full-suite runs, or reassurance reviews. Whole-application verification needs a user/project requirement or unresolved cross-feature risk that narrower checks cannot cover. Cost limits never justify weaker assertions, a lower bar, or an incomplete check labelled passed; disclose gaps and reassess the plan.
+- **Stop with sufficient evidence.** Required behavior and material risks need current evidence and required checks must pass. Then stop adding tests, full-suite runs, or reassurance reviews. Cost limits never justify weaker assertions, a lower bar, or an incomplete check labelled passed; disclose gaps and reassess the plan.
 
 ## Test Layers
 
@@ -84,7 +85,7 @@ Use the documented project runner, inspecting its setup, scope, isolation/reset 
 
 For multi-phase work, one coherent business delivery phase owns one acceptance scope, owner, and budget in existing notes. Batch scheduled acceptance after implementation is ready; allow focused early checks for risky assumptions, regression proof, failures, or explicit requirements. A page, module, WI, commit, save, or worker relay does not automatically trigger checks. Small fixes and review-only tasks keep proportionate affected verification.
 
-Choose the scope matching the purpose: named test, affected file, package/module/crate, or whole application only when required or narrower checks cannot resolve cross-feature risk. These are choices, not an escalation ladder. Pass affected tests sharing compilation, containers, DB, browser, fixtures, or migrations to one invocation. Phase B verifies its scope plus named Phase A cases invalidated by shared APIs, auth, styles, dependencies, fixtures, or environment changes. A broad build/lint/mocked-and-real/screenshot campaign per page is not an affected-check exception. Failure fixes rerun affected checks until they pass; phase scheduling is not a once-only quota.
+Choose the scope matching the purpose: named test, affected file or package/module/crate. These are choices, not an escalation ladder. Pass affected tests sharing compilation, containers, DB, browser, fixtures, or migrations to one invocation. Phase B verifies its scope plus named Phase A cases invalidated by shared APIs, auth, styles, dependencies, fixtures, or environment changes. A broad build/lint/mocked-and-real/screenshot campaign per page is not an affected-check exception. Failure fixes rerun affected checks until they pass; phase scheduling is not a once-only quota.
 
 ### Preferred Frameworks
 
@@ -160,7 +161,7 @@ Before starting the loop, record its scope, configuration, count and rationale, 
 - Preserve explicit repeat counts and concurrency coverage; do not inherit an earlier agent's invented count. There is no default count, including 100. Otherwise state the risk and count rationale. Read execution recipes before using probability calculations; do not claim confidence for correlated runs or unknown failure rates.
 - Bound cost using recorded iteration time, or count the first necessary measured iteration toward the total. Check cleanup/disk growth on a short run before a long loop; reuse compatible compilation/setup without sacrificing state isolation.
 - Stop scheduling at the count or budget limit and normally at the first failure. Continuing a diagnostic run after failures needs a separate bounded reason; allow safe teardown. A budget-limited run is incomplete, not passed; reassess before extension.
-- Diagnose implementation, test, and environment without assuming the test is wrong. After a fix, rerun only invalidated scope, including interacting tests when relevant. Consolidate fixes before costly repeats unless diagnosis needs earlier feedback, and preserve unaffected evidence.
+- Diagnose implementation, test, and environment without assuming the test is wrong. Consolidate fixes before costly repeats unless diagnosis needs earlier feedback, and preserve unaffected evidence.
 
 ## Reuse Verification Evidence
 
